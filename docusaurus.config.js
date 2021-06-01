@@ -84,12 +84,12 @@ module.exports = {
           sidebarPath: require.resolve("./sidebars.js"),
           routeBasePath: "/",
           // Please change this to your repo.
-          editUrl: "https://github.com/facebook/docusaurus/edit/master/website/",
+          editUrl: "https://github.com/hhow09/hhow09.github.io/blob/source/",
         },
         blog: {
           showReadingTime: true,
           // Please change this to your repo.
-          editUrl: "https://github.com/facebook/docusaurus/edit/master/website/blog/",
+          editUrl: "https://github.com/hhow09/hhow09.github.io/blob/source/",
         },
         theme: {
           customCss: require.resolve("./src/css/custom.css"),

@@ -1,4 +1,4 @@
-# Concurrency vs. Parallelism
+# Concurrency vs. Parallelism v.s. Coroutine
 
 ## Intro
 
@@ -69,6 +69,35 @@
 - field-programmable gate arrays (FPGAs)
 - distributed computer clusters
 
+---
+## Coroutine v.s. Thread
+![Coroutine](/img/general/2-concurrent-vs-parallelism/coroutine.png)
+- Threads are scheduled by `CPU`.
+- Coroutines are scheduled by `User`.
+
+- Threads are typically `preemptively scheduled`.
+- Coroutines are `cooperatively scheduled`.
+
+- programs using threads must be careful about `locking`.
+- programs using coroutines can often **avoid locking entirely**. 
+
+---
+## Goroutine in Golang
+![Goroutine](/img/general/2-concurrent-vs-parallelism/goroutine.png)
+
+- In short, Goroutine is something between `thread` and `coroutine`
+### Why Why goroutines instead of threads?
+> Goroutines are part of making concurrency easy to use. The idea, which has been around for a while, is to multiplex independently executing functions—coroutines—onto a set of threads. When a coroutine blocks, such as by calling a blocking system call, the run-time automatically moves other coroutines on the same operating system thread to a different, runnable thread so they won't be blocked. The programmer sees none of this, which is the point. The result, which we call goroutines, can be very cheap: they have little overhead beyond the memory for the stack, which is just a few kilobytes.
+
+### Goroutine v.s. coroutine
+- goroutines imply `parallelism`; coroutines works on `single thread`.
+- goroutines communicate via `channels`; coroutines communicate via `yield` and `resume` operations
+- goroutines has controls of max thread number via `$GOMAXPROCS` set by user.
 
 ## Reference 
 - [Concurrency vs. Parallelism](http://tutorials.jenkov.com/java-concurrency/concurrency-vs-parallelism.html)
+- [Golang FAQ: goroutines](https://golang.org/doc/faq#coroutine)
+- [進程 (Process)、線程 (Thread)、協程 (Coroutine) 的概念講解](https://blog.kennycoder.io/2020/05/16/%E9%80%B2%E7%A8%8B-Process-%E3%80%81%E7%B7%9A%E7%A8%8B-Thread-%E3%80%81%E5%8D%94%E7%A8%8B-Coroutine-%E7%9A%84%E6%A6%82%E5%BF%B5%E8%AC%9B%E8%A7%A3/)
+- [Preemptive vs Non-Preemptive Scheduling: Key Differences](https://www.guru99.com/preemptive-vs-non-preemptive-scheduling.html)
+- [Go Language Patterns: Coroutines](https://sites.google.com/site/gopatterns/concurrency/coroutines)
+- [當一個 goroutine 創建新的 goroutine 時，scheduler 會選誰優先執行？](https://medium.com/@genchilu/%E7%95%B6%E4%B8%80%E5%80%8B-goroutine-%E5%89%B5%E5%BB%BA%E6%96%B0%E7%9A%84-goroutine-%E6%99%82-scheduler-%E6%9C%83%E9%81%B8%E8%AA%B0-257f434ee1bf)
