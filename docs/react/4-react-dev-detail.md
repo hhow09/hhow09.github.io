@@ -1,6 +1,3 @@
----
-sidebar_position: 4
----
 # React Dev Notes
 
 ### 1. `reducer` of `useReducer` and `updater function` of setState will be called twice in strict mode.

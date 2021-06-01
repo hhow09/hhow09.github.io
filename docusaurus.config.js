@@ -1,58 +1,61 @@
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
-  title: 'My Site',
-  tagline: 'Dinosaurs are cool',
-  url: 'https://hhow09.github.io/',
-  baseUrl: '/',
-  onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'warn',
-  favicon: 'img/favicon.ico',
-  organizationName: 'hhow09', // Usually your GitHub org/user name.
-  projectName: 'hhow09.github.io', // Usually your repo name.
+  title: "Modern Tragedy",
+  url: "https://hhow09.github.io/",
+  baseUrl: "/",
+  onBrokenLinks: "throw",
+  onBrokenMarkdownLinks: "warn",
+  favicon: "img/favicon.ico",
+  organizationName: "hhow09", // Usually your GitHub org/user name.
+  projectName: "hhow09.github.io", // Usually your repo name.
   themeConfig: {
     navbar: {
-      title: 'Modern Tragedy',
+      title: "Modern Tragedy",
       logo: {
-        alt: 'My Site Logo',
-        src: 'img/logo.svg',
+        alt: "My Site Logo",
+        src: "img/logo.svg",
       },
       items: [
         {
-          type: 'doc',
-          docId: 'index',
-          position: 'left',
-          label: 'Docs',
+          type: "doc",
+          docId: "index",
+          position: "left",
+          label: "Docs",
         },
-        {to: '/blog', label: 'Blog', position: 'left'},
+        { to: "/blog", label: "Blog", position: "left" },
         {
-          href: 'https://github.com/hhow09',
-          label: 'GitHub',
-          position: 'right',
+          href: "https://github.com/hhow09",
+          label: "GitHub",
+          position: "right",
         },
       ],
     },
     footer: {
-      style: 'dark',
+      style: "dark",
       links: [
         {
-          title: 'Docs',
+          title: "Docs",
           items: [
             {
-              label: 'Docs',
-              to: '/docs/index',
+              label: "Docs",
+              to: "/",
             },
           ],
         },
         {
-          title: 'Community',
+          title: "Community",
           items: [
             {
-              label: 'Github',
-              href: 'https://github.com/hhow09',
+              label: "Github",
+              href: "https://github.com/hhow09",
             },
             {
-              label: 'Resume',
-              href: 'https://www.cakeresume.com/chihhao-huang-resume',
+              label: "Linkedin",
+              href: "https://www.linkedin.com/in/hhow09",
+            },
+            {
+              label: "Resume",
+              href: "https://www.cakeresume.com/chihhao-huang-resume",
             },
           ],
         },
@@ -70,27 +73,26 @@ module.exports = {
         //   ],
         // },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} hhow09, Inc. Built with Docusaurus.`,
     },
   },
   presets: [
     [
-      '@docusaurus/preset-classic',
+      "@docusaurus/preset-classic",
       {
         docs: {
-          sidebarPath: require.resolve('./sidebars.js'),
+          sidebarPath: require.resolve("./sidebars.js"),
+          routeBasePath: "/",
           // Please change this to your repo.
-          editUrl:
-            'https://github.com/facebook/docusaurus/edit/master/website/',
+          editUrl: "https://github.com/facebook/docusaurus/edit/master/website/",
         },
         blog: {
           showReadingTime: true,
           // Please change this to your repo.
-          editUrl:
-            'https://github.com/facebook/docusaurus/edit/master/website/blog/',
+          editUrl: "https://github.com/facebook/docusaurus/edit/master/website/blog/",
         },
         theme: {
-          customCss: require.resolve('./src/css/custom.css'),
+          customCss: require.resolve("./src/css/custom.css"),
         },
       },
     ],

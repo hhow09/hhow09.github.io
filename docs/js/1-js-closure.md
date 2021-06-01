@@ -1,4 +1,4 @@
-# Javascript Closure
+# Closure
 
 ## Intro
 
