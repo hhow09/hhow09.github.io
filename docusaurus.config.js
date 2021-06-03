@@ -75,6 +75,9 @@ module.exports = {
       ],
       copyright: `Copyright © ${new Date().getFullYear()} hhow09, Inc. Built with Docusaurus.`,
     },
+    prism: {
+      additionalLanguages: ["java", "python", "sql"],
+    },
   },
   presets: [
     [
