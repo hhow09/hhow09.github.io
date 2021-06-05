@@ -148,6 +148,32 @@ const uniqueChars = chars.filter((c, index) => chars.indexOf(c) === index);
 //[ 'A', 'B', 'C' ]
 ```
 
+## 8.DOM Element
+
+### DOM Element is a special object
+
+```javascript
+var a = document.createElement("div");
+typeof a; // "object"
+Object.prototype.toString.call(a); // "[object HTMLDivElement]"
+a.tagName; // "DIV"
+```
+
+- Cannot call some built-in methods such as `toString()`
+- Cannot be overwritten / override some properties such as `this`
+
+### DOM Element will produce global variable
+
+be careful for duplicate naming.
+
+```html
+<div id="foo"></div>
+```
+
+```javascript
+console.log(foo); // HTML Element
+```
+
 ---
 
 ## Reference
