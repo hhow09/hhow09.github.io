@@ -1,4 +1,4 @@
-# Website
+# hhow09.github.io
 
 This website is built using [Docusaurus 2](https://docusaurus.io/), a modern static website generator.
 
@@ -26,8 +26,11 @@ This command generates static content into the `build` directory and can be serv
 
 ## Deployment
 
-```console
-GIT_USER=hhow09 USE_SSH=true yarn deploy
-```
-
-If you are using GitHub pages for hosting, this command is a convenient way to build the website and push to the `gh-pages` branch.
+- deployment is done by github actions
+- Follow the documentation [Triggering deployment with GitHub Actions](https://docusaurus.io/docs/deployment#triggering-deployment-with-github-actions) to setup `.github/workflows/source.yml`
+- generate private key `~/.ssh/id_rsa` and public key `~/.ssh/id_rsa.pub` at local
+- `pbcopy < ~/.ssh/id_rsa.pub` to copy public key
+- add `public key` in [Account settings: SSH keys](https://github.com/settings/keys) to allow push
+- add `public key` in [repo settings: deploy keys](https://github.com/hhow09/hhow09.github.io/settings/keys)
+- `pbcopy < ~/.ssh/id_rsa` to copy private key
+- set the secrete variable `GH_PAGES_DEPLOY` in [repo: Actions secrets](https://github.com/hhow09/hhow09.github.io/settings/secrets/actions)
