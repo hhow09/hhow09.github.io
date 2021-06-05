@@ -1,7 +1,3 @@
----
-sidebar_position: 1
----
-
 # Props Drilling and State Management
 
 ## What is Prop Drilling?
@@ -191,6 +187,7 @@ function ComponentNeedingProps() {
 - they can be used together
 
 ---
+
 ## reference
 
 - [How To Avoid Prop Drilling in React Using Component Composition](https://medium.com/javascript-in-plain-english/how-to-avoid-prop-drilling-in-react-using-component-composition-c42adfcdde1b)

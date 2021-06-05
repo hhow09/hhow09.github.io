@@ -3,7 +3,7 @@ sidebar_position: 1
 slug: /
 ---
 
-# Todo Stuff
+# Index
 
 ## Books
 
@@ -22,3 +22,32 @@ slug: /
 ## Projects
 
 - [Build Your Own X](https://build-your-own-x.now.sh/)
+
+---
+
+## Blogs followed
+
+### English
+
+- [Overreacted](https://iqkui.com/) `#Redux Creator`
+- [Kent C. Dodds](https://kentcdodds.com/)
+- [swyx](https://www.swyx.io/ideas/) `#FE`
+
+### Taiwanese
+
+- [Huli](https://blog.huli.tw/) `#FE`
+- [JCHENder](https://pjchender.blogspot.com/) `#FE`
+- [半路出家軟體工程師在矽谷](https://brianhsublog.blogspot.com/)
+- [Morris](https://www.morrisctech.com/) `#FE`
+- [Andyyou](http://andyyou.github.io/) `#Fullstack` `#US`
+- [Kalan](https://blog.kalan.dev/) `#FE` `#JP`
+- [Hannah Lin](https://hannahlin.medium.com/) `#FE` `#US`
+- [jyt0532's Blog](https://www.jyt0532.com/) `#SWE` `#Facebook`
+
+### CN
+
+- [程序员成长指北](http://www.inode.club/)
+- [前端森林](https://www.zhihu.com/people/feng-shuan-91/posts)
+- [脑洞前端](https://www.ershicimi.com/a/zQm0wAjN)
+- [秋风的笔记](https://qiufeng.blue/)
+- [现代 JavaScript 教程](https://zh.javascript.info/)

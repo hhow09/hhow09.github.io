@@ -1,7 +1,3 @@
----
-sidebar_position: 2
----
-
 # Compound Component
 
 ## Intro
@@ -20,11 +16,11 @@ Compound component 的目的是提供一個更具表現力和靈活的 API，提
 這個教學[React Hooks: Compound Components](https://kentcdodds.com/blog/compound-components-with-react-hooks)介紹了基本的 Compound Component 設計。
 
 ```jsx
-    <Toggle onToggle={on => console.log(on)}>
-      <Toggle.On>The button is on</Toggle.On>
-      <Toggle.Off>The button is off</Toggle.Off>
-      <Toggle.Button />
-    </Toggle>
+<Toggle onToggle={(on) => console.log(on)}>
+  <Toggle.On>The button is on</Toggle.On>
+  <Toggle.Off>The button is off</Toggle.Off>
+  <Toggle.Button />
+</Toggle>
 ```
 
 ## Compound Component 實作: PopupFilter
@@ -112,8 +108,8 @@ const Page=()=>{
 
 ```jsx
 //usePopupFilter.js
-import {useState, useEffect, useCallback } from 'react';
-import { useImmer } from 'use-immer';
+import { useState, useEffect, useCallback } from "react";
+import { useImmer } from "use-immer";
 
 const usePopupFilter = ({ defaultValue }) => {
   const [state, setState] = useState({ data: { ...defaultValue } });
@@ -121,31 +117,30 @@ const usePopupFilter = ({ defaultValue }) => {
 
   //提供子組件「註冊」一個state Object的key欄位，並回傳子組件需要的prop
   const register = useCallback(
-    key => ({
+    (key) => ({
       value: data[key],
       defaultValue: defaultValue[key],
-      onChange: value => setState(state => (state.data[key] = value)),
+      onChange: (value) => setState((state) => (state.data[key] = value)),
     }),
     [data]
   );
 
   //提供onSubmit傳入並讀取data
   const handleSubmit = useCallback(
-    onSubmit => () => {
+    (onSubmit) => () => {
       onSubmit(data);
     },
     [data]
   );
 
   const reset = useCallback(() => {
-    setState(state => (state.data = defaultValue));
+    setState((state) => (state.data = defaultValue));
   }, []);
 
   return { state, register, handleSubmit, reset };
 };
 
 export default usePopupFilter;
-
 ```
 
 ### 實際使用
