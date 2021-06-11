@@ -2,6 +2,8 @@
 
 ## Review Browser Architecture
 
+![browser architecture](/img/web-dev/2-web-browser-navigation-flow/browser-architecture.png)
+
 ### Browser Process
 
 #### consists of

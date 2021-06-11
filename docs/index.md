@@ -35,6 +35,13 @@ slug: /
 
 ### Taiwanese
 
+//TODO to check
+
+- [拿鐵派的馬克 Blog](https://mark-lin.com/)
+- [Backend Sharing Group (BESG)](https://github.com/kylemocode/BESG)
+- [安德魯的部落格 - 架構師的修煉](https://columns.chicken-house.net/)
+- [成為看起來很強的後端](https://youtube.com/playlist?list=PLS5AiLcCHgNxd341NwuY9EOpVvY5Z8VOs)
+
 - [Huli](https://blog.huli.tw/) `#FE`
 - [JCHENder](https://pjchender.blogspot.com/) `#FE`
 - [半路出家軟體工程師在矽谷](https://brianhsublog.blogspot.com/)
