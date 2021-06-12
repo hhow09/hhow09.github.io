@@ -8,46 +8,59 @@
 ---
 
 ## Multi Threading
+
 ![Multi Thread](/img/general/2-concurrent-vs-parallelism/thread-process.jpeg)
 
 ### Benefits of Multi Threading
+
 #### Responsiveness
+
 - Multi-threading in an interactive application may allow a program to continue running even if a part (thread) of it is blocked or is performing a lengthy operation, thereby increasing responsiveness to the user.
 
 #### Resource Sharing
+
 - (Compared to)`Processes` may share resources only through techniques such as `Message Passing` and `Shared Memory`.
 - However, `threads` share the memory and the resources of the process to **which they belong by default**.
 
 #### Economy
+
 - Allocating memory and resources for `process` creation is a costly job in terms of time and space.
-- `Threads` share memory with the process **it belongs**, it is more economical to create and context switch threads. 
+- `Threads` share memory with the process **it belongs**, it is more economical to create and context switch threads.
 
 #### Scalability
+
 - If there is only one thread then it is not possible to divide the processes into smaller tasks for `parallelism`.
 - Single threaded process can run only on one processor regardless of how many processors are available.
 
 ---
 
 ## 1. Concurrency (Multi threading)
+
 ![Concurrency](/img/general/2-concurrent-vs-parallelism/concurrency.png)
 
-- An application is making progress **on more than one task at a time** inside the application, resulting in a `multi-threaded process` (e.g. [goroutine](https://golang.org/ref/mem) in Golang).
-- In contrast to:  `Sequential Execution`
+- An application is making progress **on more than one task at a time** inside the application, resulting in a `multi-threaded process`
+- In contrast to: `Sequential Execution`
 - When executing `multi-threaded process` on **a processor**, the processor can switch execution resources between threads, resulting in concurrent execution.
 - When talking about concurrency we talk about something happen **on a singe processor**.
 
+### Applications
+
+- [goroutine](https://golang.org/ref/mem) in golang.
+- JavaScript has a [concurrency model](https://developer.mozilla.org/en-US/docs/Web/JavaScript/EventLoop) based on an [event loop](/web-dev/3-web-browser-event-loop.md).
 - `Promise` in Javascript is `asynchronous programming` but not `Concurrency`.
 
 ## 2. Parallel Execution
+
 ![Parallel Execution](/img/general/2-concurrent-vs-parallelism/parallel-execution.png)
 
 - A `multi-threaded process` executed in a **shared-memory multi-CPU environment**.
 - `threads` are distributed among multiple CPUs at the same time.
 - `threads` on different CPUs are executed in parallel.
 
-- `Parallel Execution` **is not equal to** `parallelism`. 
+- `Parallel Execution` **is not equal to** `parallelism`.
 
 ## 3. Parallel Concurrent Execution
+
 ![Parallel Concurrent Execution](/img/general/2-concurrent-vs-parallelism/parallel-concurrent-execution.png)
 
 - Simply the [1. Concurrency (Multi threading)](#1-concurrency-multi-threading) + [2. Parallel Execution](#2-parallel-execution) both happens.
@@ -61,17 +74,21 @@
 
 - When executing `multi-processing program` on **multiple processors**, tasks are split int sub-tasks and process by multiple threads.
 - Resource are isolated among processors.
-- Each process can have many threads running in its own memory space. 
+- Each process can have many threads running in its own memory space.
 
 ### Scenarios
+
 - multi-core processors
 - graphics processing unit (GPU)
 - field-programmable gate arrays (FPGAs)
 - distributed computer clusters
 
 ---
+
 ## Coroutine v.s. Thread
+
 ![Coroutine](/img/general/2-concurrent-vs-parallelism/coroutine.png)
+
 - Threads are scheduled by `CPU`.
 - Coroutines are scheduled by `User`.
 
@@ -79,22 +96,28 @@
 - Coroutines are `cooperatively scheduled`.
 
 - programs using threads must be careful about `locking`.
-- programs using coroutines can often **avoid locking entirely**. 
+- programs using coroutines can often **avoid locking entirely**.
 
 ---
+
 ## Goroutine in Golang
+
 ![Goroutine](/img/general/2-concurrent-vs-parallelism/goroutine.png)
 
 - In short, Goroutine is something between `thread` and `coroutine`
+
 ### Why Why goroutines instead of threads?
+
 > Goroutines are part of making concurrency easy to use. The idea, which has been around for a while, is to multiplex independently executing functions—coroutines—onto a set of threads. When a coroutine blocks, such as by calling a blocking system call, the run-time automatically moves other coroutines on the same operating system thread to a different, runnable thread so they won't be blocked. The programmer sees none of this, which is the point. The result, which we call goroutines, can be very cheap: they have little overhead beyond the memory for the stack, which is just a few kilobytes.
 
 ### Goroutine v.s. coroutine
+
 - goroutines imply `parallelism`; coroutines works on `single thread`.
 - goroutines communicate via `channels`; coroutines communicate via `yield` and `resume` operations
 - goroutines has controls of max thread number via `$GOMAXPROCS` set by user.
 
-## Reference 
+## Reference
+
 - [Concurrency vs. Parallelism](http://tutorials.jenkov.com/java-concurrency/concurrency-vs-parallelism.html)
 - [Golang FAQ: goroutines](https://golang.org/doc/faq#coroutine)
 - [進程 (Process)、線程 (Thread)、協程 (Coroutine) 的概念講解](https://blog.kennycoder.io/2020/05/16/%E9%80%B2%E7%A8%8B-Process-%E3%80%81%E7%B7%9A%E7%A8%8B-Thread-%E3%80%81%E5%8D%94%E7%A8%8B-Coroutine-%E7%9A%84%E6%A6%82%E5%BF%B5%E8%AC%9B%E8%A7%A3/)
