@@ -3,7 +3,7 @@
 ## What is Event Loop
 
 - Event loop is a programming construct or design pattern that waits for and dispatches events or messages in a program.
-- Event Loop responsible for **executing the code**, **collecting and processing events**, and **executing queued sub-tasks**.
+- Event Loop responsible for **scheduling code executions**, **collecting and processing events**, and **scheduling queued sub-tasks**.
 - One of the important goal of event loop is provide **non-blocking I/O operations** for **single-thread** javascript engine.
 - How `libuv` describe event loop
   > In event-driven programming, an application expresses interest in certain events and respond to them when they occur. The responsibility of gathering events from the operating system or monitoring other sources of events is handled by libuv, and the user can register callbacks to be invoked when an event occurs. The event-loop usually keeps running forever.
@@ -28,7 +28,7 @@
 - While Nodejs uses the Google V8 as it's **runtime**, it does not used V8 to implement the **event loop**.
 - Nodejs uses the **Libuv** library (written in C) to implement the event loop.
 
-## Terms
+## Terms: of architecture & concept
 
 ### [libuv](https://github.com/libuv/libuv)
 
@@ -38,7 +38,7 @@
 - Its core job is to provide an **event loop** and **callback based notifications of I/O** and other activities.
 - libuv offers core utilities like **timers**, **non-blocking networking support**, **asynchronous file system access**, **child processes** and more.
 
-- [Basics of libuv](http://docs.libuv.org/en/v1.x/guide/basics.html)
+- ref: [Basics of libuv](http://docs.libuv.org/en/v1.x/guide/basics.html)
 
 ### I/O
 
@@ -60,18 +60,65 @@
 - **Event-driven programming** is a programming paradigm in which the **flow of the program is determined by events**.
 - An event-driven program performs actions in response to events. When an event occurs it triggers a callback function.
 
+### Thread Pool & Is Node.js Single Thread?
+
+- Javascript Engine, Javascript code `was` **single-thread**.
+- I/Os, file system operations are **multi-threaded**.
+- libuv / Node.js provides a [threadpool](http://docs.libuv.org/en/v1.x/threadpool.html) of **default size 4**.
+- New updates of Node.js offers [workerpool](https://www.npmjs.com/package/workerpool) to create threads easily.
+
+```javascript
+const crypto = require("crypto");
+const start = Date.now();
+
+function logHashTime() {
+  crypto.pbkdf2("a", "b", 100000, 512, "sha512", () => {
+    console.log("Hash: ", Date.now() - start);
+  });
+}
+// default size of thread pool is 4
+// first 4 will be execute in parallel (almost same time)
+logHashTime();
+logHashTime();
+logHashTime();
+logHashTime();
+
+// 5th one will be execute later.
+logHashTime();
+```
+
+- ref: [Node.js multithreading: What are Worker threads, and why do they matter?](https://blog.logrocket.com/node-js-multithreading-what-are-worker-threads-and-why-do-they-matter-48ab102f8b10/)
+
+---
+
+## Terms of Tasks
+
+:::info Priority of execution
+Sync > Nanotask > Microtask > Task / Macrotask
+:::
+
+- Note: `nanotask` only exists in Node.js
+
 ### Task ( = `Macrotask`)
 
 #### [Generic task sources](https://html.spec.whatwg.org/multipage/webappapis.html#generic-task-sources)
 
 - DOM manipulation/parsing
 - User Interaction: keyboard or mouse input
-- Network activity
-- history traversal： `history.back()` API
+- Network activity: `fetch`, `XMLHttpRequest`
+- history traversal: `history.back()`
+- Web APIs: `setTimeout`, `setInterval`, `setImmediate`(legacy), `requestAnimationFrame`, `I/O`, `UI rendering`
 
 ### Microtask
 
-A `microtask` is a short function which **is executed after the function or program which created it exits and only if the JavaScript execution stack is empty, but before returning control to the event loop being used by the user agent to drive the script's execution environment**.
+- `microtask` is a short function which **is executed after the function or program which created it exits and only if the JavaScript execution stack is empty, but before returning control to the event loop being used by the user agent to drive the script's execution environment**.
+- microtasks can queue other microtasks, while there are microtasks in the microtask queue, they should all be run one by one until the microtask queue is empty.
+
+#### Example of Microtask
+
+- `Promise`, `Promise.then`
+- `process.nextTick`
+- `Object.observe`
 
 ### Tick
 
@@ -81,9 +128,30 @@ A `microtask` is a short function which **is executed after the function or prog
 
 ---
 
-## Event Loop
+## Event Loop in Node.js
 
 > macrotask should be processed from the macrotask queue in one tick of the event loop. After this macrotask has finished, all other available microtasks should be processed within the same tick.
+
+```
+   ┌───────────────────────────┐
+┌─>│           timers          │
+│  └─────────────┬─────────────┘
+│  ┌─────────────┴─────────────┐
+│  │     pending callbacks     │
+│  └─────────────┬─────────────┘
+│  ┌─────────────┴─────────────┐
+│  │       idle, prepare       │
+│  └─────────────┬─────────────┘      ┌───────────────┐
+│  ┌─────────────┴─────────────┐      │   incoming:   │
+│  │           poll            │<─────┤  connections, │
+│  └─────────────┬─────────────┘      │   data, etc.  │
+│  ┌─────────────┴─────────────┐      └───────────────┘
+│  │           check           │
+│  └─────────────┬─────────────┘
+│  ┌─────────────┴─────────────┐
+└──┤      close callbacks      │
+   └───────────────────────────┘
+```
 
 //TODO
 
@@ -93,9 +161,11 @@ A `microtask` is a short function which **is executed after the function or prog
 
 - [Using microtasks in JavaScript with queueMicrotask()](https://developer.mozilla.org/en-US/docs/Web/API/HTML_DOM_API/Microtask_guide)
 - [Node.js Under The Hood #3 - Deep Dive Into the Event Loop](https://dev.to/khaosdoctor/node-js-under-the-hood-3-deep-dive-into-the-event-loop-135d)
-- [Node.js Overview of Blocking vs Non-Blocking](https://nodejs.org/en/docs/guides/blocking-vs-non-blocking/)
-- [Basics of libuv](http://docs.libuv.org/en/v1.x/guide/basics.html)
+- [Node.js: Overview of Blocking vs Non-Blocking](https://nodejs.org/en/docs/guides/blocking-vs-non-blocking/)
+- [libuv: Basics of libuv](http://docs.libuv.org/en/v1.x/guide/basics.html)
 - [Node.js: what it is, when and how to use it, and why you should](https://www.freecodecamp.org/news/node-js-what-when-where-why-how-ab8424886e2/)
 - [MDN: Concurrency model and the event loop](https://developer.mozilla.org/en-US/docs/Web/JavaScript/EventLoop#run-to-completion)
+
+- [PJChenDer: [Note] Event loop, micro-task, macro-task, async JavaScript 筆記](https://pjchender.dev/javascript/note-event-loop-microtask/)
 - [我知道你懂 Event Loop，但你了解到多深？](https://yeefun.github.io/event-loop-in-depth/?fbclid=IwAR0zHuodyFada1gfYL2P6CJjbHzxgX8KMAaUAlTsewERngKbswrf0guC-zU)
 - [【筆記】到底 Event Loop 關我啥事？](https://medium.com/infinitegamer/why-event-loop-exist-e8ac9d287044)
