@@ -25,13 +25,14 @@ slug: /
 
 ---
 
-## Blogs followed
+## Blogs/Channel followed
 
 ### English
 
 - [Overreacted](https://iqkui.com/) `#Redux Creator`
 - [Kent C. Dodds](https://kentcdodds.com/)
 - [swyx](https://www.swyx.io/ideas/) `#FE`
+- [Youtube: System Design Interview](https://www.youtube.com/c/SystemDesignInterview/)
 
 ### Taiwanese
 
@@ -57,4 +58,3 @@ slug: /
 - [前端森林](https://www.zhihu.com/people/feng-shuan-91/posts)
 - [脑洞前端](https://www.ershicimi.com/a/zQm0wAjN)
 - [秋风的笔记](https://qiufeng.blue/)
-- [现代 JavaScript 教程](https://zh.javascript.info/)
