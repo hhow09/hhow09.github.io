@@ -4,46 +4,75 @@
 
 The **CAP Theorem** says that it is impossible to build an implementation of read-write storage in an asynchronous network that satisfies all of the following three properties:
 
-- Availability - will a request made to the data store always eventually complete?
-- Consistency - will all executions of reads and writes seen by all nodes be atomic/linearizably consistent?
-- Partition tolerance - the network is allowed to drop any messages.
+- **Availability**: will a request made to the data store always eventually complete?
+- **Consistency**: will all executions of reads and writes seen by all nodes be atomic/linearizably consistent?
+- **Partition tolerance**: the network is allowed to drop any messages.
   - A **partition** is a communications break within a distributed system—a lost or temporarily delayed connection between two nodes.
 
 ---
 
-## Eventual consistency (AP database)
+## Consistency Models
 
-- Eventual consistency is a distributed computing model **emphasizing speed or low latency over the risk of displaying stale or outdated data**. The data will **eventually** show once all of the replicated nodes are up-to-date.
-- If the priority is **data availability**, then the data may not be updated on all the nodes simultaneously. The availability is faster, but the tradeoff is data accuracy. i.e. `A` and `P` of `CAP theorem`
-- NoSQL databases that manage non-structured data are often good choices for **eventual consistency models**.
-  - Why?
-- Eventual consistency may violate Atomic Consistency
+Consistency Model is contract between a distributed data system (e.g., `DFS`, `DSM`) and
+processes constituting its applications
 
-## Atomic consistency (Linearizability)
+### Taxonomy of consistency model.
 
-### Linearizability
+![](/img/system/1-cap/taxonomy-of-consistency-model.png)
+
+### Trade Offs
+
+`↑ Consistent, Complex ↑`
+
+- Linearizability
+- Sequential consistency
+- Causal consistency
+- Eventual consistency
+
+`↓ Available, Low Latency, Feasible, Scalable ↓`
+
+### Linearizability (`C` > `A`)
+
+- Should provide the behavior of a **single copy**
+- The ordering of operations is determined **by time**.
+- A read operation returns the most recent write, regardless of the clients.
+- All subsequent read ops should return the same result until the next write, regardless of the clients.
+- Cons: implementation requires absolute global time
 
 ![](/img/system/1-cap/linearizability.png)
 
-### What happens if you don't have Linearizability?
+#### What happens if you don't have Linearizability?
 
 ![](/img/system/1-cap/not-linearizability.png)
 
----
+### Sequential Consistency
 
-## CAP theorem NoSQL database types
+- Should provide the behavior of a **single copy**.
+- The ordering of operations is **determined by the program order of each client**.
+- Reads may be stale in terms of real time, but not in logical time.
+- A read operation returns the most recent write, regardless of the clients.
+- Writes are totally ordered according to logical time across all replicas
 
-### CP database
+- Cons: requires highly available connections
 
-A CP database delivers consistency and partition tolerance **at the expense of availability**. When a partition occurs between any two nodes, the system has to shut down the non-consistent node (i.e., make it unavailable) until the partition is resolved.
+### Causal Consistency
 
-#### Example: MongoDB
+- Writes that are potentially causally related must be seen by all machines in same order.
+- Concurrent writes may be seen in a different order on different machines.
 
-### AP database
+### Eventual consistency (`A` > `C`)
 
-An AP database delivers availability and partition tolerance **at the expense of consistency**. When a partition occurs, all nodes remain available but those at the wrong end of a partition **might return an older version of data than others**. When the partition is resolved, the AP databases typically resync the nodes to repair all inconsistencies in the system.
+- Is: Allow stale reads, but ensure that reads will eventually reflect previously written values.
+- Doesn’t order concurrent writes as they are executed, which might create conflicts later: **which write was first?**
+- Pros: High data availability (`A`)
+- Pros: High concurrency opportunities
+- Pros: Support **disconnected operations** or **network partitions**
+  - Better to read a stale value than nothing
+  - Better to save writes somewhere than nothing
+- Cons: may displaying stale data
+- Cons: may violate Atomic Consistency
 
-#### Example: Cassandra
+- NoSQL databases that manage non-structured data are often good choices for **eventual consistency models**.
 
 ---
 
@@ -66,3 +95,6 @@ The fact that we haven’t been able to classify even one datastore as unambiguo
 - [The CAP FAQ](https://github.com/henryr/cap-faq)
 - [CAP 定理 101—分散式系統，有一好沒兩好](https://medium.com/%E5%BE%8C%E7%AB%AF%E6%96%B0%E6%89%8B%E6%9D%91/cap%E5%AE%9A%E7%90%86101-3fdd10e0b9a)
 - [Please stop calling databases CP or AP](https://martin.kleppmann.com/2015/05/11/please-stop-calling-databases-cp-or-ap.html)
+- [Consistency models of NoSQL databases](https://www.researchgate.net/publication/331104869_Consistency_models_of_NoSQL_databases#pf12)
+- [CSE 486/586 Distributed Systems Consistency --- 2](https://cse.buffalo.edu/~stevko/courses/cse486/spring13/lectures/26-consistency2.pdf)
+- [Lec 12: Consistency Models – Sequential, Causal, and Eventual Consistency](https://www.cs.columbia.edu/~du/ds/assets/lectures/lecture12.pdf)

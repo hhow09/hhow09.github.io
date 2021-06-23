@@ -33,6 +33,10 @@ The content is mainly based on [System Design Interview - Distributed Cache](htt
 
 ## LRU Cache
 
+- cache policy is important because **if the target data always not in the cache, it only increase overhead**.
+- most popular cache replacement policies: **Discards the least recently used items first** (i.e. `LRU cache`)
+- [Leetcode 146. LRU Cache](https://leetcode.com/problems/lru-cache/)
+
 ## Distributed
 
 - cache host only store chunk of data, i.e. `shard`
