@@ -2,21 +2,6 @@
 
 The content is mainly based on [System Design Interview - Distributed Cache](https://youtu.be/iuqZvajTOyA).
 
-## Table of Contents
-
-- [Requirements](#requirements)
-- [LRU Cache](#lru-cache)
-- [Distributed](#distributed)
-- [Hash](#hash)
-- [Cache Client](#cache-client)
-- [Data replication](#data-replication)
-- [What Else Important](#what-else-important)
-  - Potential Inconsistency
-  - data expiration
-  - local cache
-  - security
-  - monitoring and logging
-
 ## Requirements
 
 ### Functional
