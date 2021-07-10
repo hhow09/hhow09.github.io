@@ -1,13 +1,17 @@
 # Concurrency vs. Parallelism v.s. Coroutine
 
-## Intro
+## Intro: The Free Lunch Is Over
 
-- CPU will manage/scheduling its own `threads`.
-- `Multi-threading` is the prerequisite of `multi-processing`
+> The major processor manufacturers and architectures, from Intel and AMD to Sparc and PowerPC, have run out of room with most of their traditional approaches to boosting CPU performance. Instead of driving clock speeds and straight-line instruction throughput ever higher, they are instead turning en masse to hyperthreading and multicore architectures.
+
+- more: [The Free Lunch Is Over: A Fundamental Turn Toward Concurrency in Software](http://www.gotw.ca/publications/concurrency-ddj.htm)
 
 ---
 
 ## Multi Threading
+
+- CPU will manage/scheduling its own `threads`.
+- `Multi-threading` is the prerequisite of `multi-processing`
 
 ![Multi Thread](/img/general/2-concurrent-vs-parallelism/thread-process.jpeg)
 
@@ -33,8 +37,15 @@
 - Single threaded process can run only on one processor regardless of how many processors are available.
 
 ---
+## Concurrency & Parallelism
 
-## 1. Concurrency (Multi threading)
+> **Concurrency is composition of independently executing things (typically, functions)**. We often use the word `process` to refer to such running thing, and we don't mean `unix process`, but rather a process in the abstract, general sense.
+> 
+> **Parallelism is simultaneous execution of multiple things**. Those things might or might not be related to each other.
+>
+> Concurrency is about **dealing with a lot of things at once**. Parallelism is about **doing a lot of things at once**.The ideas are, obviously, related, but one is inherently associated with structure, the other is associated with execution. Concurrency is structuring things in a way that might allow parallelism to actually execute them simultaneously. But parallelism is not the goal of concurrency. The goal of concurrency is good structure.
+
+### 1. Concurrency (Multi threading)
 
 ![Concurrency](/img/general/2-concurrent-vs-parallelism/concurrency.png)
 
@@ -43,13 +54,13 @@
 - When executing `multi-threaded process` on **a processor**, the processor can switch execution resources between threads, resulting in concurrent execution.
 - When talking about concurrency we talk about something happen **on a singe processor**.
 
-### Applications
+#### Applications
 
 - [goroutine](https://golang.org/ref/mem) in golang.
 - JavaScript has a [concurrency model](https://developer.mozilla.org/en-US/docs/Web/JavaScript/EventLoop) based on an [event loop](/web-dev/3-web-browser-event-loop.md).
 - `Promise` in Javascript is `asynchronous programming` but not `Concurrency`.
 
-## 2. Parallel Execution
+### 2. Parallel Execution
 
 ![Parallel Execution](/img/general/2-concurrent-vs-parallelism/parallel-execution.png)
 
@@ -59,7 +70,7 @@
 
 - `Parallel Execution` **is not equal to** `parallelism`.
 
-## 3. Parallel Concurrent Execution
+### 3. Parallel Concurrent Execution
 
 ![Parallel Concurrent Execution](/img/general/2-concurrent-vs-parallelism/parallel-concurrent-execution.png)
 
@@ -68,7 +79,7 @@
 - `threads` executed on a CPU are executed concurrently
 - `threads` executed on different CPUs are executed in parallel.
 
-## 4. Parallelism (Multi Processing)
+### 4. Parallelism (Multi Processing)
 
 ![Parallel Concurrent Execution](/img/general/2-concurrent-vs-parallelism/parallelism.png)
 
@@ -76,7 +87,7 @@
 - Resource are isolated among processors.
 - Each process can have many threads running in its own memory space.
 
-### Scenarios
+#### Scenarios
 
 - multi-core processors
 - graphics processing unit (GPU)
@@ -118,6 +129,8 @@
 
 ## Reference
 
+- [Summary of Concurrency Is Not Parallellism, a talk by Rob Pike](https://rakhim.org/summary-of-concurrency-is-not-parallellism-a-talk-by-rob-pike/)
+- [並行程式設計: 概念](https://hackmd.io/@sysprog/concurrency/https%3A%2F%2Fhackmd.io%2F%40sysprog%2FS1AMIFt0D)
 - [Concurrency vs. Parallelism](http://tutorials.jenkov.com/java-concurrency/concurrency-vs-parallelism.html)
 - [Golang FAQ: goroutines](https://golang.org/doc/faq#coroutine)
 - [進程 (Process)、線程 (Thread)、協程 (Coroutine) 的概念講解](https://blog.kennycoder.io/2020/05/16/%E9%80%B2%E7%A8%8B-Process-%E3%80%81%E7%B7%9A%E7%A8%8B-Thread-%E3%80%81%E5%8D%94%E7%A8%8B-Coroutine-%E7%9A%84%E6%A6%82%E5%BF%B5%E8%AC%9B%E8%A7%A3/)
