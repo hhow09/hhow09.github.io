@@ -18,6 +18,9 @@ layout: layouts/post.njk
 ## CAP Theorem
 - [henryr/cap-faq](https://github.com/henryr/cap-faq)
 
+### Issues
+- split brain
+
 ## Consistency Models
 overview: [jepsen/consistency](https://jepsen.io/consistency)
 ### linearizability
@@ -38,6 +41,10 @@ overview: [jepsen/consistency](https://jepsen.io/consistency)
 - Leaderless Replication
 
 ### Write Ahead Log
+- [Martin Fowler: Write-Ahead Log](https://martinfowler.com/articles/patterns-of-distributed-systems/wal.html)
+- [Distributed Services with Go: Chapter 3 Write a Log Package](https://www.oreilly.com/library/view/distributed-services-with/9781680508376/f_0025.xhtml)
+- [PostGreSQL: 30.3. Write-Ahead Logging (WAL)](https://www.postgresql.org/docs/current/wal-intro.html)
+- [MongoDB Oplog](https://www.mongodb.com/docs/manual/core/replica-set-oplog/)
 
 ### PostGreSQL
 - physical v.s. Logical streaming replication
