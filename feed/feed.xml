@@ -34,6 +34,10 @@
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&quot;https://github.com/henryr/cap-faq&quot;&gt;henryr/cap-faq&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
+&lt;h3 id=&quot;issues&quot;&gt;Issues &lt;a class=&quot;direct-link&quot; href=&quot;#issues&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;split brain&lt;/li&gt;
+&lt;/ul&gt;
 &lt;h2 id=&quot;consistency-models&quot;&gt;Consistency Models &lt;a class=&quot;direct-link&quot; href=&quot;#consistency-models&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;p&gt;overview: &lt;a href=&quot;https://jepsen.io/consistency&quot;&gt;jepsen/consistency&lt;/a&gt;&lt;/p&gt;
 &lt;h3 id=&quot;linearizability&quot;&gt;linearizability &lt;a class=&quot;direct-link&quot; href=&quot;#linearizability&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
@@ -57,6 +61,12 @@
 &lt;li&gt;Leaderless Replication&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h3 id=&quot;write-ahead-log&quot;&gt;Write Ahead Log &lt;a class=&quot;direct-link&quot; href=&quot;#write-ahead-log&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://martinfowler.com/articles/patterns-of-distributed-systems/wal.html&quot;&gt;Martin Fowler: Write-Ahead Log&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.oreilly.com/library/view/distributed-services-with/9781680508376/f_0025.xhtml&quot;&gt;Distributed Services with Go: Chapter 3 Write a Log Package&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.postgresql.org/docs/current/wal-intro.html&quot;&gt;PostGreSQL: 30.3. Write-Ahead Logging (WAL)&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.mongodb.com/docs/manual/core/replica-set-oplog/&quot;&gt;MongoDB Oplog&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
 &lt;h3 id=&quot;postgresql&quot;&gt;PostGreSQL &lt;a class=&quot;direct-link&quot; href=&quot;#postgresql&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
 &lt;ul&gt;
 &lt;li&gt;physical v.s. Logical streaming replication&lt;/li&gt;
