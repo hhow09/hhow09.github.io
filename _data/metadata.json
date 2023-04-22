@@ -1,24 +1,24 @@
 {
-  "title": "Title of the website. Update me.",
-  "url": "https://update-me.com",
+  "title": "Modern Tragedy",
+  "url": "https://hhow09.github.io/",
   "domain": "update-me.com",
-  "description": "Description of the website. Update me.",
+  "description": "",
   "genre": "Insert a schema.org genre",
   "googleAnalyticsId": "GA ID. Update me. Note, that this is not compatible with the not-yet-commonly used version 4 of Google Analytics",
   "sendWebVitals": false,
   "feed": {
-    "subtitle": "Subtitle. Update me.",
+    "subtitle": "Modern Tragedy",
     "filename": "feed.xml",
     "path": "/feed/feed.xml",
-    "id": "https://update-me.com"
+    "id": "https://hhow09.github.io/"
   },
   "jsonfeed": {
     "path": "/feed/feed.json",
-    "url": "https://update-me.com/feed/feed.json"
+    "url": "https://hhow09.github.io/feed/feed.json"
   },
   "author": {
-    "name": "Author Name. Update me.",
-    "twitterHandle": "update_me"
+    "name": "hhow09",
+    "github": "https://github.com/hhow09/"
   },
   "publisher": {
     "name": "Publisher name. Update me."
