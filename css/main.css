@@ -271,7 +271,6 @@ body {
   margin: 0;
 }
 h1 {
-  font-size: 2em;
   margin: 0.67em 0;
 }
 hr {
@@ -281,7 +280,6 @@ hr {
 }
 pre {
   font-family: monospace, monospace;
-  font-size: 1em;
 }
 a {
   background-color: transparent;
@@ -405,34 +403,28 @@ template {
   display: none;
 }
 h1 {
-  font-size: 3em;
+
   line-height: 1.25;
   margin-bottom: 0.5em;
 }
 h2 {
-  font-size: 2.5em;
+  
   line-height: 1.2;
   margin-bottom: 0.6em;
 }
 h3 {
-  font-size: 2em;
+  
   line-height: 1.125;
   margin-bottom: 0.75em;
 }
 h4 {
-  font-size: 1.5em;
+  
   margin-bottom: 1em;
 }
-h4,
 h5 {
-  line-height: 1.5em;
-}
-h5 {
-  font-size: 1.25em;
   margin-bottom: 1.2em;
 }
 h6 {
-  font-size: 1em;
   line-height: 1.5em;
   margin-bottom: 1.5em;
 }
@@ -441,7 +433,6 @@ ol,
 p,
 pre,
 ul {
-  font-size: 1em;
   line-height: 1.5;
 }
 ol,
@@ -450,31 +441,18 @@ pre,
 ul {
   margin-bottom: 1.5em;
 }
-h1 {
-  font-size: 2.074rem;
-}
 h1,
 h2 {
   line-height: 2.4rem;
   margin-bottom: 1.36rem;
-}
-h2 {
-  font-size: 1.728rem;
-}
-h3 {
-  font-size: 1.4rem;
 }
 h3,
 h4 {
   line-height: 1.6rem;
   margin-bottom: 1.36rem;
 }
-h4 {
-  font-size: 1.2rem;
-}
 h5,
 h6 {
-  font-size: 1rem;
   line-height: 1.6rem;
   margin-bottom: 1.36rem;
 }
@@ -494,7 +472,7 @@ ul {
 }
 @media (min-width: 600px) {
   h1 {
-    font-size: 4.3978rem;
+    
     line-height: 4.4rem;
   }
   h1,
@@ -502,25 +480,18 @@ ul {
     margin-bottom: 1.496rem;
   }
   h2 {
-    font-size: 3.1097rem;
+    
     line-height: 3.52rem;
   }
   h3 {
-    font-size: 2.1989rem;
+    
     line-height: 2.64rem;
     margin-bottom: 1.496rem;
-  }
-  h4 {
-    font-size: 1.5554rem;
   }
   h4,
   h5 {
     line-height: 1.76rem;
     margin-bottom: 1.496rem;
-  }
-  h5,
-  h6 {
-    font-size: 1.1rem;
   }
   h6 {
     line-height: 1.76rem;
@@ -543,7 +514,6 @@ ul {
 }
 @media (min-width: 1200px) {
   h1 {
-    font-size: 6.0756rem;
     line-height: 6.72rem;
   }
   h1,
@@ -551,25 +521,16 @@ ul {
     margin-bottom: 1.632rem;
   }
   h2 {
-    font-size: 4.05rem;
     line-height: 4.8rem;
   }
   h3 {
-    font-size: 2.7rem;
     line-height: 2.88rem;
     margin-bottom: 1.632rem;
-  }
-  h4 {
-    font-size: 1.8rem;
   }
   h4,
   h5 {
     line-height: 1.92rem;
     margin-bottom: 1.632rem;
-  }
-  h5,
-  h6 {
-    font-size: 1.2rem;
   }
   h6 {
     line-height: 1.92rem;
