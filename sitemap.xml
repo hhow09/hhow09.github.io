@@ -2,32 +2,32 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
 	
 	<url>
-		<loc>https://hhow09.github.io/eleventy-base-blog/blog/distributed-system-index/</loc>
+		<loc>https://hhow09.github.io/blog/distributed-system-index/</loc>
 		<lastmod>2023-04-23</lastmod>
 	</url>
 	
 	<url>
-		<loc>https://hhow09.github.io/eleventy-base-blog/about/</loc>
+		<loc>https://hhow09.github.io/about/</loc>
 		<lastmod>2023-05-20</lastmod>
 	</url>
 	
 	<url>
-		<loc>https://hhow09.github.io/eleventy-base-blog/blog/</loc>
+		<loc>https://hhow09.github.io/blog/</loc>
 		<lastmod>2023-05-20</lastmod>
 	</url>
 	
 	<url>
-		<loc>https://hhow09.github.io/eleventy-base-blog/</loc>
+		<loc>https://hhow09.github.io/</loc>
 		<lastmod>2023-05-20</lastmod>
 	</url>
 	
 	<url>
-		<loc>https://hhow09.github.io/eleventy-base-blog/tags/</loc>
+		<loc>https://hhow09.github.io/tags/</loc>
 		<lastmod>2023-05-20</lastmod>
 	</url>
 	
 	<url>
-		<loc>https://hhow09.github.io/eleventy-base-blog/tags/distributed-system/</loc>
+		<loc>https://hhow09.github.io/tags/distributed-system/</loc>
 		<lastmod>2023-05-20</lastmod>
 	</url>
 </urlset>
