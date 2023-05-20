@@ -14,13 +14,8 @@
 		"type": "git",
 		"url": "git://github.com/hhow09/hhow09.github.io.git"
 	},
-	"author": {
-		"name": "Zach Leatherman",
-		"email": "zachleatherman@gmail.com",
-		"url": "https://zachleat.com/"
-	},
 	"engines": {
-		"node": ">=14"
+		"node": ">=16"
 	},
 	"homepage": "https://github.com/hhow09/hhow09.github.io",
 	"devDependencies": {
