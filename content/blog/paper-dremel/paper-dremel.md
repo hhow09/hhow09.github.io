@@ -109,7 +109,18 @@ The main design decision behind **repetition and definition levels encoding** wa
 
 In 2014, migration of the storage to an improved columnar format, [Capacitor](https://cloud.google.com/blog/products/bigquery/inside-capacitor-bigquerys-next-generation-columnar-storage-format). 
 
-### Embedded evaluation
+## Embedded evaluation
+Capacitor uses a number of techniques to make filtering efficient
+1. Partition and predicate pruning
+  - Various statistics are maintained about the values in each column. They are used both to eliminate partitions that are guaranteed to not contain any matching rows, and to simplify the filter by removing tautologies
+2. Vectorization
+3. Skip-indexes
+4. Predicate reordering
+
+## Row reordering
+- RLE in particular is very sensitive to **row ordering**. 
+- Usually, row order in the table does not have significance, so Capacitor is free to permute rows to improve RLE effectiveness. 
+- Capacitor’s row reordering algorithm uses sampling and heuristics to build an approximate model.
 
 ## Reference 
 - [Dremel: A Decade of Interactive SQL Analysis at Web Scale](https://15721.courses.cs.cmu.edu/spring2023/papers/19-bigquery/p3461-melnik.pdf)
