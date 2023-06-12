@@ -44,7 +44,7 @@ Dremel added support for **distributed joins** with **shuffle** utilizing **loca
 In 2014, Dremel shuffle migrated to a [new shuffle infrastructure](https://cloud.google.com/blog/products/bigquery/in-memory-query-execution-in-google-bigquery). Shuffle data were stored in a distributed transient storage system. Improved peformance in-terms of latency and larger shuffle and service cost was observed.
 
 
-{% image "./disaggregated-in-memory-shuffle.png", "Disaggregated in-memory shuffle"%}
+{% image "./disaggregated-in-memory-shuffle.png", "Disaggregated in-memory shuffle" %}
 
 ## Observations
 Disaggregation proved to be a major trend in data management.
