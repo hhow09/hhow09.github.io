@@ -5,7 +5,6 @@ date: 2023-06-10
 tags:
   - distributed system
 layout: layouts/post.njk
-draft: true
 ---
 
 Paper: [Dremel: A Decade of Interactive SQL Analysis at Web Scale](https://15721.courses.cs.cmu.edu/spring2023/papers/19-bigquery/p3461-melnik.pdf)
