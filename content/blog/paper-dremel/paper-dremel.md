@@ -7,6 +7,9 @@ tags:
 layout: layouts/post.njk
 draft: true
 ---
+
+Paper: [Dremel: A Decade of Interactive SQL Analysis at Web Scale](https://15721.courses.cs.cmu.edu/spring2023/papers/19-bigquery/p3461-melnik.pdf)
+
 ## Introduction
 the main ideas we highlight in this paper are:
 1. SQL: simple SQL query to analyze nested data
@@ -37,6 +40,8 @@ Later Dremel was migrated from local disk to GFS. Performance was initially degr
 3. No need to resize our clusters in order to load new data.
 
 Another notch of scalability and robustness was gained once Google’s file system was migrated from GFS (single-master model) to [Colossus (distributed multi-master model)](https://cloud.google.com/blog/products/bigquery/bigquery-under-the-hood).
+
+{% image "./disaggregated-storage-memory-compute.png", "Figure 1: Disaggregated storage, memory, and compute" %}
 
 ## Disaggregated memory
 Dremel added support for **distributed joins** with **shuffle** utilizing **local RAM and disk** to store sorted intermediate results. However there is bottleneck in scalability and multi-tenancy due to the  coupling between the compute nodes intermediate shuffle storage.
@@ -86,21 +91,33 @@ In situ approach was evolved in two complementary directions:
 Three core ideas in Dremel which enable serverless analytics:
 1. Disaggregation of compute, storage and memory
 2. Fault Tolerance and Restartability
-  - each subtask are deterministic and repeatable 
-  - task dispatcher may need to dispatching multiple copies of the same task to alleviate unresponsive workers.
+    - each subtask are deterministic and repeatable 
+    - task dispatcher may need to dispatching multiple copies of the same task to alleviate unresponsive workers.
 3. Virtual Scheduling Units
-  - Dremel scheduling logic was designed to work with abstract units of compute and memory
+    - Dremel scheduling logic was designed to work with abstract units of compute and memory
 called slots
 
 ### Evolution of serverless architecture
+Dremel continued to evolve its serverless capabilities, making them one of the key characteristics of Google BigQuery today.
+
 1. Centralized Scheduling
+    - The scheduler uses the entire cluster state to make scheduling decisions which enables better utilization and isolation. (Figure 3)
+
+    {% image "./system-architecture-and-execution.png", "System architecture and execution inside a server
+node" %}
+
 2. Shuffle Persistence Layer
-  - allow decoupling scheduling and execution of different stages of the query.
+    - allow decoupling scheduling and execution of different stages of the query.
 3. Flexible Execution DAGs
-  - query coordinator builds the query plan (tree) and send to the workers
-  - Workers from the leaf stage read from the storage layer and write to the shuffle persistence layer.
+    - query coordinator builds the query plan (tree) and send to the workers
+    - Workers from the leaf stage read from the storage layer and write to the shuffle persistence layer.
+
+     {% image "./shuffle-based-execution-plan.png", "Shuffle-based execution plan" %}
+
 4. Dynamic Query Execution
-  - query execution plan can dynamically change during runtime based on the statistics collected during query execution.
+    - query execution plan can dynamically change during runtime based on the statistics collected during query execution.
+
+
 
 ## Columar Storage For Nested Data
 The main design decision behind **repetition and definition levels encoding** was to encode all structure information within the column itself, so it can be accessed without reading ancestor fields. 
@@ -110,18 +127,45 @@ The main design decision behind **repetition and definition levels encoding** wa
 In 2014, migration of the storage to an improved columnar format, [Capacitor](https://cloud.google.com/blog/products/bigquery/inside-capacitor-bigquerys-next-generation-columnar-storage-format). 
 
 ## Embedded evaluation
-Capacitor uses a number of techniques to make filtering efficient
+**Capacitor** uses a number of techniques to make filtering efficient
 1. Partition and predicate pruning
-  - Various statistics are maintained about the values in each column. They are used both to eliminate partitions that are guaranteed to not contain any matching rows, and to simplify the filter by removing tautologies
-2. Vectorization
+    - Various statistics are maintained about the values in each column. They are used both to eliminate partitions that are guaranteed to not contain any matching rows, and to simplify the filter by removing tautologies
+2. Vectorization: [Bit-Vector Encoding](https://15721.courses.cs.cmu.edu/spring2019/papers/10-compression/abadi-sigmod2006.pdf)
 3. Skip-indexes
+    - Capacitor combines column values into segments, which are compressed individually. 
+    - The column header contains an index with offsets pointing to the beginning of each segment. 
+    - When the filter is very selective, Capacitor uses this index to skip segments that have no hits, avoiding their decompression.
 4. Predicate reordering
+    - Capacitor uses a number of heuristics to make filter reordering decisions, which take into account dictionary usage, unique value cardinality,
 
 ## Row reordering
-- RLE in particular is very sensitive to **row ordering**. 
+- run-length encodings (RLE) in particular is very sensitive to **row ordering**. 
 - Usually, row order in the table does not have significance, so Capacitor is free to permute rows to improve RLE effectiveness. 
 - Capacitor’s row reordering algorithm uses sampling and heuristics to build an approximate model.
 
+## Interactive Query Latency Over Big Data
+latency-reducing techniques implemented in Dremel:
+
+1. Stand-by server pool
+2. Speculative execution
+    - small, fine-grained task
+    - duplicate tasks to prevent slow worker
+3. Multi-level execution trees
+4. Column-oriented schema representation
+5. Balancing CPU and IO with lightweight compression
+6. Approximate results
+    - Dremel uses one-pass algorithms that work well with the multi-level execution tree architecture.
+7. Query latency tier
+    -  The dispatcher needed to be able to preempt the processing of parts of a query to allow a new user’s query to be processed.
+
+8. Reuse of file operations
+    - bottleneck for achieving low latency as thousands of Dremel workers send requests to the file system master(s) for metadata and to the chunk servers for open and read operations.
+	- The most important one: reuse metadata obtained from the file system by fetching it in a batch at the root server and passing it through the execution tree to the leaf servers for data reads.
+
+9. Guaranteed capacity
+	- a customer could reserve some capacity and use that capacity only for latency-sensitive workloads.
+
+10. Adaptive query scaling
 ## Reference 
 - [Dremel: A Decade of Interactive SQL Analysis at Web Scale](https://15721.courses.cs.cmu.edu/spring2023/papers/19-bigquery/p3461-melnik.pdf)
 - [BigQuery under the hood](https://cloud.google.com/blog/products/bigquery/bigquery-under-the-hood)
