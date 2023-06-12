@@ -4,12 +4,234 @@
 	<subtitle>programming stuff</subtitle>
 	<link href="https://hhow09.github.io/feed/feed.xml" rel="self"/>
 	<link href="https://hhow09.github.io/"/>
-	<updated>2023-04-23T00:00:00Z</updated>
+	<updated>2023-06-10T00:00:00Z</updated>
 	<id>https://hhow09.github.io/</id>
 	<author>
 		<name>HH</name>
 		<email>hhow09@gmail.com</email>
 	</author>
+	
+	<entry>
+		<title>Dremel: A Decade of Interactive SQL Analysis at Web Scale</title>
+		<link href="https://hhow09.github.io/blog/paper-dremel/"/>
+		<updated>2023-06-10T00:00:00Z</updated>
+		<id>https://hhow09.github.io/blog/paper-dremel/</id>
+		<content type="html">&lt;p&gt;Paper: &lt;a href=&quot;https://15721.courses.cs.cmu.edu/spring2023/papers/19-bigquery/p3461-melnik.pdf&quot;&gt;Dremel: A Decade of Interactive SQL Analysis at Web Scale&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&quot;introduction&quot; tabindex=&quot;-1&quot;&gt;Introduction &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/paper-dremel/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;the main ideas we highlight in this paper are:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;SQL: simple SQL query to analyze nested data&lt;/li&gt;
+&lt;li&gt;Disaggregated compute and storage: decouples compute from storage&lt;/li&gt;
+&lt;li&gt;In situ analysis: different compute engines can operate on same piece of data&lt;/li&gt;
+&lt;li&gt;Serverless computing: fully managed internal service&lt;/li&gt;
+&lt;li&gt;Columnar storage&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&quot;embracing-sql&quot; tabindex=&quot;-1&quot;&gt;Embracing SQL &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/paper-dremel/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;Because SQL doesn’t scale, GFS and MapReduce became the standard ways to store and process huge datasets. However writing analysis jobs on these systems is difficult and complex. Dremel was one of the first systems to &lt;strong&gt;reintroduce SQL for Big
+Data analysis&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;In Google, nearly all data passed between applications or stored on disk was in &lt;a href=&quot;https://protobuf.dev/&quot;&gt;Protocol Buffers&lt;/a&gt;. Dremel&#39;s critical innovations includes &lt;strong&gt;first-class support for structured data&lt;/strong&gt;. Dremel made it easy to query that hierarchical data with SQL.&lt;/p&gt;
+&lt;h2 id=&quot;disaggregated-storage&quot; tabindex=&quot;-1&quot;&gt;Disaggregated storage &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/paper-dremel/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;Dremel started with shared-nothing servers and computation is coupled with storage.&lt;/p&gt;
+&lt;p&gt;In 2009, Dremel was migrated to &lt;a href=&quot;https://cloud.google.com/blog/products/bigquery/bigquery-under-the-hood&quot;&gt;Borg (cluster management)&lt;/a&gt; and replicated storage. It accommodate the growing query workload and improve the utilization of the service. However &lt;strong&gt;storage and processing are still coupled&lt;/strong&gt;. Which means&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;all algorithms needed to be replication-aware&lt;/li&gt;
+&lt;li&gt;resizing server also need to &lt;strong&gt;move data&lt;/strong&gt; around.&lt;/li&gt;
+&lt;li&gt;Resources can only be accessed by Dremel.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Later Dremel was migrated from local disk to GFS. Performance was initially degraded. After lots of fine-tuning,  disaggregated storage outperformed the local-disk based system. There are several advantages:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;improved SLOs and robustness of Dremel because GFS is fully-managed service.&lt;/li&gt;
+&lt;li&gt;No more need to load from GFS onto Dremel server’s local disks.&lt;/li&gt;
+&lt;li&gt;No need to resize our clusters in order to load new data.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Another notch of scalability and robustness was gained once Google’s file system was migrated from GFS (single-master model) to &lt;a href=&quot;https://cloud.google.com/blog/products/bigquery/bigquery-under-the-hood&quot;&gt;Colossus (distributed multi-master model)&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;picture&gt;&lt;source type=&quot;image/avif&quot; srcset=&quot;https://hhow09.github.io/img/ZNSywBCsI0-990.avif 990w&quot;&gt;&lt;source type=&quot;image/webp&quot; srcset=&quot;https://hhow09.github.io/img/ZNSywBCsI0-990.webp 990w&quot;&gt;&lt;img alt=&quot;Figure 1: Disaggregated storage, memory, and compute&quot; loading=&quot;lazy&quot; decoding=&quot;async&quot; src=&quot;https://hhow09.github.io/img/ZNSywBCsI0-990.png&quot; width=&quot;990&quot; height=&quot;512&quot;&gt;&lt;/picture&gt;&lt;/p&gt;
+&lt;h2 id=&quot;disaggregated-memory&quot; tabindex=&quot;-1&quot;&gt;Disaggregated memory &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/paper-dremel/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;Dremel added support for &lt;strong&gt;distributed joins&lt;/strong&gt; with &lt;strong&gt;shuffle&lt;/strong&gt; utilizing &lt;strong&gt;local RAM and disk&lt;/strong&gt; to store sorted intermediate results. However there is bottleneck in scalability and multi-tenancy due to the  coupling between the compute nodes intermediate shuffle storage.&lt;/p&gt;
+&lt;p&gt;In 2014, Dremel shuffle migrated to a &lt;a href=&quot;https://cloud.google.com/blog/products/bigquery/in-memory-query-execution-in-google-bigquery&quot;&gt;new shuffle infrastructure&lt;/a&gt;. Shuffle data were stored in a distributed transient storage system. Improved peformance in-terms of latency and larger shuffle and service cost was observed.&lt;/p&gt;
+&lt;p&gt;&lt;picture&gt;&lt;source type=&quot;image/avif&quot; srcset=&quot;https://hhow09.github.io/img/7rg3rOR0mF-1164.avif 1164w&quot;&gt;&lt;source type=&quot;image/webp&quot; srcset=&quot;https://hhow09.github.io/img/7rg3rOR0mF-1164.webp 1164w&quot;&gt;&lt;img alt=&quot;Disaggregated in-memory shuffle&quot; loading=&quot;lazy&quot; decoding=&quot;async&quot; src=&quot;https://hhow09.github.io/img/7rg3rOR0mF-1164.png&quot; width=&quot;1164&quot; height=&quot;1012&quot;&gt;&lt;/picture&gt;&lt;/p&gt;
+&lt;h2 id=&quot;observations&quot; tabindex=&quot;-1&quot;&gt;Observations &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/paper-dremel/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;Disaggregation proved to be a major trend in data management.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Economies of scale&lt;/li&gt;
+&lt;li&gt;Universality&lt;/li&gt;
+&lt;li&gt;Higher-level APIs:  Storage access is far removed from the early block I/O APIs.&lt;/li&gt;
+&lt;li&gt;Value-added repackaging&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&quot;in-situ-data-analysis&quot; tabindex=&quot;-1&quot;&gt;In Situ Data Analysis &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/paper-dremel/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;The data management community finds itself today in the middle of a transition from classical data warehouses to a &lt;strong&gt;datalake-oriented architecture&lt;/strong&gt; for analytics. The trend includes:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;consuming data from a variety of data sources&lt;/li&gt;
+&lt;li&gt;eliminating traditional ETL-based data ingestion from an OLTP system to a data warehouse&lt;/li&gt;
+&lt;li&gt;enabling a variety of compute engines to operate on the data.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&quot;dremel-s-evolution-to-in-situ-analysis&quot; tabindex=&quot;-1&quot;&gt;Dremel’s evolution to in situ analysis &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/paper-dremel/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;Dremel’s initial design in 2006 was reminiscent of traditional DBMSs:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;explicit data loading was required.&lt;/li&gt;
+&lt;li&gt;the data was stored in a proprietary format.&lt;/li&gt;
+&lt;li&gt;inaccessible to other tools.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;As part of migrating Dremel to GFS, Dremel open the &lt;strong&gt;storage format&lt;/strong&gt; (as a library) within Google which has 2 distinguising properties: &lt;strong&gt;columnar&lt;/strong&gt;, &lt;strong&gt;self-dsecribing&lt;/strong&gt;. The &lt;strong&gt;self-dsecribing&lt;/strong&gt; feature enables interoperation between custom data transformation tools and SQL-based analytics.  MapReduce jobs could run on columnar data, write out columnar results, and those results could be immediately queried via Dremel. Users no longer had to load data into their data warehouse, any file they had in the GFS could effectively be queryable.&lt;/p&gt;
+&lt;p&gt;In situ approach was evolved in two complementary directions:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;adding file formats beyond original columnar format.&lt;/li&gt;
+&lt;li&gt;expanding the universe of joinable data ( e.g. BigTable, Cloud Storage, Google Drive ).&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&quot;drawbacks-of-in-situ-analysis&quot; tabindex=&quot;-1&quot;&gt;Drawbacks of in situ analysis &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/paper-dremel/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;users do not always want to or have the capability to manage their own data safely and securely&lt;/li&gt;
+&lt;li&gt;in situ analysis means there is no opportunity to either optimize storage layout or compute statistics in the general case.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&quot;serverless-computing&quot; tabindex=&quot;-1&quot;&gt;Serverless Computing &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/paper-dremel/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;h3 id=&quot;serverless-roots&quot; tabindex=&quot;-1&quot;&gt;Serverless roots &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/paper-dremel/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Most traditional DBMS and data-warehouse were deployed on dedicated servers.&lt;/li&gt;
+&lt;li&gt;MapReduce and Hadoop uses virtual machines but are still single-tenant.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Three core ideas in Dremel which enable serverless analytics:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Disaggregation of compute, storage and memory&lt;/li&gt;
+&lt;li&gt;Fault Tolerance and Restartability
+&lt;ul&gt;
+&lt;li&gt;each subtask are deterministic and repeatable&lt;/li&gt;
+&lt;li&gt;task dispatcher may need to dispatching multiple copies of the same task to alleviate unresponsive workers.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Virtual Scheduling Units
+&lt;ul&gt;
+&lt;li&gt;Dremel scheduling logic was designed to work with abstract units of compute and memory
+called slots&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&quot;evolution-of-serverless-architecture&quot; tabindex=&quot;-1&quot;&gt;Evolution of serverless architecture &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/paper-dremel/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;Dremel continued to evolve its serverless capabilities, making them one of the key characteristics of Google BigQuery today.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Centralized Scheduling&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The scheduler uses the entire cluster state to make scheduling decisions which enables better utilization and isolation. (Figure 3)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;picture&gt;&lt;source type=&quot;image/avif&quot; srcset=&quot;https://hhow09.github.io/img/JY2-2bu-Gn-917.avif 917w&quot;&gt;&lt;source type=&quot;image/webp&quot; srcset=&quot;https://hhow09.github.io/img/JY2-2bu-Gn-917.webp 917w&quot;&gt;&lt;img alt=&quot;System architecture and execution inside a server
+node&quot; loading=&quot;lazy&quot; decoding=&quot;async&quot; src=&quot;https://hhow09.github.io/img/JY2-2bu-Gn-917.png&quot; width=&quot;917&quot; height=&quot;636&quot;&gt;&lt;/picture&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Shuffle Persistence Layer&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;allow decoupling scheduling and execution of different stages of the query.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Flexible Execution DAGs&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;query coordinator builds the query plan (tree) and send to the workers&lt;/li&gt;
+&lt;li&gt;Workers from the leaf stage read from the storage layer and write to the shuffle persistence layer.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;picture&gt;&lt;source type=&quot;image/avif&quot; srcset=&quot;https://hhow09.github.io/img/t7gCl1YkGY-708.avif 708w&quot;&gt;&lt;source type=&quot;image/webp&quot; srcset=&quot;https://hhow09.github.io/img/t7gCl1YkGY-708.webp 708w&quot;&gt;&lt;img alt=&quot;Shuffle-based execution plan&quot; loading=&quot;lazy&quot; decoding=&quot;async&quot; src=&quot;https://hhow09.github.io/img/t7gCl1YkGY-708.png&quot; width=&quot;708&quot; height=&quot;526&quot;&gt;&lt;/picture&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Dynamic Query Execution&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;query execution plan can dynamically change during runtime based on the statistics collected during query execution.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&quot;columar-storage-for-nested-data&quot; tabindex=&quot;-1&quot;&gt;Columar Storage For Nested Data &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/paper-dremel/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;The main design decision behind &lt;strong&gt;repetition and definition levels encoding&lt;/strong&gt; was to encode all structure information within the column itself, so it can be accessed without reading ancestor fields.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;repetition level: specifies for repeated values whether each ancestor record is appended into or starts a new value&lt;/li&gt;
+&lt;li&gt;definition level: specifies which ancestor records are absent when an optional field is absent.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;In 2014, migration of the storage to an improved columnar format, &lt;a href=&quot;https://cloud.google.com/blog/products/bigquery/inside-capacitor-bigquerys-next-generation-columnar-storage-format&quot;&gt;Capacitor&lt;/a&gt;.&lt;/p&gt;
+&lt;h2 id=&quot;embedded-evaluation&quot; tabindex=&quot;-1&quot;&gt;Embedded evaluation &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/paper-dremel/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;Capacitor&lt;/strong&gt; uses a number of techniques to make filtering efficient&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Partition and predicate pruning
+&lt;ul&gt;
+&lt;li&gt;Various statistics are maintained about the values in each column. They are used both to eliminate partitions that are guaranteed to not contain any matching rows, and to simplify the filter by removing tautologies&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Vectorization: &lt;a href=&quot;https://15721.courses.cs.cmu.edu/spring2019/papers/10-compression/abadi-sigmod2006.pdf&quot;&gt;Bit-Vector Encoding&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Skip-indexes
+&lt;ul&gt;
+&lt;li&gt;Capacitor combines column values into segments, which are compressed individually.&lt;/li&gt;
+&lt;li&gt;The column header contains an index with offsets pointing to the beginning of each segment.&lt;/li&gt;
+&lt;li&gt;When the filter is very selective, Capacitor uses this index to skip segments that have no hits, avoiding their decompression.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Predicate reordering
+&lt;ul&gt;
+&lt;li&gt;Capacitor uses a number of heuristics to make filter reordering decisions, which take into account dictionary usage, unique value cardinality,&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&quot;row-reordering&quot; tabindex=&quot;-1&quot;&gt;Row reordering &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/paper-dremel/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;run-length encodings (RLE) in particular is very sensitive to &lt;strong&gt;row ordering&lt;/strong&gt;.&lt;/li&gt;
+&lt;li&gt;Usually, row order in the table does not have significance, so Capacitor is free to permute rows to improve RLE effectiveness.&lt;/li&gt;
+&lt;li&gt;Capacitor’s row reordering algorithm uses sampling and heuristics to build an approximate model.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;interactive-query-latency-over-big-data&quot; tabindex=&quot;-1&quot;&gt;Interactive Query Latency Over Big Data &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/paper-dremel/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;latency-reducing techniques implemented in Dremel:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Stand-by server pool&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Speculative execution&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;small, fine-grained task&lt;/li&gt;
+&lt;li&gt;duplicate tasks to prevent slow worker&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Multi-level execution trees&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Column-oriented schema representation&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Balancing CPU and IO with lightweight compression&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Approximate results&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Dremel uses one-pass algorithms that work well with the multi-level execution tree architecture.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Query latency tier&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The dispatcher needed to be able to preempt the processing of parts of a query to allow a new user’s query to be processed.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Reuse of file operations&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;bottleneck for achieving low latency as thousands of Dremel workers send requests to the file system master(s) for metadata and to the chunk servers for open and read operations.&lt;/li&gt;
+&lt;li&gt;The most important one: reuse metadata obtained from the file system by fetching it in a batch at the root server and passing it through the execution tree to the leaf servers for data reads.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Guaranteed capacity&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;a customer could reserve some capacity and use that capacity only for latency-sensitive workloads.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Adaptive query scaling&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&quot;reference&quot; tabindex=&quot;-1&quot;&gt;Reference &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/paper-dremel/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://15721.courses.cs.cmu.edu/spring2023/papers/19-bigquery/p3461-melnik.pdf&quot;&gt;Dremel: A Decade of Interactive SQL Analysis at Web Scale&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://cloud.google.com/blog/products/bigquery/bigquery-under-the-hood&quot;&gt;BigQuery under the hood&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://cloud.google.com/blog/products/bigquery/in-memory-query-execution-in-google-bigquery&quot;&gt;In-memory query execution in Google BigQuery&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://cloud.google.com/blog/products/bigquery/inside-capacitor-bigquerys-next-generation-columnar-storage-format&quot;&gt;Inside Capacitor, BigQuery’s next-generation columnar storage format&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</content>
+	</entry>
 	
 	<entry>
 		<title>Distributed System Index</title>

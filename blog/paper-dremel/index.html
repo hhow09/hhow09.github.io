@@ -1,0 +1,709 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Dremel: A Decade of Interactive SQL Analysis at Web Scale</title>
+		<meta name="description" content="Notes of Dremel paper">
+		<link rel="alternate" href="/feed/feed.xml" type="application/atom+xml" title="Modern Tragedy">
+		<link rel="alternate" href="/feed/feed.json" type="application/json" title="Modern Tragedy">
+		
+		<style>/**
+ * okaidia theme for JavaScript, CSS and HTML
+ * Loosely based on Monokai textmate theme by http://www.monokai.nl/
+ * @author ocodia
+ */
+
+code[class*="language-"],
+pre[class*="language-"] {
+	color: #f8f8f2;
+	background: none;
+	text-shadow: 0 1px rgba(0, 0, 0, 0.3);
+	font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+	font-size: 1em;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+	word-break: normal;
+	word-wrap: normal;
+	line-height: 1.5;
+
+	-moz-tab-size: 4;
+	-o-tab-size: 4;
+	tab-size: 4;
+
+	-webkit-hyphens: none;
+	-moz-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+	padding: 1em;
+	margin: .5em 0;
+	overflow: auto;
+	border-radius: 0.3em;
+}
+
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+	background: #272822;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+	padding: .1em;
+	border-radius: .3em;
+	white-space: normal;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+	color: #8292a2;
+}
+
+.token.punctuation {
+	color: #f8f8f2;
+}
+
+.token.namespace {
+	opacity: .7;
+}
+
+.token.property,
+.token.tag,
+.token.constant,
+.token.symbol,
+.token.deleted {
+	color: #f92672;
+}
+
+.token.boolean,
+.token.number {
+	color: #ae81ff;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+	color: #a6e22e;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string,
+.token.variable {
+	color: #f8f8f2;
+}
+
+.token.atrule,
+.token.attr-value,
+.token.function,
+.token.class-name {
+	color: #e6db74;
+}
+
+.token.keyword {
+	color: #66d9ef;
+}
+
+.token.regex,
+.token.important {
+	color: #fd971f;
+}
+
+.token.important,
+.token.bold {
+	font-weight: bold;
+}
+.token.italic {
+	font-style: italic;
+}
+
+.token.entity {
+	cursor: help;
+}
+/*
+ * New diff- syntax
+ */
+
+pre[class*="language-diff-"] {
+	--eleventy-code-padding: 1.25em;
+	padding-left: var(--eleventy-code-padding);
+	padding-right: var(--eleventy-code-padding);
+}
+.token.deleted {
+	background-color: hsl(0, 51%, 37%);
+	color: inherit;
+}
+.token.inserted {
+	background-color: hsl(126, 31%, 39%);
+	color: inherit;
+}
+
+/* Make the + and - characters unselectable for copy/paste */
+.token.prefix.unchanged,
+.token.prefix.inserted,
+.token.prefix.deleted {
+	-webkit-user-select: none;
+	user-select: none;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+.token.prefix.inserted,
+.token.prefix.deleted {
+	width: var(--eleventy-code-padding);
+	background-color: rgba(0,0,0,.2);
+}
+
+/* Optional: full-width background color */
+.token.inserted:not(.prefix),
+.token.deleted:not(.prefix) {
+	display: block;
+	margin-left: calc(-1 * var(--eleventy-code-padding));
+	margin-right: calc(-1 * var(--eleventy-code-padding));
+	text-decoration: none; /* override del, ins, mark defaults */
+	color: inherit; /* override del, ins, mark defaults */
+}
+* { box-sizing: border-box; }
+/* Defaults */
+:root {
+	--font-family: -apple-system, system-ui, sans-serif;
+	--font-family-monospace: Consolas, Menlo, Monaco, Andale Mono WT, Andale Mono, Lucida Console, Lucida Sans Typewriter, DejaVu Sans Mono, Bitstream Vera Sans Mono, Liberation Mono, Nimbus Mono L, Courier New, Courier, monospace;
+}
+
+/* Theme colors */
+:root {
+	--color-gray-20: #e0e0e0;
+	--color-gray-50: #C0C0C0;
+	--color-gray-90: #333;
+
+	--background-color: #fff;
+
+	--text-color: var(--color-gray-90);
+	--text-color-link: #082840;
+	--text-color-link-active: #5f2b48;
+	--text-color-link-visited: #17050F;
+
+	--syntax-tab-size: 2;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--color-gray-20: #e0e0e0;
+		--color-gray-50: #C0C0C0;
+		--color-gray-90: #dad8d8;
+
+		/* --text-color is assigned to --color-gray-_ above */
+		--text-color-link: #1493fb;
+		--text-color-link-active: #6969f7;
+		--text-color-link-visited: #a6a6f8;
+
+		--background-color: #15202b;
+	}
+}
+
+
+/* Global stylesheet */
+* {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	padding: 0;
+	margin: 0 auto;
+	font-family: var(--font-family);
+	color: var(--text-color);
+	background-color: var(--background-color);
+}
+html {
+	overflow-y: scroll;
+}
+body {
+	max-width: 40em;
+}
+
+/* https://www.a11yproject.com/posts/how-to-hide-content/ */
+.visually-hidden {
+	clip: rect(0 0 0 0);
+	clip-path: inset(50%);
+	height: 1px;
+	overflow: hidden;
+	position: absolute;
+	white-space: nowrap;
+	width: 1px;
+}
+
+p:last-child {
+	margin-bottom: 0;
+}
+p {
+	line-height: 1.5;
+}
+
+li {
+	line-height: 1.5;
+}
+
+a[href] {
+	color: var(--text-color-link);
+}
+a[href]:visited {
+	color: var(--text-color-link-visited);
+}
+a[href]:hover,
+a[href]:active {
+	color: var(--text-color-link-active);
+}
+
+main {
+	padding: 1rem;
+}
+main :first-child {
+	margin-top: 0;
+}
+
+header {
+	border-bottom: 1px dashed var(--color-gray-20);
+}
+header:after {
+	content: "";
+	display: table;
+	clear: both;
+}
+
+.links-nextprev {
+	list-style: none;
+	border-top: 1px dashed var(--color-gray-20);
+	padding: 1em 0;
+}
+
+table {
+	margin: 1em 0;
+}
+table td,
+table th {
+	padding-right: 1em;
+}
+
+pre,
+code {
+	font-family: var(--font-family-monospace);
+}
+pre:not([class*="language-"]) {
+	margin: .5em 0;
+	line-height: 1.375; /* 22px /16 */
+	-moz-tab-size: var(--syntax-tab-size);
+	-o-tab-size: var(--syntax-tab-size);
+	tab-size: var(--syntax-tab-size);
+	-webkit-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+	direction: ltr;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+	word-break: normal;
+}
+code {
+	word-break: break-all;
+}
+
+/* Header */
+header {
+	display: flex;
+	gap: 1em .5em;
+	flex-wrap: wrap;
+	align-items: center;
+	padding: 1em;
+}
+.home-link {
+	font-size: 1em; /* 16px /16 */
+	font-weight: 700;
+	margin-right: 2em;
+}
+.home-link:link:not(:hover) {
+	text-decoration: none;
+}
+
+/* Nav */
+.nav {
+	display: flex;
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}
+.nav-item {
+	display: inline-block;
+	margin-right: 1em;
+}
+.nav-item a[href]:not(:hover) {
+	text-decoration: none;
+}
+.nav a[href][aria-current="page"] {
+	text-decoration: underline;
+}
+
+/* Posts list */
+.postlist {
+	list-style: none;
+	padding: 0;
+	padding-left: 1.5rem;
+}
+.postlist-item {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	counter-increment: start-from -1;
+	margin-bottom: 1em;
+}
+.postlist-item:before {
+	display: inline-block;
+	pointer-events: none;
+	content: "" counter(start-from, decimal-leading-zero) ". ";
+	line-height: 100%;
+	text-align: right;
+	margin-left: -1.5rem;
+}
+.postlist-date,
+.postlist-item:before {
+	font-size: 0.8125em; /* 13px /16 */
+	color: var(--color-gray-90);
+}
+.postlist-date {
+	word-spacing: -0.5px;
+}
+.postlist-link {
+	font-size: 1.1875em; /* 19px /16 */
+	font-weight: 700;
+	flex-basis: calc(100% - 1.5rem);
+	padding-left: .25em;
+	padding-right: .5em;
+	text-underline-position: from-font;
+	text-underline-offset: 0;
+	text-decoration-thickness: 1px;
+}
+.postlist-item-active .postlist-link {
+	font-weight: bold;
+}
+
+/* Tags */
+.post-tag {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	text-transform: capitalize;
+	font-style: italic;
+}
+.postlist-item > .post-tag {
+	align-self: center;
+}
+
+/* Tags list */
+.post-metadata {
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: .5em;
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+.post-metadata time {
+	margin-right: 1em;
+}
+
+/* Direct Links / Markdown Headers */
+.header-anchor {
+	text-decoration: none;
+	font-style: normal;
+	font-size: 1em;
+	margin-left: .1em;
+}
+a[href].header-anchor,
+a[href].header-anchor:visited {
+	color: transparent;
+}
+a[href].header-anchor:focus,
+a[href].header-anchor:hover {
+	text-decoration: underline;
+}
+a[href].header-anchor:focus,
+:hover > a[href].header-anchor {
+	color: #aaa;
+}
+
+h2 + .header-anchor {
+	font-size: 1.5em;
+}
+
+img {
+	max-width: 100%;
+}
+img[width] {
+	width: auto; /* Defer to max-width */
+}
+img[width][height] {
+	height: auto; /* Preserve aspect ratio */
+}</style>
+	</head>
+	<body>
+		<a href="#skip" class="visually-hidden">Skip to main content</a>
+
+		<header>
+			<a href="/" class="home-link">Modern Tragedy</a>
+			<nav>
+				<h2 class="visually-hidden">Top level navigation menu</h2>
+				<ul class="nav">
+					<li class="nav-item"><a href="/">Home</a></li>
+					<li class="nav-item"><a href="/blog/">Archive</a></li>
+					<li class="nav-item"><a href="/about/">About Me</a></li>
+				</ul>
+			</nav>
+		</header>
+
+		<main id="skip">
+			
+<h1>Dremel: A Decade of Interactive SQL Analysis at Web Scale</h1>
+
+<ul class="post-metadata">
+	<li><time datetime="2023-06-10">10 June 2023</time></li>
+	<li><a href="/tags/distributed-system/" class="post-tag">distributed system</a></li>
+</ul>
+
+<p>Paper: <a href="https://15721.courses.cs.cmu.edu/spring2023/papers/19-bigquery/p3461-melnik.pdf">Dremel: A Decade of Interactive SQL Analysis at Web Scale</a></p>
+<h2 id="introduction" tabindex="-1">Introduction <a class="header-anchor" href="#introduction">#</a></h2>
+<p>the main ideas we highlight in this paper are:</p>
+<ol>
+<li>SQL: simple SQL query to analyze nested data</li>
+<li>Disaggregated compute and storage: decouples compute from storage</li>
+<li>In situ analysis: different compute engines can operate on same piece of data</li>
+<li>Serverless computing: fully managed internal service</li>
+<li>Columnar storage</li>
+</ol>
+<h2 id="embracing-sql" tabindex="-1">Embracing SQL <a class="header-anchor" href="#embracing-sql">#</a></h2>
+<p>Because SQL doesn’t scale, GFS and MapReduce became the standard ways to store and process huge datasets. However writing analysis jobs on these systems is difficult and complex. Dremel was one of the first systems to <strong>reintroduce SQL for Big
+Data analysis</strong>.</p>
+<p>In Google, nearly all data passed between applications or stored on disk was in <a href="https://protobuf.dev/">Protocol Buffers</a>. Dremel's critical innovations includes <strong>first-class support for structured data</strong>. Dremel made it easy to query that hierarchical data with SQL.</p>
+<h2 id="disaggregated-storage" tabindex="-1">Disaggregated storage <a class="header-anchor" href="#disaggregated-storage">#</a></h2>
+<p>Dremel started with shared-nothing servers and computation is coupled with storage.</p>
+<p>In 2009, Dremel was migrated to <a href="https://cloud.google.com/blog/products/bigquery/bigquery-under-the-hood">Borg (cluster management)</a> and replicated storage. It accommodate the growing query workload and improve the utilization of the service. However <strong>storage and processing are still coupled</strong>. Which means</p>
+<ol>
+<li>all algorithms needed to be replication-aware</li>
+<li>resizing server also need to <strong>move data</strong> around.</li>
+<li>Resources can only be accessed by Dremel.</li>
+</ol>
+<p>Later Dremel was migrated from local disk to GFS. Performance was initially degraded. After lots of fine-tuning,  disaggregated storage outperformed the local-disk based system. There are several advantages:</p>
+<ol>
+<li>improved SLOs and robustness of Dremel because GFS is fully-managed service.</li>
+<li>No more need to load from GFS onto Dremel server’s local disks.</li>
+<li>No need to resize our clusters in order to load new data.</li>
+</ol>
+<p>Another notch of scalability and robustness was gained once Google’s file system was migrated from GFS (single-master model) to <a href="https://cloud.google.com/blog/products/bigquery/bigquery-under-the-hood">Colossus (distributed multi-master model)</a>.</p>
+<p><picture><source type="image/avif" srcset="/img/ZNSywBCsI0-990.avif 990w"><source type="image/webp" srcset="/img/ZNSywBCsI0-990.webp 990w"><img alt="Figure 1: Disaggregated storage, memory, and compute" loading="lazy" decoding="async" src="/img/ZNSywBCsI0-990.png" width="990" height="512"></picture></p>
+<h2 id="disaggregated-memory" tabindex="-1">Disaggregated memory <a class="header-anchor" href="#disaggregated-memory">#</a></h2>
+<p>Dremel added support for <strong>distributed joins</strong> with <strong>shuffle</strong> utilizing <strong>local RAM and disk</strong> to store sorted intermediate results. However there is bottleneck in scalability and multi-tenancy due to the  coupling between the compute nodes intermediate shuffle storage.</p>
+<p>In 2014, Dremel shuffle migrated to a <a href="https://cloud.google.com/blog/products/bigquery/in-memory-query-execution-in-google-bigquery">new shuffle infrastructure</a>. Shuffle data were stored in a distributed transient storage system. Improved peformance in-terms of latency and larger shuffle and service cost was observed.</p>
+<p><picture><source type="image/avif" srcset="/img/7rg3rOR0mF-1164.avif 1164w"><source type="image/webp" srcset="/img/7rg3rOR0mF-1164.webp 1164w"><img alt="Disaggregated in-memory shuffle" loading="lazy" decoding="async" src="/img/7rg3rOR0mF-1164.png" width="1164" height="1012"></picture></p>
+<h2 id="observations" tabindex="-1">Observations <a class="header-anchor" href="#observations">#</a></h2>
+<p>Disaggregation proved to be a major trend in data management.</p>
+<ol>
+<li>Economies of scale</li>
+<li>Universality</li>
+<li>Higher-level APIs:  Storage access is far removed from the early block I/O APIs.</li>
+<li>Value-added repackaging</li>
+</ol>
+<h2 id="in-situ-data-analysis" tabindex="-1">In Situ Data Analysis <a class="header-anchor" href="#in-situ-data-analysis">#</a></h2>
+<p>The data management community finds itself today in the middle of a transition from classical data warehouses to a <strong>datalake-oriented architecture</strong> for analytics. The trend includes:</p>
+<ol>
+<li>consuming data from a variety of data sources</li>
+<li>eliminating traditional ETL-based data ingestion from an OLTP system to a data warehouse</li>
+<li>enabling a variety of compute engines to operate on the data.</li>
+</ol>
+<h3 id="dremel-s-evolution-to-in-situ-analysis" tabindex="-1">Dremel’s evolution to in situ analysis <a class="header-anchor" href="#dremel-s-evolution-to-in-situ-analysis">#</a></h3>
+<p>Dremel’s initial design in 2006 was reminiscent of traditional DBMSs:</p>
+<ol>
+<li>explicit data loading was required.</li>
+<li>the data was stored in a proprietary format.</li>
+<li>inaccessible to other tools.</li>
+</ol>
+<p>As part of migrating Dremel to GFS, Dremel open the <strong>storage format</strong> (as a library) within Google which has 2 distinguising properties: <strong>columnar</strong>, <strong>self-dsecribing</strong>. The <strong>self-dsecribing</strong> feature enables interoperation between custom data transformation tools and SQL-based analytics.  MapReduce jobs could run on columnar data, write out columnar results, and those results could be immediately queried via Dremel. Users no longer had to load data into their data warehouse, any file they had in the GFS could effectively be queryable.</p>
+<p>In situ approach was evolved in two complementary directions:</p>
+<ol>
+<li>adding file formats beyond original columnar format.</li>
+<li>expanding the universe of joinable data ( e.g. BigTable, Cloud Storage, Google Drive ).</li>
+</ol>
+<h3 id="drawbacks-of-in-situ-analysis" tabindex="-1">Drawbacks of in situ analysis <a class="header-anchor" href="#drawbacks-of-in-situ-analysis">#</a></h3>
+<ol>
+<li>users do not always want to or have the capability to manage their own data safely and securely</li>
+<li>in situ analysis means there is no opportunity to either optimize storage layout or compute statistics in the general case.</li>
+</ol>
+<h2 id="serverless-computing" tabindex="-1">Serverless Computing <a class="header-anchor" href="#serverless-computing">#</a></h2>
+<h3 id="serverless-roots" tabindex="-1">Serverless roots <a class="header-anchor" href="#serverless-roots">#</a></h3>
+<ul>
+<li>Most traditional DBMS and data-warehouse were deployed on dedicated servers.</li>
+<li>MapReduce and Hadoop uses virtual machines but are still single-tenant.</li>
+</ul>
+<p>Three core ideas in Dremel which enable serverless analytics:</p>
+<ol>
+<li>Disaggregation of compute, storage and memory</li>
+<li>Fault Tolerance and Restartability
+<ul>
+<li>each subtask are deterministic and repeatable</li>
+<li>task dispatcher may need to dispatching multiple copies of the same task to alleviate unresponsive workers.</li>
+</ul>
+</li>
+<li>Virtual Scheduling Units
+<ul>
+<li>Dremel scheduling logic was designed to work with abstract units of compute and memory
+called slots</li>
+</ul>
+</li>
+</ol>
+<h3 id="evolution-of-serverless-architecture" tabindex="-1">Evolution of serverless architecture <a class="header-anchor" href="#evolution-of-serverless-architecture">#</a></h3>
+<p>Dremel continued to evolve its serverless capabilities, making them one of the key characteristics of Google BigQuery today.</p>
+<ol>
+<li>
+<p>Centralized Scheduling</p>
+<ul>
+<li>The scheduler uses the entire cluster state to make scheduling decisions which enables better utilization and isolation. (Figure 3)</li>
+</ul>
+<p><picture><source type="image/avif" srcset="/img/JY2-2bu-Gn-917.avif 917w"><source type="image/webp" srcset="/img/JY2-2bu-Gn-917.webp 917w"><img alt="System architecture and execution inside a server
+node" loading="lazy" decoding="async" src="/img/JY2-2bu-Gn-917.png" width="917" height="636"></picture></p>
+</li>
+<li>
+<p>Shuffle Persistence Layer</p>
+<ul>
+<li>allow decoupling scheduling and execution of different stages of the query.</li>
+</ul>
+</li>
+<li>
+<p>Flexible Execution DAGs</p>
+<ul>
+<li>query coordinator builds the query plan (tree) and send to the workers</li>
+<li>Workers from the leaf stage read from the storage layer and write to the shuffle persistence layer.</li>
+</ul>
+<p><picture><source type="image/avif" srcset="/img/t7gCl1YkGY-708.avif 708w"><source type="image/webp" srcset="/img/t7gCl1YkGY-708.webp 708w"><img alt="Shuffle-based execution plan" loading="lazy" decoding="async" src="/img/t7gCl1YkGY-708.png" width="708" height="526"></picture></p>
+</li>
+<li>
+<p>Dynamic Query Execution</p>
+<ul>
+<li>query execution plan can dynamically change during runtime based on the statistics collected during query execution.</li>
+</ul>
+</li>
+</ol>
+<h2 id="columar-storage-for-nested-data" tabindex="-1">Columar Storage For Nested Data <a class="header-anchor" href="#columar-storage-for-nested-data">#</a></h2>
+<p>The main design decision behind <strong>repetition and definition levels encoding</strong> was to encode all structure information within the column itself, so it can be accessed without reading ancestor fields.</p>
+<ul>
+<li>repetition level: specifies for repeated values whether each ancestor record is appended into or starts a new value</li>
+<li>definition level: specifies which ancestor records are absent when an optional field is absent.</li>
+</ul>
+<p>In 2014, migration of the storage to an improved columnar format, <a href="https://cloud.google.com/blog/products/bigquery/inside-capacitor-bigquerys-next-generation-columnar-storage-format">Capacitor</a>.</p>
+<h2 id="embedded-evaluation" tabindex="-1">Embedded evaluation <a class="header-anchor" href="#embedded-evaluation">#</a></h2>
+<p><strong>Capacitor</strong> uses a number of techniques to make filtering efficient</p>
+<ol>
+<li>Partition and predicate pruning
+<ul>
+<li>Various statistics are maintained about the values in each column. They are used both to eliminate partitions that are guaranteed to not contain any matching rows, and to simplify the filter by removing tautologies</li>
+</ul>
+</li>
+<li>Vectorization: <a href="https://15721.courses.cs.cmu.edu/spring2019/papers/10-compression/abadi-sigmod2006.pdf">Bit-Vector Encoding</a></li>
+<li>Skip-indexes
+<ul>
+<li>Capacitor combines column values into segments, which are compressed individually.</li>
+<li>The column header contains an index with offsets pointing to the beginning of each segment.</li>
+<li>When the filter is very selective, Capacitor uses this index to skip segments that have no hits, avoiding their decompression.</li>
+</ul>
+</li>
+<li>Predicate reordering
+<ul>
+<li>Capacitor uses a number of heuristics to make filter reordering decisions, which take into account dictionary usage, unique value cardinality,</li>
+</ul>
+</li>
+</ol>
+<h2 id="row-reordering" tabindex="-1">Row reordering <a class="header-anchor" href="#row-reordering">#</a></h2>
+<ul>
+<li>run-length encodings (RLE) in particular is very sensitive to <strong>row ordering</strong>.</li>
+<li>Usually, row order in the table does not have significance, so Capacitor is free to permute rows to improve RLE effectiveness.</li>
+<li>Capacitor’s row reordering algorithm uses sampling and heuristics to build an approximate model.</li>
+</ul>
+<h2 id="interactive-query-latency-over-big-data" tabindex="-1">Interactive Query Latency Over Big Data <a class="header-anchor" href="#interactive-query-latency-over-big-data">#</a></h2>
+<p>latency-reducing techniques implemented in Dremel:</p>
+<ol>
+<li>
+<p>Stand-by server pool</p>
+</li>
+<li>
+<p>Speculative execution</p>
+<ul>
+<li>small, fine-grained task</li>
+<li>duplicate tasks to prevent slow worker</li>
+</ul>
+</li>
+<li>
+<p>Multi-level execution trees</p>
+</li>
+<li>
+<p>Column-oriented schema representation</p>
+</li>
+<li>
+<p>Balancing CPU and IO with lightweight compression</p>
+</li>
+<li>
+<p>Approximate results</p>
+<ul>
+<li>Dremel uses one-pass algorithms that work well with the multi-level execution tree architecture.</li>
+</ul>
+</li>
+<li>
+<p>Query latency tier</p>
+<ul>
+<li>The dispatcher needed to be able to preempt the processing of parts of a query to allow a new user’s query to be processed.</li>
+</ul>
+</li>
+<li>
+<p>Reuse of file operations</p>
+<ul>
+<li>bottleneck for achieving low latency as thousands of Dremel workers send requests to the file system master(s) for metadata and to the chunk servers for open and read operations.</li>
+<li>The most important one: reuse metadata obtained from the file system by fetching it in a batch at the root server and passing it through the execution tree to the leaf servers for data reads.</li>
+</ul>
+</li>
+<li>
+<p>Guaranteed capacity</p>
+<ul>
+<li>a customer could reserve some capacity and use that capacity only for latency-sensitive workloads.</li>
+</ul>
+</li>
+<li>
+<p>Adaptive query scaling</p>
+</li>
+</ol>
+<h2 id="reference" tabindex="-1">Reference <a class="header-anchor" href="#reference">#</a></h2>
+<ul>
+<li><a href="https://15721.courses.cs.cmu.edu/spring2023/papers/19-bigquery/p3461-melnik.pdf">Dremel: A Decade of Interactive SQL Analysis at Web Scale</a></li>
+<li><a href="https://cloud.google.com/blog/products/bigquery/bigquery-under-the-hood">BigQuery under the hood</a></li>
+<li><a href="https://cloud.google.com/blog/products/bigquery/in-memory-query-execution-in-google-bigquery">In-memory query execution in Google BigQuery</a></li>
+<li><a href="https://cloud.google.com/blog/products/bigquery/inside-capacitor-bigquerys-next-generation-columnar-storage-format">Inside Capacitor, BigQuery’s next-generation columnar storage format</a></li>
+</ul>
+
+<ul class="links-nextprev"><li>Previous: <a href="/blog/distributed-system-index/">Distributed System Index</a></li>
+</ul>
+
+		</main>
+
+		<footer></footer>
+
+		<!-- Current page: /blog/paper-dremel/ -->
+	</body>
+</html>
