@@ -289,6 +289,10 @@ header:after {
 	border-top: 1px dashed var(--color-gray-20);
 	padding: 1em 0;
 }
+table, table td, table th {
+	border: 1px solid;
+	border-collapse: collapse;
+}
 
 table {
 	margin: 1em 0;
@@ -301,6 +305,8 @@ table th {
 pre,
 code {
 	font-family: var(--font-family-monospace);
+	background: rgba(175,184,193,0.2);
+	padding: 0em .1em;
 }
 pre:not([class*="language-"]) {
 	margin: .5em 0;
@@ -317,9 +323,7 @@ pre:not([class*="language-"]) {
 	word-spacing: normal;
 	word-break: normal;
 }
-code {
-	word-break: break-all;
-}
+
 
 /* Header */
 header {
