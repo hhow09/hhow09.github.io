@@ -6,4 +6,4 @@ eleventyNavigation:
 ---
 # About Me
 
-I am a person that writes stuff.
+[https://github.com/hhow09](https://github.com/hhow09)
