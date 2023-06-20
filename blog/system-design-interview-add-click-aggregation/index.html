@@ -1,0 +1,821 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>System Design Interview Vol.2 - Chapter 6. Ad Click Event Aggregation</title>
+		<meta name="description" content="System Design Interview Vol.2 - Chapter 6. Ad Click Event Aggregation">
+		<link rel="alternate" href="/feed/feed.xml" type="application/atom+xml" title="Modern Tragedy">
+		<link rel="alternate" href="/feed/feed.json" type="application/json" title="Modern Tragedy">
+		
+		<style>/**
+ * okaidia theme for JavaScript, CSS and HTML
+ * Loosely based on Monokai textmate theme by http://www.monokai.nl/
+ * @author ocodia
+ */
+
+code[class*="language-"],
+pre[class*="language-"] {
+	color: #f8f8f2;
+	background: none;
+	text-shadow: 0 1px rgba(0, 0, 0, 0.3);
+	font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+	font-size: 1em;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+	word-break: normal;
+	word-wrap: normal;
+	line-height: 1.5;
+
+	-moz-tab-size: 4;
+	-o-tab-size: 4;
+	tab-size: 4;
+
+	-webkit-hyphens: none;
+	-moz-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+	padding: 1em;
+	margin: .5em 0;
+	overflow: auto;
+	border-radius: 0.3em;
+}
+
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+	background: #272822;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+	padding: .1em;
+	border-radius: .3em;
+	white-space: normal;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+	color: #8292a2;
+}
+
+.token.punctuation {
+	color: #f8f8f2;
+}
+
+.token.namespace {
+	opacity: .7;
+}
+
+.token.property,
+.token.tag,
+.token.constant,
+.token.symbol,
+.token.deleted {
+	color: #f92672;
+}
+
+.token.boolean,
+.token.number {
+	color: #ae81ff;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+	color: #a6e22e;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string,
+.token.variable {
+	color: #f8f8f2;
+}
+
+.token.atrule,
+.token.attr-value,
+.token.function,
+.token.class-name {
+	color: #e6db74;
+}
+
+.token.keyword {
+	color: #66d9ef;
+}
+
+.token.regex,
+.token.important {
+	color: #fd971f;
+}
+
+.token.important,
+.token.bold {
+	font-weight: bold;
+}
+.token.italic {
+	font-style: italic;
+}
+
+.token.entity {
+	cursor: help;
+}
+/*
+ * New diff- syntax
+ */
+
+pre[class*="language-diff-"] {
+	--eleventy-code-padding: 1.25em;
+	padding-left: var(--eleventy-code-padding);
+	padding-right: var(--eleventy-code-padding);
+}
+.token.deleted {
+	background-color: hsl(0, 51%, 37%);
+	color: inherit;
+}
+.token.inserted {
+	background-color: hsl(126, 31%, 39%);
+	color: inherit;
+}
+
+/* Make the + and - characters unselectable for copy/paste */
+.token.prefix.unchanged,
+.token.prefix.inserted,
+.token.prefix.deleted {
+	-webkit-user-select: none;
+	user-select: none;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+.token.prefix.inserted,
+.token.prefix.deleted {
+	width: var(--eleventy-code-padding);
+	background-color: rgba(0,0,0,.2);
+}
+
+/* Optional: full-width background color */
+.token.inserted:not(.prefix),
+.token.deleted:not(.prefix) {
+	display: block;
+	margin-left: calc(-1 * var(--eleventy-code-padding));
+	margin-right: calc(-1 * var(--eleventy-code-padding));
+	text-decoration: none; /* override del, ins, mark defaults */
+	color: inherit; /* override del, ins, mark defaults */
+}
+* { box-sizing: border-box; }
+/* Defaults */
+:root {
+	--font-family: -apple-system, system-ui, sans-serif;
+	--font-family-monospace: Consolas, Menlo, Monaco, Andale Mono WT, Andale Mono, Lucida Console, Lucida Sans Typewriter, DejaVu Sans Mono, Bitstream Vera Sans Mono, Liberation Mono, Nimbus Mono L, Courier New, Courier, monospace;
+}
+
+/* Theme colors */
+:root {
+	--color-gray-20: #e0e0e0;
+	--color-gray-50: #C0C0C0;
+	--color-gray-90: #333;
+
+	--background-color: #fff;
+
+	--text-color: var(--color-gray-90);
+	--text-color-link: #082840;
+	--text-color-link-active: #5f2b48;
+	--text-color-link-visited: #17050F;
+
+	--syntax-tab-size: 2;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--color-gray-20: #e0e0e0;
+		--color-gray-50: #C0C0C0;
+		--color-gray-90: #dad8d8;
+
+		/* --text-color is assigned to --color-gray-_ above */
+		--text-color-link: #1493fb;
+		--text-color-link-active: #6969f7;
+		--text-color-link-visited: #a6a6f8;
+
+		--background-color: #15202b;
+	}
+}
+
+
+/* Global stylesheet */
+* {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	padding: 0;
+	margin: 0 auto;
+	font-family: var(--font-family);
+	color: var(--text-color);
+	background-color: var(--background-color);
+}
+html {
+	overflow-y: scroll;
+}
+body {
+	max-width: 40em;
+}
+
+/* https://www.a11yproject.com/posts/how-to-hide-content/ */
+.visually-hidden {
+	clip: rect(0 0 0 0);
+	clip-path: inset(50%);
+	height: 1px;
+	overflow: hidden;
+	position: absolute;
+	white-space: nowrap;
+	width: 1px;
+}
+
+p:last-child {
+	margin-bottom: 0;
+}
+p {
+	line-height: 1.5;
+}
+
+li {
+	line-height: 1.5;
+}
+
+a[href] {
+	color: var(--text-color-link);
+}
+a[href]:visited {
+	color: var(--text-color-link-visited);
+}
+a[href]:hover,
+a[href]:active {
+	color: var(--text-color-link-active);
+}
+
+main {
+	padding: 1rem;
+}
+main :first-child {
+	margin-top: 0;
+}
+
+header {
+	border-bottom: 1px dashed var(--color-gray-20);
+}
+header:after {
+	content: "";
+	display: table;
+	clear: both;
+}
+
+.links-nextprev {
+	list-style: none;
+	border-top: 1px dashed var(--color-gray-20);
+	padding: 1em 0;
+}
+table, table td, table th {
+	border: 1px solid;
+	border-collapse: collapse;
+}
+
+table {
+	margin: 1em 0;
+}
+table td,
+table th {
+	padding-right: 1em;
+}
+
+pre,
+code {
+	font-family: var(--font-family-monospace);
+	background: rgba(175,184,193,0.2);
+	padding: 0em .1em;
+}
+pre:not([class*="language-"]) {
+	margin: .5em 0;
+	line-height: 1.375; /* 22px /16 */
+	-moz-tab-size: var(--syntax-tab-size);
+	-o-tab-size: var(--syntax-tab-size);
+	tab-size: var(--syntax-tab-size);
+	-webkit-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+	direction: ltr;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+	word-break: normal;
+}
+
+
+/* Header */
+header {
+	display: flex;
+	gap: 1em .5em;
+	flex-wrap: wrap;
+	align-items: center;
+	padding: 1em;
+}
+.home-link {
+	font-size: 1em; /* 16px /16 */
+	font-weight: 700;
+	margin-right: 2em;
+}
+.home-link:link:not(:hover) {
+	text-decoration: none;
+}
+
+/* Nav */
+.nav {
+	display: flex;
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}
+.nav-item {
+	display: inline-block;
+	margin-right: 1em;
+}
+.nav-item a[href]:not(:hover) {
+	text-decoration: none;
+}
+.nav a[href][aria-current="page"] {
+	text-decoration: underline;
+}
+
+/* Posts list */
+.postlist {
+	list-style: none;
+	padding: 0;
+	padding-left: 1.5rem;
+}
+.postlist-item {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	counter-increment: start-from -1;
+	margin-bottom: 1em;
+}
+.postlist-item:before {
+	display: inline-block;
+	pointer-events: none;
+	content: "" counter(start-from, decimal-leading-zero) ". ";
+	line-height: 100%;
+	text-align: right;
+	margin-left: -1.5rem;
+}
+.postlist-date,
+.postlist-item:before {
+	font-size: 0.8125em; /* 13px /16 */
+	color: var(--color-gray-90);
+}
+.postlist-date {
+	word-spacing: -0.5px;
+}
+.postlist-link {
+	font-size: 1.1875em; /* 19px /16 */
+	font-weight: 700;
+	flex-basis: calc(100% - 1.5rem);
+	padding-left: .25em;
+	padding-right: .5em;
+	text-underline-position: from-font;
+	text-underline-offset: 0;
+	text-decoration-thickness: 1px;
+}
+.postlist-item-active .postlist-link {
+	font-weight: bold;
+}
+
+/* Tags */
+.post-tag {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	text-transform: capitalize;
+	font-style: italic;
+}
+.postlist-item > .post-tag {
+	align-self: center;
+}
+
+/* Tags list */
+.post-metadata {
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: .5em;
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+.post-metadata time {
+	margin-right: 1em;
+}
+
+/* Direct Links / Markdown Headers */
+.header-anchor {
+	text-decoration: none;
+	font-style: normal;
+	font-size: 1em;
+	margin-left: .1em;
+}
+a[href].header-anchor,
+a[href].header-anchor:visited {
+	color: transparent;
+}
+a[href].header-anchor:focus,
+a[href].header-anchor:hover {
+	text-decoration: underline;
+}
+a[href].header-anchor:focus,
+:hover > a[href].header-anchor {
+	color: #aaa;
+}
+
+h2 + .header-anchor {
+	font-size: 1.5em;
+}
+
+img {
+	max-width: 100%;
+}
+img[width] {
+	width: auto; /* Defer to max-width */
+}
+img[width][height] {
+	height: auto; /* Preserve aspect ratio */
+}
+
+blockquote {
+	background:		#f9f9f9;
+	border-left:	10px solid #ccc;
+	margin:			1.5em 10px;
+	padding:		.5em 10px;
+	quotes:			"\201C""\201D""\2018""\2019"; 
+}
+
+blockquote p {
+	display:		inline;
+}</style>
+		<script type="module" async>import mermaid from "https://unpkg.com/mermaid@10/dist/mermaid.esm.min.mjs";document.addEventListener('DOMContentLoaded', mermaid.initialize({startOnLoad:true}));</script>		
+	</head>
+	<body>
+		<a href="#skip" class="visually-hidden">Skip to main content</a>
+
+		<header>
+			<a href="/" class="home-link">Modern Tragedy</a>
+			<nav>
+				<h2 class="visually-hidden">Top level navigation menu</h2>
+				<ul class="nav">
+					<li class="nav-item"><a href="/">Home</a></li>
+					<li class="nav-item"><a href="/blog/">Archive</a></li>
+					<li class="nav-item"><a href="/about/">About Me</a></li>
+				</ul>
+			</nav>
+		</header>
+
+		<main id="skip">
+			
+<h1>System Design Interview Vol.2 - Chapter 6. Ad Click Event Aggregation</h1>
+
+<ul class="post-metadata">
+	<li><time datetime="2023-06-18">18 June 2023</time></li>
+	<li><a href="/tags/distributed-system/" class="post-tag">distributed system</a>, </li>
+	<li><a href="/tags/system-design/" class="post-tag">system design</a></li>
+</ul>
+
+<p>the content mainly comes from <a href="https://www.amazon.com/System-Design-Interview-Insiders-Guide/dp/1736049119">System Design Interview Vol.2</a> - <a href="https://github.com/alex-xu-system/bytebytego/blob/main/system_design_links_vol2.md#chapter-6-ad-click-event-aggregation">Chapter 6. Ad Click Event Aggregation</a></p>
+<p>design a ad click event aggregation system for near-realtime data.</p>
+<h2 id="tldr" tabindex="-1">TLDR <a class="header-anchor" href="#tldr">#</a></h2>
+<ol>
+<li>data pipeline / streaming: message queue</li>
+<li>aggregation service: map reduce</li>
+<li>database: read-heavy, write-heavy, no update or transaction reqiured</li>
+<li>issues:
+<ul>
+<li>duplicate events</li>
+<li>exactly once processing</li>
+<li>fault tolerance</li>
+<li>hotspot</li>
+</ul>
+</li>
+<li>scaling
+<ul>
+<li>horizontal scaling in message queue, database and aggregaiton service</li>
+</ul>
+</li>
+</ol>
+<h2 id="requirement" tabindex="-1">Requirement <a class="header-anchor" href="#requirement">#</a></h2>
+<h3 id="functional-requirement" tabindex="-1">Functional Requirement <a class="header-anchor" href="#functional-requirement">#</a></h3>
+<ol>
+<li>Support querying aggregated data: the number of clicks of certian ad (<code>ad_id</code>) in last <code>M</code> minutes</li>
+<li>Support querying aggregated data: top <code>N</code> most clicked ad in last <code>M</code> minutes.</li>
+<li>Support filtering by different attributes in above 2 querys.</li>
+<li>Dataset volume is FAANG scale
+<ul>
+<li>volume: single database is not a choice.</li>
+</ul>
+</li>
+</ol>
+<h3 id="non-functional-requirement" tabindex="-1">Non-Functional Requirement <a class="header-anchor" href="#non-functional-requirement">#</a></h3>
+<ol>
+<li>correctness of the aggregation result is important
+<ul>
+<li>as data is used for RTB and ads billing</li>
+</ul>
+</li>
+<li>Properly handle delayed duplicate events</li>
+<li>The system should be resilient to partial failures.</li>
+<li>End-to-end latency should be a few minutes, at most.
+<ul>
+<li>need realtime streaming system (instead of batch system)</li>
+</ul>
+</li>
+</ol>
+<h3 id="estimation" tabindex="-1">Estimation <a class="header-anchor" href="#estimation">#</a></h3>
+<ul>
+<li>active users: 1e9 / day</li>
+<li>assume event per user: 1 / user</li>
+<li>QPS: <code>(1e9 * 1) / (1e5) = 1e5</code>
+<ul>
+<li>assume peak hour could be <code>5e5</code></li>
+</ul>
+</li>
+</ul>
+<h2 id="high-level-design" tabindex="-1">High Level Design <a class="header-anchor" href="#high-level-design">#</a></h2>
+<h3 id="data-model" tabindex="-1">Data Model <a class="header-anchor" href="#data-model">#</a></h3>
+<h4 id="raw-event" tabindex="-1">Raw Event <a class="header-anchor" href="#raw-event">#</a></h4>
+<table>
+<thead>
+<tr>
+<th>ad_id</th>
+<th>timestamp</th>
+<th>user_id</th>
+<th>ip</th>
+<th>country_code</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ad001</td>
+<td>2023-06-01 00:00:01</td>
+<td>user1</td>
+<td>207.148.22.22</td>
+<td>US</td>
+</tr>
+<tr>
+<td>ad001</td>
+<td>2023-06-01 00:00:02</td>
+<td>user2</td>
+<td>209.153.55.11</td>
+<td>JP</td>
+</tr>
+<tr>
+<td>ad002</td>
+<td>2023-06-01 00:00:02</td>
+<td>user2</td>
+<td>209.153.55.11</td>
+<td>JP</td>
+</tr>
+</tbody>
+</table>
+<h4 id="aggregated-data" tabindex="-1">Aggregated Data <a class="header-anchor" href="#aggregated-data">#</a></h4>
+<table>
+<thead>
+<tr>
+<th>ad_id</th>
+<th>timestamp_minute</th>
+<th>count</th>
+<th>filter_id</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ad001</td>
+<td>202306010000</td>
+<td>5</td>
+<td>0023</td>
+</tr>
+<tr>
+<td>ad001</td>
+<td>202306010000</td>
+<td>7</td>
+<td>0012</td>
+</tr>
+<tr>
+<td>ad002</td>
+<td>202306010001</td>
+<td>7</td>
+<td>0012</td>
+</tr>
+<tr>
+<td>ad002</td>
+<td>202306010001</td>
+<td>8</td>
+<td>0023</td>
+</tr>
+</tbody>
+</table>
+<p>data under same <code>ad_id-timestamp_minute</code> can be further group by <code>filter_id</code></p>
+<h3 id="query-api" tabindex="-1">Query API <a class="header-anchor" href="#query-api">#</a></h3>
+<h4 id="the-number-of-clicks-of-certian-ad-ad-id-in-last-m-minutes" tabindex="-1">the number of clicks of certian ad (<code>ad_id</code>) in last <code>M</code> minutes <a class="header-anchor" href="#the-number-of-clicks-of-certian-ad-ad-id-in-last-m-minutes">#</a></h4>
+<ul>
+<li>API: <code>GET /v1/ads/{:ad_id}/aggregated_count</code></li>
+<li>query parameters:
+<ul>
+<li><code>from_minute</code></li>
+<li><code>to_minute</code></li>
+<li><code>filter_id</code></li>
+</ul>
+</li>
+<li>returns <code>ad_id</code> and <code>count</code></li>
+</ul>
+<h4 id="top-n-most-clicked-ad-in-last-m-minutes" tabindex="-1">top <code>N</code> most clicked ad in last <code>M</code> minutes <a class="header-anchor" href="#top-n-most-clicked-ad-in-last-m-minutes">#</a></h4>
+<ul>
+<li>API: <code>GET /v1/ads/popular_ads</code></li>
+<li>query parameters:
+<ul>
+<li><code>count</code>: top <code>N</code></li>
+<li><code>window</code>: last <code>M</code> minutes</li>
+<li><code>filter_id</code></li>
+</ul>
+</li>
+<li>returns <code>ad_ids</code></li>
+</ul>
+<h3 id="data-storage" tabindex="-1">Data Storage <a class="header-anchor" href="#data-storage">#</a></h3>
+<p>we need to store both raw data and aggregated data</p>
+<h4 id="comparison-between-querying-raw-data-vs-aggregated-data" tabindex="-1">Comparison between querying raw data vs aggregated data <a class="header-anchor" href="#comparison-between-querying-raw-data-vs-aggregated-data">#</a></h4>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>query raw data</th>
+<th>query aggregated data</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>usage</td>
+<td>by other service</td>
+<td>this system</td>
+</tr>
+<tr>
+<td>pros</td>
+<td>full data set,  support ad-hoc filter</td>
+<td>smaller data set, fast query</td>
+</tr>
+<tr>
+<td>cons</td>
+<td>huge storage, slow query</td>
+<td>data loss</td>
+</tr>
+<tr>
+<td>where</td>
+<td>cold storage</td>
+<td>database</td>
+</tr>
+</tbody>
+</table>
+<h4 id="database-choice" tabindex="-1">Database Choice <a class="header-anchor" href="#database-choice">#</a></h4>
+<h5>analyze</h5>
+<ul>
+<li>both read heavy and write-heavy
+<ul>
+<li>read: refresh the aggregation data in dashboard</li>
+<li>write: insert the data</li>
+</ul>
+</li>
+<li>no relation and transaction needed</li>
+<li>time series</li>
+</ul>
+<h5>Choices</h5>
+<ul>
+<li>InfluxDB <a href="#reference">[1]</a></li>
+<li>Cassandra <a href="#reference">[2]</a>
+<ul>
+<li>Netflix use cassandra for time series database <a href="#reference">[3]</a></li>
+<li>storage engine: LSM tree <a href="#reference">[4]</a> (good for write heavy)</li>
+</ul>
+</li>
+<li>S3 + <a href="https://www.databricks.com/glossary/what-is-parquet">Parquet</a>
+<ul>
+<li>columnar storage</li>
+</ul>
+</li>
+</ul>
+<h3 id="high-level-design-1" tabindex="-1">High Level Design <a class="header-anchor" href="#high-level-design-1">#</a></h3>
+<p><picture><source type="image/avif" srcset="/img/TjtMQlbZ7i-846.avif 846w"><source type="image/webp" srcset="/img/TjtMQlbZ7i-846.webp 846w"><img alt="Figure 3: High Level Design" loading="lazy" decoding="async" src="/img/TjtMQlbZ7i-846.svg" width="846" height="506"></picture></p>
+<p>Kafka support high throughput, exact-once delivery.we can discuss exact-once delivery / atomic commit in <a href="#delivery-guarantees">Delivery Guarantees</a></p>
+<h3 id="aggregation-service" tabindex="-1">Aggregation Service <a class="header-anchor" href="#aggregation-service">#</a></h3>
+<h4 id="the-number-of-clicks-of-certian-ad-ad-id-in-last-m-minutes-1" tabindex="-1">the number of clicks of certian ad (<code>ad_id</code>) in last <code>M</code> minutes <a class="header-anchor" href="#the-number-of-clicks-of-certian-ad-ad-id-in-last-m-minutes-1">#</a></h4>
+<p><picture><source type="image/avif" srcset="/img/z6RTVsMZhH-949.avif 949w"><source type="image/webp" srcset="/img/z6RTVsMZhH-949.webp 949w"><img alt="Figure 8 Aggregate the number of clicks" loading="lazy" decoding="async" src="/img/z6RTVsMZhH-949.svg" width="949" height="368"></picture></p>
+<h2 id="deep-dive" tabindex="-1">Deep Dive <a class="header-anchor" href="#deep-dive">#</a></h2>
+<h3 id="aggregation-window-and-watermark" tabindex="-1">Aggregation Window and Watermark <a class="header-anchor" href="#aggregation-window-and-watermark">#</a></h3>
+<h4 id="what-is-watermarking" tabindex="-1">What Is Watermarking? <a class="header-anchor" href="#what-is-watermarking">#</a></h4>
+<blockquote>
+<p>when working with real-time streaming data there will be delays between event time and processing time due to how data is ingested and whether the overall application experiences issues like downtime. Due to these potential variable delays, the engine that you use to process this data needs to have some mechanism to decide when to close the aggregate windows and produce the aggregate result.
+<a href="#reference">[5]</a></p>
+</blockquote>
+<h3 id="delivery-guarantees" tabindex="-1">Delivery Guarantees <a class="header-anchor" href="#delivery-guarantees">#</a></h3>
+<p>In most circumstances, <strong>at-least once</strong> processing is good enough if a small percentage of duplicates are acceptable. However, this is not the case for our system. Differences of a few percent in data points could result in discrepancies of millions of dollars.</p>
+<p>Therefore, we recommend <strong>exactly-once delivery</strong> for the system.</p>
+<h3 id="data-deduplication" tabindex="-1">Data deduplication <a class="header-anchor" href="#data-deduplication">#</a></h3>
+<p>two common sources:</p>
+<ol>
+<li>client resend</li>
+<li>aggregation server outage</li>
+</ol>
+<p><picture><source type="image/avif" srcset="/img/mPAtoBBGUB-1296.avif 1296w"><source type="image/webp" srcset="/img/mPAtoBBGUB-1296.webp 1296w"><img alt="Figure 17 Duplicate data" loading="lazy" decoding="async" src="/img/mPAtoBBGUB-1296.svg" width="1296" height="1005"></picture></p>
+<p>If step 6 fails, perhaps due to Aggregator outage, events from 100 to 110 are already sent to the downstream, but the new offset 110 is not persisted in upstream Kafka. In this case, a new Aggregator would consume again from offset 100, even if those events are already processed, causing duplicate data.</p>
+<h4 id="solution" tabindex="-1">Solution <a class="header-anchor" href="#solution">#</a></h4>
+<p><picture><source type="image/avif" srcset="/img/57_6r_SJe4-1791.avif 1791w"><source type="image/webp" srcset="/img/57_6r_SJe4-1791.webp 1791w"><img alt="Figure 20 Distributed transaction" loading="lazy" decoding="async" src="/img/57_6r_SJe4-1791.svg" width="1791" height="1233"></picture></p>
+<p>To achieve <strong>exactly-once processing</strong> <a href="#reference">[6]</a>, we need to put operations between step 4 to step 6 in one distributed transaction.</p>
+<p>Most common technique is two phase commit</p>
+<h2 id="scale-the-system" tabindex="-1">Scale the system <a class="header-anchor" href="#scale-the-system">#</a></h2>
+<h3 id="scale-the-message-queue" tabindex="-1">Scale the message queue <a class="header-anchor" href="#scale-the-message-queue">#</a></h3>
+<ol>
+<li>partition key: use <code>ad_id</code> as <strong>partition key</strong><a href="#reference">[7]</a> so that an aggregation service can subscribe to all events of the same <code>ad_id</code>.</li>
+<li>number of partitions: if more consumers need to be added, try to do it during off-peak hours to minimize the impact.</li>
+<li>Topic physical sharding: We can split the data by geography (<code>topic_north_america</code>, <code>topic_europe</code>, <code>topic_asia</code>, etc.,) or by business type (<code>topic_web_ads</code>, <code>topic_mobile_ads</code>, etc).
+<ul>
+<li>Pros: increased system throughput, reduced rebalance time.</li>
+<li>Cons: extra complexity</li>
+</ul>
+</li>
+</ol>
+<h3 id="scale-the-aggregation-service" tabindex="-1">Scale the aggregation service <a class="header-anchor" href="#scale-the-aggregation-service">#</a></h3>
+<ol>
+<li>multi-threading: Allocate events with different <code>ad_id</code>s to different threads.</li>
+</ol>
+<h3 id="scale-the-database" tabindex="-1">Scale the database <a class="header-anchor" href="#scale-the-database">#</a></h3>
+<p>Cassandra natively supports horizontal scaling,</p>
+<h3 id="hotspot-issue" tabindex="-1">Hotspot issue <a class="header-anchor" href="#hotspot-issue">#</a></h3>
+<h4 id="aggregaion-service" tabindex="-1">Aggregaion Service <a class="header-anchor" href="#aggregaion-service">#</a></h4>
+<p>some <code>ad_id</code> might receive many more ad click events than others.</p>
+<p>Solution: dynamically allocate more node in aggregation service.</p>
+<h4 id="kafka" tabindex="-1">Kafka <a class="header-anchor" href="#kafka">#</a></h4>
+<p>The publisher specifies the topic and the partition of a message before publishing. Hence, it’s the publisher’s responsibility to ensure that the partition logic will not result in a hot partition.</p>
+<p><a href="https://docs.confluent.io/platform/current/kafka/monitoring.html">Confluent: Monitoring Kafka with JMX</a></p>
+<h3 id="fault-tolerance" tabindex="-1">Fault tolerance <a class="header-anchor" href="#fault-tolerance">#</a></h3>
+<ul>
+<li>aggregaion service works in memory and <strong>could fail</strong></li>
+<li>Replaying data from the beginning of Kafka is slow.</li>
+</ul>
+<p>Solution: snapshot aggregaion service to safe <strong>current state</strong> and <strong>event offset</strong></p>
+<p><picture><source type="image/avif" srcset="/img/TFtUeSY7BI-558.avif 558w"><source type="image/webp" srcset="/img/TFtUeSY7BI-558.webp 558w"><img alt="Figure 27 Aggregation node failover" loading="lazy" decoding="async" src="/img/TFtUeSY7BI-558.svg" width="558" height="309"></picture></p>
+<h2 id="data-monitoring-and-correctness" tabindex="-1">Data monitoring and correctness <a class="header-anchor" href="#data-monitoring-and-correctness">#</a></h2>
+<h3 id="continuous-monitoring" tabindex="-1">Continuous monitoring <a class="header-anchor" href="#continuous-monitoring">#</a></h3>
+<ul>
+<li>Latency</li>
+<li>Message queue size
+<ul>
+<li>for aggregation servie to scale the node</li>
+<li>for application to apply back pressure.</li>
+</ul>
+</li>
+<li>System resources on aggregation nodes</li>
+</ul>
+<h3 id="reconciliation" tabindex="-1">Reconciliation <a class="header-anchor" href="#reconciliation">#</a></h3>
+<ul>
+<li>purpose: comparing different sets of data in order to ensure data integrity.</li>
+<li>how: using a <strong>batch job</strong> and reconciling with the real-time aggregation result.</li>
+<li>why: some events might arrive late, the result from the batch job might not match exactly with the real-time aggregation result.</li>
+</ul>
+<p><picture><source type="image/avif" srcset="/img/H38DsDbTtW-1033.avif 1033w"><source type="image/webp" srcset="/img/H38DsDbTtW-1033.webp 1033w"><img alt="Figure 28 Final design" loading="lazy" decoding="async" src="/img/H38DsDbTtW-1033.svg" width="1033" height="434"></picture></p>
+<h2 id="reference" tabindex="-1">Reference <a class="header-anchor" href="#reference">#</a></h2>
+<ol>
+<li><a href="https://www.influxdata.com/blog/influxdb-vs-cassandra-time-series/">InfluxDB Tops Cassandra in Time Series Data &amp; Metrics Benchmark</a></li>
+<li><a href="https://thelastpickle.com/blog/2017/08/02/time-series-data-modeling-massive-scale.html">Cassandra Time Series Data Modeling For Massive Scale</a></li>
+<li><a href="https://netflixtechblog.com/scaling-time-series-data-storage-part-i-ec2b6d44ba39">Scaling Time Series Data Storage — Part I</a></li>
+<li><a href="https://docs.datastax.com/en/cassandra-oss/3.x/cassandra/dml/dmlManageOndisk.html">Apache Cassandra™ 3.x - Storage engine</a></li>
+<li><a href="https://www.databricks.com/blog/2022/08/22/feature-deep-dive-watermarking-apache-spark-structured-streaming.html">Feature Deep Dive: Watermarking in Apache Spark Structured Streaming</a></li>
+<li><a href="https://flink.apache.org/2018/02/28/an-overview-of-end-to-end-exactly-once-processing-in-apache-flink-with-apache-kafka-too/">An Overview of End-to-End Exactly-Once Processing in Apache Flink (with Apache Kafka, too!)</a></li>
+<li><a href="https://www.confluent.io/blog/kafka-streams-tables-part-2-topics-partitions-and-storage-fundamentals/#partition-events">Streams and Tables in Apache Kafka: Topics, Partitions, and Storage Fundamentals</a></li>
+</ol>
+
+<ul class="links-nextprev"><li>Previous: <a href="/blog/paper-dremel/">Dremel: A Decade of Interactive SQL Analysis at Web Scale</a></li>
+</ul>
+
+		</main>
+
+		<footer></footer>
+
+		<!-- Current page: /blog/system-design-interview-add-click-aggregation/ -->
+	</body>
+</html>

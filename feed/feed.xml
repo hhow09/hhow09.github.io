@@ -4,12 +4,328 @@
 	<subtitle>programming stuff</subtitle>
 	<link href="https://hhow09.github.io/feed/feed.xml" rel="self"/>
 	<link href="https://hhow09.github.io/"/>
-	<updated>2023-06-10T00:00:00Z</updated>
+	<updated>2023-06-18T00:00:00Z</updated>
 	<id>https://hhow09.github.io/</id>
 	<author>
 		<name>HH</name>
 		<email>hhow09@gmail.com</email>
 	</author>
+	
+	<entry>
+		<title>System Design Interview Vol.2 - Chapter 6. Ad Click Event Aggregation</title>
+		<link href="https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/"/>
+		<updated>2023-06-18T00:00:00Z</updated>
+		<id>https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/</id>
+		<content type="html">&lt;p&gt;the content mainly comes from &lt;a href=&quot;https://www.amazon.com/System-Design-Interview-Insiders-Guide/dp/1736049119&quot;&gt;System Design Interview Vol.2&lt;/a&gt; - &lt;a href=&quot;https://github.com/alex-xu-system/bytebytego/blob/main/system_design_links_vol2.md#chapter-6-ad-click-event-aggregation&quot;&gt;Chapter 6. Ad Click Event Aggregation&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;design a ad click event aggregation system for near-realtime data.&lt;/p&gt;
+&lt;h2 id=&quot;tldr&quot; tabindex=&quot;-1&quot;&gt;TLDR &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;data pipeline / streaming: message queue&lt;/li&gt;
+&lt;li&gt;aggregation service: map reduce&lt;/li&gt;
+&lt;li&gt;database: read-heavy, write-heavy, no update or transaction reqiured&lt;/li&gt;
+&lt;li&gt;issues:
+&lt;ul&gt;
+&lt;li&gt;duplicate events&lt;/li&gt;
+&lt;li&gt;exactly once processing&lt;/li&gt;
+&lt;li&gt;fault tolerance&lt;/li&gt;
+&lt;li&gt;hotspot&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;scaling
+&lt;ul&gt;
+&lt;li&gt;horizontal scaling in message queue, database and aggregaiton service&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&quot;requirement&quot; tabindex=&quot;-1&quot;&gt;Requirement &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;h3 id=&quot;functional-requirement&quot; tabindex=&quot;-1&quot;&gt;Functional Requirement &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;Support querying aggregated data: the number of clicks of certian ad (&lt;code&gt;ad_id&lt;/code&gt;) in last &lt;code&gt;M&lt;/code&gt; minutes&lt;/li&gt;
+&lt;li&gt;Support querying aggregated data: top &lt;code&gt;N&lt;/code&gt; most clicked ad in last &lt;code&gt;M&lt;/code&gt; minutes.&lt;/li&gt;
+&lt;li&gt;Support filtering by different attributes in above 2 querys.&lt;/li&gt;
+&lt;li&gt;Dataset volume is FAANG scale
+&lt;ul&gt;
+&lt;li&gt;volume: single database is not a choice.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&quot;non-functional-requirement&quot; tabindex=&quot;-1&quot;&gt;Non-Functional Requirement &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;correctness of the aggregation result is important
+&lt;ul&gt;
+&lt;li&gt;as data is used for RTB and ads billing&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Properly handle delayed duplicate events&lt;/li&gt;
+&lt;li&gt;The system should be resilient to partial failures.&lt;/li&gt;
+&lt;li&gt;End-to-end latency should be a few minutes, at most.
+&lt;ul&gt;
+&lt;li&gt;need realtime streaming system (instead of batch system)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&quot;estimation&quot; tabindex=&quot;-1&quot;&gt;Estimation &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;active users: 1e9 / day&lt;/li&gt;
+&lt;li&gt;assume event per user: 1 / user&lt;/li&gt;
+&lt;li&gt;QPS: &lt;code&gt;(1e9 * 1) / (1e5) = 1e5&lt;/code&gt;
+&lt;ul&gt;
+&lt;li&gt;assume peak hour could be &lt;code&gt;5e5&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;high-level-design&quot; tabindex=&quot;-1&quot;&gt;High Level Design &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;h3 id=&quot;data-model&quot; tabindex=&quot;-1&quot;&gt;Data Model &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;h4 id=&quot;raw-event&quot; tabindex=&quot;-1&quot;&gt;Raw Event &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;ad_id&lt;/th&gt;
+&lt;th&gt;timestamp&lt;/th&gt;
+&lt;th&gt;user_id&lt;/th&gt;
+&lt;th&gt;ip&lt;/th&gt;
+&lt;th&gt;country_code&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;ad001&lt;/td&gt;
+&lt;td&gt;2023-06-01 00:00:01&lt;/td&gt;
+&lt;td&gt;user1&lt;/td&gt;
+&lt;td&gt;207.148.22.22&lt;/td&gt;
+&lt;td&gt;US&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;ad001&lt;/td&gt;
+&lt;td&gt;2023-06-01 00:00:02&lt;/td&gt;
+&lt;td&gt;user2&lt;/td&gt;
+&lt;td&gt;209.153.55.11&lt;/td&gt;
+&lt;td&gt;JP&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;ad002&lt;/td&gt;
+&lt;td&gt;2023-06-01 00:00:02&lt;/td&gt;
+&lt;td&gt;user2&lt;/td&gt;
+&lt;td&gt;209.153.55.11&lt;/td&gt;
+&lt;td&gt;JP&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h4 id=&quot;aggregated-data&quot; tabindex=&quot;-1&quot;&gt;Aggregated Data &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;ad_id&lt;/th&gt;
+&lt;th&gt;timestamp_minute&lt;/th&gt;
+&lt;th&gt;count&lt;/th&gt;
+&lt;th&gt;filter_id&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;ad001&lt;/td&gt;
+&lt;td&gt;202306010000&lt;/td&gt;
+&lt;td&gt;5&lt;/td&gt;
+&lt;td&gt;0023&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;ad001&lt;/td&gt;
+&lt;td&gt;202306010000&lt;/td&gt;
+&lt;td&gt;7&lt;/td&gt;
+&lt;td&gt;0012&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;ad002&lt;/td&gt;
+&lt;td&gt;202306010001&lt;/td&gt;
+&lt;td&gt;7&lt;/td&gt;
+&lt;td&gt;0012&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;ad002&lt;/td&gt;
+&lt;td&gt;202306010001&lt;/td&gt;
+&lt;td&gt;8&lt;/td&gt;
+&lt;td&gt;0023&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;data under same &lt;code&gt;ad_id-timestamp_minute&lt;/code&gt; can be further group by &lt;code&gt;filter_id&lt;/code&gt;&lt;/p&gt;
+&lt;h3 id=&quot;query-api&quot; tabindex=&quot;-1&quot;&gt;Query API &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;h4 id=&quot;the-number-of-clicks-of-certian-ad-ad-id-in-last-m-minutes&quot; tabindex=&quot;-1&quot;&gt;the number of clicks of certian ad (&lt;code&gt;ad_id&lt;/code&gt;) in last &lt;code&gt;M&lt;/code&gt; minutes &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;API: &lt;code&gt;GET /v1/ads/{:ad_id}/aggregated_count&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;query parameters:
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;from_minute&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;to_minute&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;filter_id&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;returns &lt;code&gt;ad_id&lt;/code&gt; and &lt;code&gt;count&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&quot;top-n-most-clicked-ad-in-last-m-minutes&quot; tabindex=&quot;-1&quot;&gt;top &lt;code&gt;N&lt;/code&gt; most clicked ad in last &lt;code&gt;M&lt;/code&gt; minutes &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;API: &lt;code&gt;GET /v1/ads/popular_ads&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;query parameters:
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;count&lt;/code&gt;: top &lt;code&gt;N&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;window&lt;/code&gt;: last &lt;code&gt;M&lt;/code&gt; minutes&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;filter_id&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;returns &lt;code&gt;ad_ids&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&quot;data-storage&quot; tabindex=&quot;-1&quot;&gt;Data Storage &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;we need to store both raw data and aggregated data&lt;/p&gt;
+&lt;h4 id=&quot;comparison-between-querying-raw-data-vs-aggregated-data&quot; tabindex=&quot;-1&quot;&gt;Comparison between querying raw data vs aggregated data &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;/th&gt;
+&lt;th&gt;query raw data&lt;/th&gt;
+&lt;th&gt;query aggregated data&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;usage&lt;/td&gt;
+&lt;td&gt;by other service&lt;/td&gt;
+&lt;td&gt;this system&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;pros&lt;/td&gt;
+&lt;td&gt;full data set,  support ad-hoc filter&lt;/td&gt;
+&lt;td&gt;smaller data set, fast query&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;cons&lt;/td&gt;
+&lt;td&gt;huge storage, slow query&lt;/td&gt;
+&lt;td&gt;data loss&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;where&lt;/td&gt;
+&lt;td&gt;cold storage&lt;/td&gt;
+&lt;td&gt;database&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h4 id=&quot;database-choice&quot; tabindex=&quot;-1&quot;&gt;Database Choice &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
+&lt;h5&gt;analyze&lt;/h5&gt;
+&lt;ul&gt;
+&lt;li&gt;both read heavy and write-heavy
+&lt;ul&gt;
+&lt;li&gt;read: refresh the aggregation data in dashboard&lt;/li&gt;
+&lt;li&gt;write: insert the data&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;no relation and transaction needed&lt;/li&gt;
+&lt;li&gt;time series&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h5&gt;Choices&lt;/h5&gt;
+&lt;ul&gt;
+&lt;li&gt;InfluxDB &lt;a href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;[1]&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Cassandra &lt;a href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;[2]&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;Netflix use cassandra for time series database &lt;a href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;[3]&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;storage engine: LSM tree &lt;a href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;[4]&lt;/a&gt; (good for write heavy)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;S3 + &lt;a href=&quot;https://www.databricks.com/glossary/what-is-parquet&quot;&gt;Parquet&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;columnar storage&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&quot;high-level-design-1&quot; tabindex=&quot;-1&quot;&gt;High Level Design &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;&lt;picture&gt;&lt;source type=&quot;image/avif&quot; srcset=&quot;https://hhow09.github.io/img/TjtMQlbZ7i-846.avif 846w&quot;&gt;&lt;source type=&quot;image/webp&quot; srcset=&quot;https://hhow09.github.io/img/TjtMQlbZ7i-846.webp 846w&quot;&gt;&lt;img alt=&quot;Figure 3: High Level Design&quot; loading=&quot;lazy&quot; decoding=&quot;async&quot; src=&quot;https://hhow09.github.io/img/TjtMQlbZ7i-846.svg&quot; width=&quot;846&quot; height=&quot;506&quot;&gt;&lt;/picture&gt;&lt;/p&gt;
+&lt;p&gt;Kafka support high throughput, exact-once delivery.we can discuss exact-once delivery / atomic commit in &lt;a href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;Delivery Guarantees&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&quot;aggregation-service&quot; tabindex=&quot;-1&quot;&gt;Aggregation Service &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;h4 id=&quot;the-number-of-clicks-of-certian-ad-ad-id-in-last-m-minutes-1&quot; tabindex=&quot;-1&quot;&gt;the number of clicks of certian ad (&lt;code&gt;ad_id&lt;/code&gt;) in last &lt;code&gt;M&lt;/code&gt; minutes &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
+&lt;p&gt;&lt;picture&gt;&lt;source type=&quot;image/avif&quot; srcset=&quot;https://hhow09.github.io/img/z6RTVsMZhH-949.avif 949w&quot;&gt;&lt;source type=&quot;image/webp&quot; srcset=&quot;https://hhow09.github.io/img/z6RTVsMZhH-949.webp 949w&quot;&gt;&lt;img alt=&quot;Figure 8 Aggregate the number of clicks&quot; loading=&quot;lazy&quot; decoding=&quot;async&quot; src=&quot;https://hhow09.github.io/img/z6RTVsMZhH-949.svg&quot; width=&quot;949&quot; height=&quot;368&quot;&gt;&lt;/picture&gt;&lt;/p&gt;
+&lt;h2 id=&quot;deep-dive&quot; tabindex=&quot;-1&quot;&gt;Deep Dive &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;h3 id=&quot;aggregation-window-and-watermark&quot; tabindex=&quot;-1&quot;&gt;Aggregation Window and Watermark &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;h4 id=&quot;what-is-watermarking&quot; tabindex=&quot;-1&quot;&gt;What Is Watermarking? &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
+&lt;blockquote&gt;
+&lt;p&gt;when working with real-time streaming data there will be delays between event time and processing time due to how data is ingested and whether the overall application experiences issues like downtime. Due to these potential variable delays, the engine that you use to process this data needs to have some mechanism to decide when to close the aggregate windows and produce the aggregate result.
+&lt;a href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;[5]&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id=&quot;delivery-guarantees&quot; tabindex=&quot;-1&quot;&gt;Delivery Guarantees &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;In most circumstances, &lt;strong&gt;at-least once&lt;/strong&gt; processing is good enough if a small percentage of duplicates are acceptable. However, this is not the case for our system. Differences of a few percent in data points could result in discrepancies of millions of dollars.&lt;/p&gt;
+&lt;p&gt;Therefore, we recommend &lt;strong&gt;exactly-once delivery&lt;/strong&gt; for the system.&lt;/p&gt;
+&lt;h3 id=&quot;data-deduplication&quot; tabindex=&quot;-1&quot;&gt;Data deduplication &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;two common sources:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;client resend&lt;/li&gt;
+&lt;li&gt;aggregation server outage&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;picture&gt;&lt;source type=&quot;image/avif&quot; srcset=&quot;https://hhow09.github.io/img/mPAtoBBGUB-1296.avif 1296w&quot;&gt;&lt;source type=&quot;image/webp&quot; srcset=&quot;https://hhow09.github.io/img/mPAtoBBGUB-1296.webp 1296w&quot;&gt;&lt;img alt=&quot;Figure 17 Duplicate data&quot; loading=&quot;lazy&quot; decoding=&quot;async&quot; src=&quot;https://hhow09.github.io/img/mPAtoBBGUB-1296.svg&quot; width=&quot;1296&quot; height=&quot;1005&quot;&gt;&lt;/picture&gt;&lt;/p&gt;
+&lt;p&gt;If step 6 fails, perhaps due to Aggregator outage, events from 100 to 110 are already sent to the downstream, but the new offset 110 is not persisted in upstream Kafka. In this case, a new Aggregator would consume again from offset 100, even if those events are already processed, causing duplicate data.&lt;/p&gt;
+&lt;h4 id=&quot;solution&quot; tabindex=&quot;-1&quot;&gt;Solution &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
+&lt;p&gt;&lt;picture&gt;&lt;source type=&quot;image/avif&quot; srcset=&quot;https://hhow09.github.io/img/57_6r_SJe4-1791.avif 1791w&quot;&gt;&lt;source type=&quot;image/webp&quot; srcset=&quot;https://hhow09.github.io/img/57_6r_SJe4-1791.webp 1791w&quot;&gt;&lt;img alt=&quot;Figure 20 Distributed transaction&quot; loading=&quot;lazy&quot; decoding=&quot;async&quot; src=&quot;https://hhow09.github.io/img/57_6r_SJe4-1791.svg&quot; width=&quot;1791&quot; height=&quot;1233&quot;&gt;&lt;/picture&gt;&lt;/p&gt;
+&lt;p&gt;To achieve &lt;strong&gt;exactly-once processing&lt;/strong&gt; &lt;a href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;[6]&lt;/a&gt;, we need to put operations between step 4 to step 6 in one distributed transaction.&lt;/p&gt;
+&lt;p&gt;Most common technique is two phase commit&lt;/p&gt;
+&lt;h2 id=&quot;scale-the-system&quot; tabindex=&quot;-1&quot;&gt;Scale the system &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;h3 id=&quot;scale-the-message-queue&quot; tabindex=&quot;-1&quot;&gt;Scale the message queue &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;partition key: use &lt;code&gt;ad_id&lt;/code&gt; as &lt;strong&gt;partition key&lt;/strong&gt;&lt;a href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;[7]&lt;/a&gt; so that an aggregation service can subscribe to all events of the same &lt;code&gt;ad_id&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;number of partitions: if more consumers need to be added, try to do it during off-peak hours to minimize the impact.&lt;/li&gt;
+&lt;li&gt;Topic physical sharding: We can split the data by geography (&lt;code&gt;topic_north_america&lt;/code&gt;, &lt;code&gt;topic_europe&lt;/code&gt;, &lt;code&gt;topic_asia&lt;/code&gt;, etc.,) or by business type (&lt;code&gt;topic_web_ads&lt;/code&gt;, &lt;code&gt;topic_mobile_ads&lt;/code&gt;, etc).
+&lt;ul&gt;
+&lt;li&gt;Pros: increased system throughput, reduced rebalance time.&lt;/li&gt;
+&lt;li&gt;Cons: extra complexity&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&quot;scale-the-aggregation-service&quot; tabindex=&quot;-1&quot;&gt;Scale the aggregation service &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;multi-threading: Allocate events with different &lt;code&gt;ad_id&lt;/code&gt;s to different threads.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&quot;scale-the-database&quot; tabindex=&quot;-1&quot;&gt;Scale the database &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;Cassandra natively supports horizontal scaling,&lt;/p&gt;
+&lt;h3 id=&quot;hotspot-issue&quot; tabindex=&quot;-1&quot;&gt;Hotspot issue &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;h4 id=&quot;aggregaion-service&quot; tabindex=&quot;-1&quot;&gt;Aggregaion Service &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
+&lt;p&gt;some &lt;code&gt;ad_id&lt;/code&gt; might receive many more ad click events than others.&lt;/p&gt;
+&lt;p&gt;Solution: dynamically allocate more node in aggregation service.&lt;/p&gt;
+&lt;h4 id=&quot;kafka&quot; tabindex=&quot;-1&quot;&gt;Kafka &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
+&lt;p&gt;The publisher specifies the topic and the partition of a message before publishing. Hence, it’s the publisher’s responsibility to ensure that the partition logic will not result in a hot partition.&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://docs.confluent.io/platform/current/kafka/monitoring.html&quot;&gt;Confluent: Monitoring Kafka with JMX&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&quot;fault-tolerance&quot; tabindex=&quot;-1&quot;&gt;Fault tolerance &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;aggregaion service works in memory and &lt;strong&gt;could fail&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;Replaying data from the beginning of Kafka is slow.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Solution: snapshot aggregaion service to safe &lt;strong&gt;current state&lt;/strong&gt; and &lt;strong&gt;event offset&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;picture&gt;&lt;source type=&quot;image/avif&quot; srcset=&quot;https://hhow09.github.io/img/TFtUeSY7BI-558.avif 558w&quot;&gt;&lt;source type=&quot;image/webp&quot; srcset=&quot;https://hhow09.github.io/img/TFtUeSY7BI-558.webp 558w&quot;&gt;&lt;img alt=&quot;Figure 27 Aggregation node failover&quot; loading=&quot;lazy&quot; decoding=&quot;async&quot; src=&quot;https://hhow09.github.io/img/TFtUeSY7BI-558.svg&quot; width=&quot;558&quot; height=&quot;309&quot;&gt;&lt;/picture&gt;&lt;/p&gt;
+&lt;h2 id=&quot;data-monitoring-and-correctness&quot; tabindex=&quot;-1&quot;&gt;Data monitoring and correctness &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;h3 id=&quot;continuous-monitoring&quot; tabindex=&quot;-1&quot;&gt;Continuous monitoring &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Latency&lt;/li&gt;
+&lt;li&gt;Message queue size
+&lt;ul&gt;
+&lt;li&gt;for aggregation servie to scale the node&lt;/li&gt;
+&lt;li&gt;for application to apply back pressure.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;System resources on aggregation nodes&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&quot;reconciliation&quot; tabindex=&quot;-1&quot;&gt;Reconciliation &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;purpose: comparing different sets of data in order to ensure data integrity.&lt;/li&gt;
+&lt;li&gt;how: using a &lt;strong&gt;batch job&lt;/strong&gt; and reconciling with the real-time aggregation result.&lt;/li&gt;
+&lt;li&gt;why: some events might arrive late, the result from the batch job might not match exactly with the real-time aggregation result.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;picture&gt;&lt;source type=&quot;image/avif&quot; srcset=&quot;https://hhow09.github.io/img/H38DsDbTtW-1033.avif 1033w&quot;&gt;&lt;source type=&quot;image/webp&quot; srcset=&quot;https://hhow09.github.io/img/H38DsDbTtW-1033.webp 1033w&quot;&gt;&lt;img alt=&quot;Figure 28 Final design&quot; loading=&quot;lazy&quot; decoding=&quot;async&quot; src=&quot;https://hhow09.github.io/img/H38DsDbTtW-1033.svg&quot; width=&quot;1033&quot; height=&quot;434&quot;&gt;&lt;/picture&gt;&lt;/p&gt;
+&lt;h2 id=&quot;reference&quot; tabindex=&quot;-1&quot;&gt;Reference &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.influxdata.com/blog/influxdb-vs-cassandra-time-series/&quot;&gt;InfluxDB Tops Cassandra in Time Series Data &amp;amp; Metrics Benchmark&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://thelastpickle.com/blog/2017/08/02/time-series-data-modeling-massive-scale.html&quot;&gt;Cassandra Time Series Data Modeling For Massive Scale&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://netflixtechblog.com/scaling-time-series-data-storage-part-i-ec2b6d44ba39&quot;&gt;Scaling Time Series Data Storage — Part I&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://docs.datastax.com/en/cassandra-oss/3.x/cassandra/dml/dmlManageOndisk.html&quot;&gt;Apache Cassandra™ 3.x - Storage engine&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.databricks.com/blog/2022/08/22/feature-deep-dive-watermarking-apache-spark-structured-streaming.html&quot;&gt;Feature Deep Dive: Watermarking in Apache Spark Structured Streaming&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://flink.apache.org/2018/02/28/an-overview-of-end-to-end-exactly-once-processing-in-apache-flink-with-apache-kafka-too/&quot;&gt;An Overview of End-to-End Exactly-Once Processing in Apache Flink (with Apache Kafka, too!)&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.confluent.io/blog/kafka-streams-tables-part-2-topics-partitions-and-storage-fundamentals/#partition-events&quot;&gt;Streams and Tables in Apache Kafka: Topics, Partitions, and Storage Fundamentals&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+</content>
+	</entry>
 	
 	<entry>
 		<title>Dremel: A Decade of Interactive SQL Analysis at Web Scale</title>

@@ -12,27 +12,37 @@
 	</url>
 	
 	<url>
-		<loc>https://hhow09.github.io/about/</loc>
+		<loc>https://hhow09.github.io/blog/system-design-interview-add-click-aggregation/</loc>
 		<lastmod>2023-06-18</lastmod>
+	</url>
+	
+	<url>
+		<loc>https://hhow09.github.io/about/</loc>
+		<lastmod>2023-06-20</lastmod>
 	</url>
 	
 	<url>
 		<loc>https://hhow09.github.io/blog/</loc>
-		<lastmod>2023-06-18</lastmod>
+		<lastmod>2023-06-20</lastmod>
 	</url>
 	
 	<url>
 		<loc>https://hhow09.github.io/</loc>
-		<lastmod>2023-06-18</lastmod>
+		<lastmod>2023-06-20</lastmod>
 	</url>
 	
 	<url>
 		<loc>https://hhow09.github.io/tags/</loc>
-		<lastmod>2023-06-18</lastmod>
+		<lastmod>2023-06-20</lastmod>
 	</url>
 	
 	<url>
 		<loc>https://hhow09.github.io/tags/distributed-system/</loc>
-		<lastmod>2023-06-18</lastmod>
+		<lastmod>2023-06-20</lastmod>
+	</url>
+	
+	<url>
+		<loc>https://hhow09.github.io/tags/system-design/</loc>
+		<lastmod>2023-06-20</lastmod>
 	</url>
 </urlset>
