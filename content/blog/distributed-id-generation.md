@@ -1,11 +1,10 @@
 ---
 title: Distributed ID Generation Solutions
-description: DistributedID Generation
+description: Distributed ID Generation
 date: 2023-05-02
 tags:
   - distributed system
 layout: layouts/post.njk
-draft: true
 ---
 Using auto-increment primary keys from traditional databases as ID for distributed systems can be inefficient and vulnerable to being predicted and analyzed.
 
