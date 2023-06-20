@@ -3,8 +3,8 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>Distributed System Index</title>
-		<meta name="description" content="Distributed System Index">
+		<title>Distributed ID Generation Solutions</title>
+		<meta name="description" content="Distributed ID Generation">
 		<link rel="alternate" href="/feed/feed.xml" type="application/atom+xml" title="Modern Tragedy">
 		<link rel="alternate" href="/feed/feed.json" type="application/json" title="Modern Tragedy">
 		
@@ -492,95 +492,231 @@ blockquote p {
 
 		<main id="skip">
 			
-<h1>Distributed System Index</h1>
+<h1>Distributed ID Generation Solutions</h1>
 
 <ul class="post-metadata">
-	<li><time datetime="2023-04-23">23 April 2023</time></li>
+	<li><time datetime="2023-05-02">02 May 2023</time></li>
 	<li><a href="/tags/distributed-system/" class="post-tag">distributed system</a></li>
 </ul>
 
-<h2 id="course-books" tabindex="-1">Course / Books <a class="header-anchor" href="#course-books">#</a></h2>
+<p>Using auto-increment primary keys from traditional databases as ID for distributed systems can be inefficient and vulnerable to being predicted and analyzed.</p>
+<p>Nowadays, distributed systems require unique global identifiers; it is an essential task in distributed computing with growing internet usage.</p>
+<h2 id="requirement" tabindex="-1">Requirement <a class="header-anchor" href="#requirement">#</a></h2>
+<h3 id="functional-requirement" tabindex="-1">Functional Requirement <a class="header-anchor" href="#functional-requirement">#</a></h3>
 <ul>
-<li><a href="https://www.oreilly.com/library/view/designing-data-intensive-applications/9781491903063/">Designing Data Intensive Applications</a></li>
-<li><a href="https://pdos.csail.mit.edu/6.824/index.html">MIT 6.824: Distributed Systems</a></li>
-<li><a href="https://www.cl.cam.ac.uk/teaching/2122/ConcDisSys/">CAM: Concurrent and Distributed Systems</a></li>
-<li><a href="https://www.youtube.com/playlist?list=PLeKd45zvjcDFUEv_ohr_HdUFe97RItdiB">Distributed Systems lecture series: Martin Kleppmann</a>
+<li>id should be globally unique</li>
+<li>low latency</li>
+<li>each node can generate id independently</li>
+</ul>
+<h3 id="nice-to-have-features" tabindex="-1">Nice to have features <a class="header-anchor" href="#nice-to-have-features">#</a></h3>
 <ul>
-<li><a href="https://www.cl.cam.ac.uk/teaching/2122/ConcDisSys/dist-sys-notes.pdf">course notes</a></li>
+<li>monotonicity (sortable by time)</li>
+<li>unpredictable</li>
+<li>high availability. Since an ID generator is a mission-critical system, it must be highly available.</li>
+</ul>
+<h2 id="popular-solutions" tabindex="-1">Popular Solutions <a class="header-anchor" href="#popular-solutions">#</a></h2>
+<ol>
+<li>UUID V4</li>
+<li>Nano ID</li>
+<li>ULID</li>
+<li>KSUID</li>
+<li>Mongdb objectID</li>
+<li>Snowflake ID</li>
+</ol>
+<h2 id="overview" tabindex="-1">Overview <a class="header-anchor" href="#overview">#</a></h2>
+<p>Designing a distributed ID generation scheme can be divided into two steps</p>
+<ol>
+<li>Generate the binary ID, usually selected from pseudo-random numbers, time, and node ID.</li>
+<li>Convert the binary ID into a human-readable and easily transmittable string text.</li>
+</ol>
+<h2 id="binary-id-generation" tabindex="-1">Binary ID Generation <a class="header-anchor" href="#binary-id-generation">#</a></h2>
+<h3 id="1-prng-pseudo-random-number-generator" tabindex="-1">1. PRNG (pseudo random number generator) <a class="header-anchor" href="#1-prng-pseudo-random-number-generator">#</a></h3>
+<ol>
+<li>UUID v4 (128 bit)</li>
+<li>Nano ID (no standard length)</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th style="text-align:center"></th>
+<th>random number (bits)</th>
+<th>total (bits)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">UUID v4</td>
+<td>122</td>
+<td>128</td>
+</tr>
+<tr>
+<td style="text-align:center">Nano ID</td>
+<td>126</td>
+<td>126</td>
+</tr>
+</tbody>
+</table>
+<h4 id="uuid-2" tabindex="-1">UUID <a href="#reference">[2]</a> <a class="header-anchor" href="#uuid-2">#</a></h4>
+<blockquote>
+<p>UUIDv4 consists of 128 bits, which are typically represented as 32 hexadecimal characters in the following format: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx, where the digit &quot;4&quot; in the third group signifies the version (i.e., UUIDv4) and the digit &quot;y&quot; in the fourth group specifies the variant.</p>
+</blockquote>
+<h4 id="pros" tabindex="-1">Pros <a class="header-anchor" href="#pros">#</a></h4>
+<ul>
+<li>Generating UUID is simple. No coordination between servers is needed so there will not be any synchronization issues.</li>
+<li>The system is easy to scale because each web server is responsible for generating IDs they consume. ID generator can easily scale with web servers.</li>
+</ul>
+<h4 id="cons" tabindex="-1">Cons <a class="header-anchor" href="#cons">#</a></h4>
+<ul>
+<li>IDs are 128 bits long, but our requirement is 64 bits.</li>
+<li>IDs do not go up with time.</li>
+<li>IDs could be non-numeric.</li>
+</ul>
+<h5>Chance of duplicate ID</h5>
+<blockquote>
+<p>With the sheer number of possible combinations (2^128), it would be almost impossible to generate a duplicate unless you are generating trillions of IDs every second, for many years.</p>
+</blockquote>
+<h4 id="nano-id-3" tabindex="-1">Nano ID <a href="#reference">[3]</a> <a class="header-anchor" href="#nano-id-3">#</a></h4>
+<blockquote>
+<p>A tiny, secure, URL-friendly, unique string ID generator.
+Small. 130 bytes (minified and gzipped). No dependencies. Size Limit controls the size.
+Safe. It uses hardware random generator. Can be used in clusters.
+Short IDs. It uses a larger alphabet than UUID (A-Za-z0-9_-). So ID size was reduced from 36 to 21 symbols.
+Portable. Nano ID was ported to 20 programming languages.</p>
+</blockquote>
+<h3 id="2-timestamp-prng" tabindex="-1">2. Timestamp + PRNG <a class="header-anchor" href="#2-timestamp-prng">#</a></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align:center"></th>
+<th>timestamp (bits)</th>
+<th>random number (bits)</th>
+<th>total (bits)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">ULID</td>
+<td>48</td>
+<td>80</td>
+<td>128</td>
+</tr>
+<tr>
+<td style="text-align:center">KSUID</td>
+<td>32</td>
+<td>128</td>
+<td>160</td>
+</tr>
+</tbody>
+</table>
+<h4 id="ulid-4" tabindex="-1">ULID <a href="#reference">[4]</a> <a class="header-anchor" href="#ulid-4">#</a></h4>
+<ul>
+<li>128-bit compatibility with UUID</li>
+<li>Lexicographically sortable!
+<ul>
+<li>timestamp: UNIX-time in milliseconds</li>
 </ul>
 </li>
-<li><a href="https://martinfowler.com/articles/patterns-of-distributed-systems/">Martin Fowler: Patterns of Distributed Systems</a></li>
+<li>No special characters (URL safe)</li>
+<li>Monotonic sort order (correctly detects and handles the same millisecond)</li>
 </ul>
-<h2 id="cap-theorem" tabindex="-1">CAP Theorem <a class="header-anchor" href="#cap-theorem">#</a></h2>
-<ul>
-<li><a href="https://github.com/henryr/cap-faq">henryr/cap-faq</a></li>
-</ul>
-<h3 id="issues" tabindex="-1">Issues <a class="header-anchor" href="#issues">#</a></h3>
-<ul>
-<li>split brain</li>
-</ul>
-<h2 id="consistency-models" tabindex="-1">Consistency Models <a class="header-anchor" href="#consistency-models">#</a></h2>
-<p>overview: <a href="https://jepsen.io/consistency">jepsen/consistency</a></p>
-<h3 id="linearizability" tabindex="-1">linearizability <a class="header-anchor" href="#linearizability">#</a></h3>
-<h3 id="causal-consistency" tabindex="-1">causal consistency <a class="header-anchor" href="#causal-consistency">#</a></h3>
-<ul>
-<li><a href="https://www.exhypothesi.com/clocks-and-causality/">Clocks and Causality - Ordering Events in Distributed Systems</a></li>
-<li><a href="https://jepsen.io/consistency/models/causal">Jepsen: Causal Consistency</a></li>
-<li><a href="https://vkontech.com/causal-consistency-guarantees-case-studies/#What_is_Causal_Consistency">Causal Consistency Guarantees – Case Studies</a></li>
-<li><a href="https://timilearning.com/posts/mit-6.824/lecture-17-cops/">MIT 6.824: Lecture 17 - Causal Consistency, COPS</a></li>
-<li><a href="https://www.mongodb.com/docs/manual/core/causal-consistency-read-write-concerns/">Mongodb: Causal Consistency and Read and Write Concerns</a></li>
-</ul>
-<h3 id="eventual-consistency" tabindex="-1">eventual consistency <a class="header-anchor" href="#eventual-consistency">#</a></h3>
-<h2 id="replication" tabindex="-1">Replication <a class="header-anchor" href="#replication">#</a></h2>
-<ul>
-<li><code>Designing Data Intensive Applications Chapter 5 Replication</code></li>
-</ul>
-<h3 id="models-of-replication" tabindex="-1">Models of Replication <a class="header-anchor" href="#models-of-replication">#</a></h3>
-<ul>
-<li>Leaders and Followers</li>
-<li>Multi-Leader Replication</li>
-<li>Leaderless Replication</li>
-</ul>
-<h3 id="write-ahead-log" tabindex="-1">Write Ahead Log <a class="header-anchor" href="#write-ahead-log">#</a></h3>
-<ul>
-<li><a href="https://martinfowler.com/articles/patterns-of-distributed-systems/wal.html">Martin Fowler: Write-Ahead Log</a></li>
-<li><a href="https://www.oreilly.com/library/view/distributed-services-with/9781680508376/f_0025.xhtml">Distributed Services with Go: Chapter 3 Write a Log Package</a></li>
-<li><a href="https://www.postgresql.org/docs/current/wal-intro.html">PostGreSQL: 30.3. Write-Ahead Logging (WAL)</a></li>
-<li><a href="https://www.mongodb.com/docs/manual/core/replica-set-oplog/">MongoDB Oplog</a></li>
-</ul>
-<h3 id="postgresql" tabindex="-1">PostGreSQL <a class="header-anchor" href="#postgresql">#</a></h3>
-<ul>
-<li>physical v.s. Logical streaming replication</li>
-</ul>
-<h3 id="mongodb" tabindex="-1">MongoDB <a class="header-anchor" href="#mongodb">#</a></h3>
-<ul>
-<li><a href="https://www.mongodb.com/docs/manual/replication/">MongoDB Manual: Replication</a></li>
-</ul>
-<h2 id="partition" tabindex="-1">Partition <a class="header-anchor" href="#partition">#</a></h2>
-<h2 id="raft-consensus-algorithm" tabindex="-1">Raft (Consensus Algorithm) <a class="header-anchor" href="#raft-consensus-algorithm">#</a></h2>
-<ul>
-<li><a href="https://raft.github.io/">The Raft Consensus Algorithm</a></li>
-<li><a href="http://thesecretlivesofdata.com/raft/">The Secret Lives of Data: Raft</a></li>
-<li><a href="https://youtu.be/uXEYuDwm7e4">Distributed Systems 6.2: Raft</a></li>
-<li><a href="https://www.cl.cam.ac.uk/teaching/2122/ConcDisSys/dist-sys-notes.pdf">University of Cambridge: Distributed Systems</a></li>
-</ul>
-<h2 id="rum-conjecture" tabindex="-1">RUM Conjecture <a class="header-anchor" href="#rum-conjecture">#</a></h2>
+<h4 id="ksuid-4" tabindex="-1">KSUID <a href="#reference">[4]</a> <a class="header-anchor" href="#ksuid-4">#</a></h4>
 <blockquote>
-<p>The Trade offs Behind Modern Storage Systems</p>
+<p>There are numerous methods for generating unique identifiers, so why KSUID?</p>
+<ol>
+<li>Naturally ordered by generation time</li>
+<li>Collision-free, coordination-free, dependency-free</li>
+<li>Highly portable representations</li>
+</ol>
 </blockquote>
+<h3 id="3-timestamp-node-id-monotonic-counter" tabindex="-1">3. Timestamp + Node ID + Monotonic Counter <a class="header-anchor" href="#3-timestamp-node-id-monotonic-counter">#</a></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align:center"></th>
+<th>timestamp (bits)</th>
+<th>Node Id (bits)</th>
+<th>Process Id (bits)</th>
+<th>Counter (bits)</th>
+<th>total (bits)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">Snowflake ID</td>
+<td>41</td>
+<td>10</td>
+<td>-</td>
+<td>12</td>
+<td>64</td>
+</tr>
+<tr>
+<td style="text-align:center">MongoDB ObjectID</td>
+<td>32</td>
+<td>24</td>
+<td>16</td>
+<td>24</td>
+<td>96</td>
+</tr>
+</tbody>
+</table>
 <ul>
-<li><a href="http://daslab.seas.harvard.edu/rum-conjecture/">The RUM Conjecture</a></li>
-<li><a href="https://edward-huang.com/distributed-system/2021/01/24/the-trade-offs-behind-modern-storage-systems/">The Trade offs Behind Modern Storage Systems</a></li>
-<li><a href="https://youtu.be/wxcCHvQeZ-U">Youtube: Algorithms behind Modern Storage Systems</a></li>
+<li>id is unique across different node and process</li>
+<li>counter ensure the uniqueness on same process of same node</li>
 </ul>
+<h4 id="snowflake-id-6" tabindex="-1">Snowflake ID <a href="#reference">[6]</a> <a class="header-anchor" href="#snowflake-id-6">#</a></h4>
+<ul>
+<li>timestamp: Epoch in milliseconds precision
+<ul>
+<li>That gives us <strong>69</strong> years with respect to a <strong>custom epoch</strong>.</li>
+</ul>
+</li>
+<li>Node ID: 10 bits, this gives us 1024 nodes/machines.</li>
+<li>Local counter: 12 bits, The counter’s max value would be 4095.</li>
+</ul>
+<h4 id="mongodb-objectid-7" tabindex="-1">MongoDB ObjectID <a href="#reference">[7]</a> <a class="header-anchor" href="#mongodb-objectid-7">#</a></h4>
+<ul>
+<li>
+<p>The object ID is generated by the MongoDB driver instead of the database.</p>
+</li>
+<li>
+<p>The 12-byte ObjectId consists of:</p>
+<ul>
+<li>A 4-byte timestamp, representing the ObjectId's creation, measured in seconds since the Unix epoch.</li>
+<li>A 5-byte random value generated once per process. This random value is unique to the machine and process.</li>
+<li>A 3-byte incrementing counter, initialized to a random value.</li>
+</ul>
+</li>
+</ul>
+<h2 id="types-of-data-source" tabindex="-1">Types of data source <a class="header-anchor" href="#types-of-data-source">#</a></h2>
+<h3 id="pseudo-random-number" tabindex="-1">Pseudo random number <a class="header-anchor" href="#pseudo-random-number">#</a></h3>
+<h4 id="packages" tabindex="-1">Packages <a class="header-anchor" href="#packages">#</a></h4>
+<ul>
+<li><a href="https://pkg.go.dev/crypto/rand">crypto/rand</a></li>
+<li><a href="https://pkg.go.dev/math/rand">math/rand</a></li>
+</ul>
+<h4 id="considerations" tabindex="-1">Considerations <a class="header-anchor" href="#considerations">#</a></h4>
+<ul>
+<li>collisoin: longer bits gives lower chance of collision</li>
+<li>unpredictability: use <code>crypto/rand</code> to lower unpredictability</li>
+</ul>
+<h2 id="reference" tabindex="-1">Reference <a class="header-anchor" href="#reference">#</a></h2>
+<ol>
+<li><a href="https://catcat.cc/post/2020-09-19/">6 个流行的分布式 ID 方案之间的对决</a></li>
+<li><a href="https://datatracker.ietf.org/doc/html/rfc4122">UUID</a></li>
+<li><a href="https://github.com/ai/nanoid">Nano ID</a></li>
+<li><a href="https://github.com/ulid/spec">ULID</a></li>
+<li><a href="https://github.com/segmentio/ksuid">KSUID</a></li>
+<li><a href="https://github.com/bwmarrin/snowflake">Snowflake ID</a></li>
+<li><a href="https://www.mongodb.com/docs/manual/reference/method/ObjectId/">MongoDB ObjectID</a></li>
+</ol>
 
-<ul class="links-nextprev"><li>Next: <a href="/blog/distributed-id-generation/">Distributed ID Generation Solutions</a></li>
+<ul class="links-nextprev"><li>Previous: <a href="/blog/distributed-system-index/">Distributed System Index</a></li><li>Next: <a href="/blog/paper-dremel/">Dremel: A Decade of Interactive SQL Analysis at Web Scale</a></li>
 </ul>
 
 		</main>
 
 		<footer></footer>
 
-		<!-- Current page: /blog/distributed-system-index/ -->
+		<!-- Current page: /blog/distributed-id-generation/ -->
 	</body>
 </html>
