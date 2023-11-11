@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Character Sets and Encodings</title>
+		<meta name="description" content="ASCII, UNICODE, UTF-8, Base64">
+		<link rel="alternate" href="/feed/feed.xml" type="application/atom+xml" title="Modern Tragedy">
+		<link rel="alternate" href="/feed/feed.json" type="application/json" title="Modern Tragedy">
+		
+		<style>/**
+ * okaidia theme for JavaScript, CSS and HTML
+ * Loosely based on Monokai textmate theme by http://www.monokai.nl/
+ * @author ocodia
+ */
+
+code[class*="language-"],
+pre[class*="language-"] {
+	color: #f8f8f2;
+	background: none;
+	text-shadow: 0 1px rgba(0, 0, 0, 0.3);
+	font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+	font-size: 1em;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+	word-break: normal;
+	word-wrap: normal;
+	line-height: 1.5;
+
+	-moz-tab-size: 4;
+	-o-tab-size: 4;
+	tab-size: 4;
+
+	-webkit-hyphens: none;
+	-moz-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+	padding: 1em;
+	margin: .5em 0;
+	overflow: auto;
+	border-radius: 0.3em;
+}
+
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+	background: #272822;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+	padding: .1em;
+	border-radius: .3em;
+	white-space: normal;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+	color: #8292a2;
+}
+
+.token.punctuation {
+	color: #f8f8f2;
+}
+
+.token.namespace {
+	opacity: .7;
+}
+
+.token.property,
+.token.tag,
+.token.constant,
+.token.symbol,
+.token.deleted {
+	color: #f92672;
+}
+
+.token.boolean,
+.token.number {
+	color: #ae81ff;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+	color: #a6e22e;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string,
+.token.variable {
+	color: #f8f8f2;
+}
+
+.token.atrule,
+.token.attr-value,
+.token.function,
+.token.class-name {
+	color: #e6db74;
+}
+
+.token.keyword {
+	color: #66d9ef;
+}
+
+.token.regex,
+.token.important {
+	color: #fd971f;
+}
+
+.token.important,
+.token.bold {
+	font-weight: bold;
+}
+.token.italic {
+	font-style: italic;
+}
+
+.token.entity {
+	cursor: help;
+}
+/*
+ * New diff- syntax
+ */
+
+pre[class*="language-diff-"] {
+	--eleventy-code-padding: 1.25em;
+	padding-left: var(--eleventy-code-padding);
+	padding-right: var(--eleventy-code-padding);
+}
+.token.deleted {
+	background-color: hsl(0, 51%, 37%);
+	color: inherit;
+}
+.token.inserted {
+	background-color: hsl(126, 31%, 39%);
+	color: inherit;
+}
+
+/* Make the + and - characters unselectable for copy/paste */
+.token.prefix.unchanged,
+.token.prefix.inserted,
+.token.prefix.deleted {
+	-webkit-user-select: none;
+	user-select: none;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+.token.prefix.inserted,
+.token.prefix.deleted {
+	width: var(--eleventy-code-padding);
+	background-color: rgba(0,0,0,.2);
+}
+
+/* Optional: full-width background color */
+.token.inserted:not(.prefix),
+.token.deleted:not(.prefix) {
+	display: block;
+	margin-left: calc(-1 * var(--eleventy-code-padding));
+	margin-right: calc(-1 * var(--eleventy-code-padding));
+	text-decoration: none; /* override del, ins, mark defaults */
+	color: inherit; /* override del, ins, mark defaults */
+}
+* { box-sizing: border-box; }
+/* Defaults */
+:root {
+	--font-family: -apple-system, system-ui, sans-serif;
+	--font-family-monospace: Consolas, Menlo, Monaco, Andale Mono WT, Andale Mono, Lucida Console, Lucida Sans Typewriter, DejaVu Sans Mono, Bitstream Vera Sans Mono, Liberation Mono, Nimbus Mono L, Courier New, Courier, monospace;
+}
+
+/* Theme colors */
+:root {
+	--color-gray-20: #e0e0e0;
+	--color-gray-50: #C0C0C0;
+	--color-gray-90: #333;
+
+	--background-color: #fff;
+
+	--text-color: var(--color-gray-90);
+	--text-color-link: #082840;
+	--text-color-link-active: #5f2b48;
+	--text-color-link-visited: #17050F;
+
+	--syntax-tab-size: 2;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--color-gray-20: #e0e0e0;
+		--color-gray-50: #C0C0C0;
+		--color-gray-90: #dad8d8;
+
+		/* --text-color is assigned to --color-gray-_ above */
+		--text-color-link: #1493fb;
+		--text-color-link-active: #6969f7;
+		--text-color-link-visited: #a6a6f8;
+
+		--background-color: #15202b;
+	}
+}
+
+
+/* Global stylesheet */
+* {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	padding: 0;
+	margin: 0 auto;
+	font-family: var(--font-family);
+	color: var(--text-color);
+	background-color: var(--background-color);
+}
+html {
+	overflow-y: scroll;
+}
+body {
+	max-width: 40em;
+}
+
+/* https://www.a11yproject.com/posts/how-to-hide-content/ */
+.visually-hidden {
+	clip: rect(0 0 0 0);
+	clip-path: inset(50%);
+	height: 1px;
+	overflow: hidden;
+	position: absolute;
+	white-space: nowrap;
+	width: 1px;
+}
+
+p:last-child {
+	margin-bottom: 0;
+}
+p {
+	line-height: 1.5;
+}
+
+li {
+	line-height: 1.5;
+}
+
+a[href] {
+	color: var(--text-color-link);
+}
+a[href]:visited {
+	color: var(--text-color-link-visited);
+}
+a[href]:hover,
+a[href]:active {
+	color: var(--text-color-link-active);
+}
+
+main {
+	padding: 1rem;
+}
+main :first-child {
+	margin-top: 0;
+}
+
+header {
+	border-bottom: 1px dashed var(--color-gray-20);
+}
+header:after {
+	content: "";
+	display: table;
+	clear: both;
+}
+
+.links-nextprev {
+	list-style: none;
+	border-top: 1px dashed var(--color-gray-20);
+	padding: 1em 0;
+}
+table, table td, table th {
+	border: 1px solid;
+	border-collapse: collapse;
+}
+
+table {
+	margin: 1em 0;
+}
+table td,
+table th {
+	padding-right: 1em;
+}
+
+pre,
+code {
+	font-family: var(--font-family-monospace);
+	background: rgba(175,184,193,0.2);
+	padding: 0em .1em;
+}
+pre:not([class*="language-"]) {
+	margin: .5em 0;
+	line-height: 1.375; /* 22px /16 */
+	-moz-tab-size: var(--syntax-tab-size);
+	-o-tab-size: var(--syntax-tab-size);
+	tab-size: var(--syntax-tab-size);
+	-webkit-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+	direction: ltr;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+	word-break: normal;
+}
+
+
+/* Header */
+header {
+	display: flex;
+	gap: 1em .5em;
+	flex-wrap: wrap;
+	align-items: center;
+	padding: 1em;
+}
+.home-link {
+	font-size: 1em; /* 16px /16 */
+	font-weight: 700;
+	margin-right: 2em;
+}
+.home-link:link:not(:hover) {
+	text-decoration: none;
+}
+
+/* Nav */
+.nav {
+	display: flex;
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}
+.nav-item {
+	display: inline-block;
+	margin-right: 1em;
+}
+.nav-item a[href]:not(:hover) {
+	text-decoration: none;
+}
+.nav a[href][aria-current="page"] {
+	text-decoration: underline;
+}
+
+/* Posts list */
+.postlist {
+	list-style: none;
+	padding: 0;
+	padding-left: 1.5rem;
+}
+.postlist-item {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	counter-increment: start-from -1;
+	margin-bottom: 1em;
+}
+.postlist-item:before {
+	display: inline-block;
+	pointer-events: none;
+	content: "" counter(start-from, decimal-leading-zero) ". ";
+	line-height: 100%;
+	text-align: right;
+	margin-left: -1.5rem;
+}
+.postlist-date,
+.postlist-item:before {
+	font-size: 0.8125em; /* 13px /16 */
+	color: var(--color-gray-90);
+}
+.postlist-date {
+	word-spacing: -0.5px;
+}
+.postlist-link {
+	font-size: 1.1875em; /* 19px /16 */
+	font-weight: 700;
+	flex-basis: calc(100% - 1.5rem);
+	padding-left: .25em;
+	padding-right: .5em;
+	text-underline-position: from-font;
+	text-underline-offset: 0;
+	text-decoration-thickness: 1px;
+}
+.postlist-item-active .postlist-link {
+	font-weight: bold;
+}
+
+/* Tags */
+.post-tag {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	text-transform: capitalize;
+	font-style: italic;
+}
+.postlist-item > .post-tag {
+	align-self: center;
+}
+
+/* Tags list */
+.post-metadata {
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: .5em;
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+.post-metadata time {
+	margin-right: 1em;
+}
+
+/* Direct Links / Markdown Headers */
+.header-anchor {
+	text-decoration: none;
+	font-style: normal;
+	font-size: 1em;
+	margin-left: .1em;
+}
+a[href].header-anchor,
+a[href].header-anchor:visited {
+	color: transparent;
+}
+a[href].header-anchor:focus,
+a[href].header-anchor:hover {
+	text-decoration: underline;
+}
+a[href].header-anchor:focus,
+:hover > a[href].header-anchor {
+	color: #aaa;
+}
+
+h2 + .header-anchor {
+	font-size: 1.5em;
+}
+
+img {
+	max-width: 100%;
+}
+img[width] {
+	width: auto; /* Defer to max-width */
+}
+img[width][height] {
+	height: auto; /* Preserve aspect ratio */
+}
+
+blockquote {
+	background:		#f9f9f9;
+	border-left:	10px solid #ccc;
+	margin:			1.5em 10px;
+	padding:		.5em 10px;
+	quotes:			"\201C""\201D""\2018""\2019"; 
+}
+
+blockquote p {
+	display:		inline;
+}</style>
+		<script type="module" async>import mermaid from "https://unpkg.com/mermaid@10/dist/mermaid.esm.min.mjs";document.addEventListener('DOMContentLoaded', mermaid.initialize({startOnLoad:true}));</script>		
+	</head>
+	<body>
+		<a href="#skip" class="visually-hidden">Skip to main content</a>
+
+		<header>
+			<a href="/" class="home-link">Modern Tragedy</a>
+			<nav>
+				<h2 class="visually-hidden">Top level navigation menu</h2>
+				<ul class="nav">
+					<li class="nav-item"><a href="/">Home</a></li>
+					<li class="nav-item"><a href="/blog/">Archive</a></li>
+					<li class="nav-item"><a href="/about/">About Me</a></li>
+				</ul>
+			</nav>
+		</header>
+
+		<main id="skip">
+			
+<h1>Character Sets and Encodings</h1>
+
+<ul class="post-metadata">
+	<li><time datetime="2023-11-12">12 November 2023</time></li>
+	<li><a href="/tags/computer-science/" class="post-tag">computer science</a></li>
+</ul>
+
+<h2 id="ascii" tabindex="-1">ASCII <a class="header-anchor" href="#ascii">#</a></h2>
+<ul>
+<li><a href="https://datatracker.ietf.org/doc/html/rfc20">RFC 20 ASCII format for Network Interchange</a></li>
+<li>ASCII is a character set
+<ul>
+<li>Codes 0-31 are unprintable control codes and are used to control peripherals such as printers.</li>
+<li>Codes 32-127 are called printable characters, they are for all the <a href="#eascii">different variations of the ASCII table</a></li>
+</ul>
+</li>
+<li>use 8 bits to represent individual characters. (7-bit in early age)</li>
+<li><a href="https://datatracker.ietf.org/doc/html/rfc2616">HTTP 1.1</a> uses <code>US-ASCII</code> as basic character set for the <a href="https://datatracker.ietf.org/doc/html/rfc2616#section-4.2">request line</a> in requests, the <a href="https://datatracker.ietf.org/doc/html/rfc2616#section-6.1.1">status line</a> in responses (except the <a href="https://datatracker.ietf.org/doc/html/rfc2616#section-6.1.1">reason phrase</a>) and the <a href="https://datatracker.ietf.org/doc/html/rfc2616#section-4.2">field names</a> but allows any octet in the field values and the <a href="https://datatracker.ietf.org/doc/html/rfc2616#section-4.3">message body</a>.</li>
+</ul>
+<h3 id="eascii" tabindex="-1">EASCII <a class="header-anchor" href="#eascii">#</a></h3>
+<ul>
+<li>extended ASCII codes</li>
+</ul>
+<h2 id="unicode" tabindex="-1">UNICODE <a class="header-anchor" href="#unicode">#</a></h2>
+<ul>
+<li><a href="https://www.rfc-editor.org/rfc/rfc5198">RFC 5198: Unicode Format for Network Interchange</a></li>
+<li><a href="https://home.unicode.org/">unicode org</a></li>
+<li>
+<blockquote>
+<p>The Unicode Standard refers to the standard character set that represents all natural language characters. Unicode can encode up to roughly 1.1 million characters, allowing it to support all of the world’s languages and scripts in a single, universal standard.</p>
+</blockquote>
+</li>
+<li>UNICODE is <code>ASCII</code> compatible (<code>U+0000</code> to <code>U+007F</code>)</li>
+</ul>
+<h2 id="utf-8" tabindex="-1">UTF-8 <a class="header-anchor" href="#utf-8">#</a></h2>
+<ul>
+<li><a href="https://datatracker.ietf.org/doc/html/rfc3629">RFC 3629: UTF-8, a transformation format of ISO 10646</a></li>
+<li>UTF-8 is defined by the Unicode Standard [<a href="https://datatracker.ietf.org/doc/html/rfc3629#ref-UNICODE">UNICODE</a>]</li>
+<li>In UTF-8, characters from the <code>U+0000..U+10FFFF</code> range  are encoded using sequences of 1 to 4 octets.</li>
+</ul>
+<pre><code>   Char. number range  |        UTF-8 octet sequence
+      (hexadecimal)    |              (binary)
+   --------------------+------------------------------------
+   0000 0000-0000 007F | 0xxxxxxx
+   0000 0080-0000 07FF | 110xxxxx 10xxxxxx
+   0000 0800-0000 FFFF | 1110xxxx 10xxxxxx 10xxxxxx
+   0001 0000-0010 FFFF | 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+</code></pre>
+<h3 id="example" tabindex="-1">Example <a class="header-anchor" href="#example">#</a></h3>
+<ul>
+<li>HTML header: <code>Content-Type: text/plain; charset=&quot;UTF-8&quot;</code></li>
+<li>Golang: <a href="https://go.dev/ref/spec#Source_code_representation">Rune literals</a> use UTF-8</li>
+<li>Rust: <a href="https://doc.rust-lang.org/std/string/struct.String.html">Struct std::string::String</a> A UTF-8–encoded, growable string.</li>
+</ul>
+<h2 id="base64" tabindex="-1">Base64 <a class="header-anchor" href="#base64">#</a></h2>
+<ul>
+<li>
+<p>RFC: <a href="https://datatracker.ietf.org/doc/html/rfc4648#section-4">rfc4648#section-4</a></p>
+</li>
+<li>
+<p>24 bits byte sequence can be represented by four <strong>6-bit Base64 digits</strong>.</p>
+<ul>
+<li>4 chars are used to represent <code>4 * 6 = 24 bits = 3 bytes</code> (if we ignore the <a href="https://datatracker.ietf.org/doc/html/rfc4648#section-3.2">padding</a> and round-up detail)</li>
+<li>3-char string will become 4-char string after the encoding, which the means size will increase by about 33%.</li>
+</ul>
+</li>
+<li>
+<p>Used when there was a need to encode <strong>binary data</strong> so that it can be stored and transferred over mediums that primarily designed to deal with ASCII text. E-Mail attachments are sent out as base64 encoded strings.</p>
+</li>
+<li>
+<p>IS: case sensitive</p>
+</li>
+<li>
+<p>In Unix system, <a href="https://en.wikipedia.org/wiki/Crypt_(C)">crypt()</a> uses a special Base64-type of encoding. It uses <code>./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz</code> to encode the hashed password.</p>
+</li>
+</ul>
+<h3 id="example-1" tabindex="-1">Example: <a class="header-anchor" href="#example-1">#</a></h3>
+<ul>
+<li>In binary, &quot;cat&quot; is <code>01100011 01100001 01110100</code> ( 3 bytes)</li>
+<li>base 64 &quot;cat&quot; would be<pre><code>011000 110110 000101 110100
+|      |      |      |
+Y      2      F      0
+</code></pre>
+</li>
+</ul>
+<h3 id="example-generate-random-password" tabindex="-1">Example - Generate random password <a class="header-anchor" href="#example-generate-random-password">#</a></h3>
+<blockquote>
+<p>Language-specific characters are typically avoided by password generators because they would not be universally available (US keyboards don't have accented characters, for instance). So don't take their omission from these tools as an indication that they might be weak or problematic.
+- <a href="https://security.stackexchange.com/questions/225346/is-it-bad-to-use-special-characters-in-passwords">Is it bad to use special characters in passwords? [duplicate]</a></p>
+</blockquote>
+<pre class="language-go" tabindex="0"><code class="language-go"><span class="token keyword">package</span> main
+<span class="token keyword">import</span> <span class="token punctuation">(</span>
+	<span class="token string">"crypto/rand"</span>
+	<span class="token string">"encoding/base64"</span>
+	<span class="token string">"fmt"</span>
+	<span class="token string">"log"</span>
+<span class="token punctuation">)</span>
+
+<span class="token keyword">func</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+	buf <span class="token operator">:=</span> <span class="token function">make</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token builtin">byte</span><span class="token punctuation">,</span> <span class="token number">32</span><span class="token punctuation">)</span>
+	<span class="token boolean">_</span><span class="token punctuation">,</span> err <span class="token operator">:=</span> rand<span class="token punctuation">.</span><span class="token function">Read</span><span class="token punctuation">(</span>buf<span class="token punctuation">)</span>
+	<span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+		log<span class="token punctuation">.</span><span class="token function">Fatalf</span><span class="token punctuation">(</span><span class="token string">"error while generating random string: %s"</span><span class="token punctuation">,</span> err<span class="token punctuation">)</span>
+	<span class="token punctuation">}</span>
+	<span class="token comment">// fmt.Println(string(buf)) // not printable</span>
+
+	printable_password <span class="token operator">:=</span> base64<span class="token punctuation">.</span>StdEncoding<span class="token punctuation">.</span><span class="token function">EncodeToString</span><span class="token punctuation">(</span>buf<span class="token punctuation">)</span>
+	fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span><span class="token string">"generated password"</span><span class="token punctuation">,</span> printable_password<span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h2 id="base64url" tabindex="-1">Base64Url <a class="header-anchor" href="#base64url">#</a></h2>
+<ul>
+<li><a href="https://datatracker.ietf.org/doc/html/rfc4648#section-5">RFC4648: Section 5: Base 64 Encoding with URL and Filename Safe Alphabet</a></li>
+<li><a href="#base64">standard Base64</a> uses <code>+</code> and <code>/</code> for the last 2 characters, and <code>=</code> for padding.</li>
+<li>Base64Url uses <code>-</code> and <code>_</code> for the last 2 characters, and makes padding optional.</li>
+</ul>
+<h3 id="usage" tabindex="-1">Usage <a class="header-anchor" href="#usage">#</a></h3>
+<ul>
+<li>If the Base64-encoded text needs to be transmitted/saved where <code>+</code>, <code>/</code>, or <code>=</code> have special meaning, e.g. in URLs where all 3 does, then it is better to use <code>Base64Url</code>.</li>
+<li>If the Base64-encoded text needs to be transmitted/saved where <code>-</code> or <code>_</code> have special meaning, then it is better to use Standard Base64.</li>
+</ul>
+<h3 id="ref" tabindex="-1">Ref <a class="header-anchor" href="#ref">#</a></h3>
+<ul>
+<li><a href="https://youtu.be/ut74oHojxqo?si=XBBGiFS1kw4Q7Mj2">Youtube:  Unicode, in friendly terms: ASCII, UTF-8, code points, character encodings, and more </a></li>
+<li><a href="https://bharatkalluri.com/posts/base64-size-increase-explanation">Why is a base 64 encoded file 33% larger than the original?</a></li>
+<li><a href="https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/">The Absolute Minimum Every Software Developer Absolutely, Positively Must Know About Unicode and Character Sets (No Excuses!)</a></li>
+</ul>
+
+<ul class="links-nextprev"><li>Previous: <a href="/blog/system-design-interview-add-click-aggregation/">System Design Interview Vol.2 - Chapter 6. Ad Click Event Aggregation</a></li>
+</ul>
+
+		</main>
+
+		<footer></footer>
+
+		<!-- Current page: /blog/charset-encoding/ -->
+	</body>
+</html>
