@@ -102,6 +102,10 @@ Portable. Nano ID was ported to 20 programming languages.
 - id is unique across different node and process
 - counter ensure the uniqueness on same process of same node 
 
+#### Security Concern
+- since the structure of id, the entropy of id is quite small, which means [easy to predict](https://github.com/andresriancho/mongo-objectid-predict).
+- It is dangerous through [IDOR](https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/05-Authorization_Testing/04-Testing_for_Insecure_Direct_Object_References)
+
 #### Snowflake ID [[6]](#reference)
 
 - timestamp: Epoch in milliseconds precision
