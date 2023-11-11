@@ -663,6 +663,11 @@ Portable. Nano ID was ported to 20 programming languages.</p>
 <li>id is unique across different node and process</li>
 <li>counter ensure the uniqueness on same process of same node</li>
 </ul>
+<h4 id="security-concern" tabindex="-1">Security Concern <a class="header-anchor" href="#security-concern">#</a></h4>
+<ul>
+<li>since the structure of id, the entropy of id is quite small, which means <a href="https://github.com/andresriancho/mongo-objectid-predict">easy to predict</a>.</li>
+<li>It is dangerous through <a href="https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/05-Authorization_Testing/04-Testing_for_Insecure_Direct_Object_References">IDOR</a></li>
+</ul>
 <h4 id="snowflake-id-6" tabindex="-1">Snowflake ID <a href="#reference">[6]</a> <a class="header-anchor" href="#snowflake-id-6">#</a></h4>
 <ul>
 <li>timestamp: Epoch in milliseconds precision

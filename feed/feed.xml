@@ -846,6 +846,11 @@ Portable. Nano ID was ported to 20 programming languages.&lt;/p&gt;
 &lt;li&gt;id is unique across different node and process&lt;/li&gt;
 &lt;li&gt;counter ensure the uniqueness on same process of same node&lt;/li&gt;
 &lt;/ul&gt;
+&lt;h4 id=&quot;security-concern&quot; tabindex=&quot;-1&quot;&gt;Security Concern &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/distributed-id-generation/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;since the structure of id, the entropy of id is quite small, which means &lt;a href=&quot;https://github.com/andresriancho/mongo-objectid-predict&quot;&gt;easy to predict&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;It is dangerous through &lt;a href=&quot;https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/05-Authorization_Testing/04-Testing_for_Insecure_Direct_Object_References&quot;&gt;IDOR&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
 &lt;h4 id=&quot;snowflake-id-6&quot; tabindex=&quot;-1&quot;&gt;Snowflake ID &lt;a href=&quot;https://hhow09.github.io/blog/distributed-id-generation/&quot;&gt;[6]&lt;/a&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/distributed-id-generation/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
 &lt;ul&gt;
 &lt;li&gt;timestamp: Epoch in milliseconds precision
