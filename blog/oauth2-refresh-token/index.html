@@ -1,0 +1,710 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>OAuth 2.0 - Refresh Token and Rotation</title>
+		<meta name="description" content="Notes about refresh token and rotation details">
+		<link rel="alternate" href="/feed/feed.xml" type="application/atom+xml" title="Modern Tragedy">
+		<link rel="alternate" href="/feed/feed.json" type="application/json" title="Modern Tragedy">
+		
+		<style>/**
+ * okaidia theme for JavaScript, CSS and HTML
+ * Loosely based on Monokai textmate theme by http://www.monokai.nl/
+ * @author ocodia
+ */
+
+code[class*="language-"],
+pre[class*="language-"] {
+	color: #f8f8f2;
+	background: none;
+	text-shadow: 0 1px rgba(0, 0, 0, 0.3);
+	font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+	font-size: 1em;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+	word-break: normal;
+	word-wrap: normal;
+	line-height: 1.5;
+
+	-moz-tab-size: 4;
+	-o-tab-size: 4;
+	tab-size: 4;
+
+	-webkit-hyphens: none;
+	-moz-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+	padding: 1em;
+	margin: .5em 0;
+	overflow: auto;
+	border-radius: 0.3em;
+}
+
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+	background: #272822;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+	padding: .1em;
+	border-radius: .3em;
+	white-space: normal;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+	color: #8292a2;
+}
+
+.token.punctuation {
+	color: #f8f8f2;
+}
+
+.token.namespace {
+	opacity: .7;
+}
+
+.token.property,
+.token.tag,
+.token.constant,
+.token.symbol,
+.token.deleted {
+	color: #f92672;
+}
+
+.token.boolean,
+.token.number {
+	color: #ae81ff;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+	color: #a6e22e;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string,
+.token.variable {
+	color: #f8f8f2;
+}
+
+.token.atrule,
+.token.attr-value,
+.token.function,
+.token.class-name {
+	color: #e6db74;
+}
+
+.token.keyword {
+	color: #66d9ef;
+}
+
+.token.regex,
+.token.important {
+	color: #fd971f;
+}
+
+.token.important,
+.token.bold {
+	font-weight: bold;
+}
+.token.italic {
+	font-style: italic;
+}
+
+.token.entity {
+	cursor: help;
+}
+/*
+ * New diff- syntax
+ */
+
+pre[class*="language-diff-"] {
+	--eleventy-code-padding: 1.25em;
+	padding-left: var(--eleventy-code-padding);
+	padding-right: var(--eleventy-code-padding);
+}
+.token.deleted {
+	background-color: hsl(0, 51%, 37%);
+	color: inherit;
+}
+.token.inserted {
+	background-color: hsl(126, 31%, 39%);
+	color: inherit;
+}
+
+/* Make the + and - characters unselectable for copy/paste */
+.token.prefix.unchanged,
+.token.prefix.inserted,
+.token.prefix.deleted {
+	-webkit-user-select: none;
+	user-select: none;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+.token.prefix.inserted,
+.token.prefix.deleted {
+	width: var(--eleventy-code-padding);
+	background-color: rgba(0,0,0,.2);
+}
+
+/* Optional: full-width background color */
+.token.inserted:not(.prefix),
+.token.deleted:not(.prefix) {
+	display: block;
+	margin-left: calc(-1 * var(--eleventy-code-padding));
+	margin-right: calc(-1 * var(--eleventy-code-padding));
+	text-decoration: none; /* override del, ins, mark defaults */
+	color: inherit; /* override del, ins, mark defaults */
+}
+* { box-sizing: border-box; }
+/* Defaults */
+:root {
+	--font-family: -apple-system, system-ui, sans-serif;
+	--font-family-monospace: Consolas, Menlo, Monaco, Andale Mono WT, Andale Mono, Lucida Console, Lucida Sans Typewriter, DejaVu Sans Mono, Bitstream Vera Sans Mono, Liberation Mono, Nimbus Mono L, Courier New, Courier, monospace;
+}
+
+/* Theme colors */
+:root {
+	--color-gray-20: #e0e0e0;
+	--color-gray-50: #C0C0C0;
+	--color-gray-90: #333;
+
+	--background-color: #fff;
+
+	--text-color: var(--color-gray-90);
+	--text-color-link: #082840;
+	--text-color-link-active: #5f2b48;
+	--text-color-link-visited: #17050F;
+
+	--syntax-tab-size: 2;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--color-gray-20: #e0e0e0;
+		--color-gray-50: #C0C0C0;
+		--color-gray-90: #dad8d8;
+
+		/* --text-color is assigned to --color-gray-_ above */
+		--text-color-link: #1493fb;
+		--text-color-link-active: #6969f7;
+		--text-color-link-visited: #a6a6f8;
+
+		--background-color: #15202b;
+	}
+}
+
+
+/* Global stylesheet */
+* {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	padding: 0;
+	margin: 0 auto;
+	font-family: var(--font-family);
+	color: var(--text-color);
+	background-color: var(--background-color);
+}
+html {
+	overflow-y: scroll;
+}
+body {
+	max-width: 40em;
+}
+
+/* https://www.a11yproject.com/posts/how-to-hide-content/ */
+.visually-hidden {
+	clip: rect(0 0 0 0);
+	clip-path: inset(50%);
+	height: 1px;
+	overflow: hidden;
+	position: absolute;
+	white-space: nowrap;
+	width: 1px;
+}
+
+p:last-child {
+	margin-bottom: 0;
+}
+p {
+	line-height: 1.5;
+}
+
+li {
+	line-height: 1.5;
+}
+
+a[href] {
+	color: var(--text-color-link);
+}
+a[href]:visited {
+	color: var(--text-color-link-visited);
+}
+a[href]:hover,
+a[href]:active {
+	color: var(--text-color-link-active);
+}
+
+main {
+	padding: 1rem;
+}
+main :first-child {
+	margin-top: 0;
+}
+
+header {
+	border-bottom: 1px dashed var(--color-gray-20);
+}
+header:after {
+	content: "";
+	display: table;
+	clear: both;
+}
+
+.links-nextprev {
+	list-style: none;
+	border-top: 1px dashed var(--color-gray-20);
+	padding: 1em 0;
+}
+table, table td, table th {
+	border: 1px solid;
+	border-collapse: collapse;
+}
+
+table {
+	margin: 1em 0;
+}
+table td,
+table th {
+	padding-right: 1em;
+}
+
+pre,
+code {
+	font-family: var(--font-family-monospace);
+	background: rgba(175,184,193,0.2);
+	padding: 0em .1em;
+}
+pre:not([class*="language-"]) {
+	margin: .5em 0;
+	line-height: 1.375; /* 22px /16 */
+	-moz-tab-size: var(--syntax-tab-size);
+	-o-tab-size: var(--syntax-tab-size);
+	tab-size: var(--syntax-tab-size);
+	-webkit-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+	direction: ltr;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+	word-break: normal;
+}
+
+
+/* Header */
+header {
+	display: flex;
+	gap: 1em .5em;
+	flex-wrap: wrap;
+	align-items: center;
+	padding: 1em;
+}
+.home-link {
+	font-size: 1em; /* 16px /16 */
+	font-weight: 700;
+	margin-right: 2em;
+}
+.home-link:link:not(:hover) {
+	text-decoration: none;
+}
+
+/* Nav */
+.nav {
+	display: flex;
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}
+.nav-item {
+	display: inline-block;
+	margin-right: 1em;
+}
+.nav-item a[href]:not(:hover) {
+	text-decoration: none;
+}
+.nav a[href][aria-current="page"] {
+	text-decoration: underline;
+}
+
+/* Posts list */
+.postlist {
+	list-style: none;
+	padding: 0;
+	padding-left: 1.5rem;
+}
+.postlist-item {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	counter-increment: start-from -1;
+	margin-bottom: 1em;
+}
+.postlist-item:before {
+	display: inline-block;
+	pointer-events: none;
+	content: "" counter(start-from, decimal-leading-zero) ". ";
+	line-height: 100%;
+	text-align: right;
+	margin-left: -1.5rem;
+}
+.postlist-date,
+.postlist-item:before {
+	font-size: 0.8125em; /* 13px /16 */
+	color: var(--color-gray-90);
+}
+.postlist-date {
+	word-spacing: -0.5px;
+}
+.postlist-link {
+	font-size: 1.1875em; /* 19px /16 */
+	font-weight: 700;
+	flex-basis: calc(100% - 1.5rem);
+	padding-left: .25em;
+	padding-right: .5em;
+	text-underline-position: from-font;
+	text-underline-offset: 0;
+	text-decoration-thickness: 1px;
+}
+.postlist-item-active .postlist-link {
+	font-weight: bold;
+}
+
+/* Tags */
+.post-tag {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	text-transform: capitalize;
+	font-style: italic;
+}
+.postlist-item > .post-tag {
+	align-self: center;
+}
+
+/* Tags list */
+.post-metadata {
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: .5em;
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+.post-metadata time {
+	margin-right: 1em;
+}
+
+/* Direct Links / Markdown Headers */
+.header-anchor {
+	text-decoration: none;
+	font-style: normal;
+	font-size: 1em;
+	margin-left: .1em;
+}
+a[href].header-anchor,
+a[href].header-anchor:visited {
+	color: transparent;
+}
+a[href].header-anchor:focus,
+a[href].header-anchor:hover {
+	text-decoration: underline;
+}
+a[href].header-anchor:focus,
+:hover > a[href].header-anchor {
+	color: #aaa;
+}
+
+h2 + .header-anchor {
+	font-size: 1.5em;
+}
+
+img {
+	max-width: 100%;
+}
+img[width] {
+	width: auto; /* Defer to max-width */
+}
+img[width][height] {
+	height: auto; /* Preserve aspect ratio */
+}
+
+blockquote {
+	background:		#f9f9f9;
+	border-left:	10px solid #ccc;
+	margin:			1.5em 10px;
+	padding:		.5em 10px;
+	quotes:			"\201C""\201D""\2018""\2019"; 
+}
+
+blockquote p {
+	display:		inline;
+}</style>
+		<script type="module" async>import mermaid from "https://unpkg.com/mermaid@10/dist/mermaid.esm.min.mjs";document.addEventListener('DOMContentLoaded', mermaid.initialize({startOnLoad:true}));</script>		
+	</head>
+	<body>
+		<a href="#skip" class="visually-hidden">Skip to main content</a>
+
+		<header>
+			<a href="/" class="home-link">Modern Tragedy</a>
+			<nav>
+				<h2 class="visually-hidden">Top level navigation menu</h2>
+				<ul class="nav">
+					<li class="nav-item"><a href="/">Home</a></li>
+					<li class="nav-item"><a href="/blog/">Archive</a></li>
+					<li class="nav-item"><a href="/about/">About Me</a></li>
+				</ul>
+			</nav>
+		</header>
+
+		<main id="skip">
+			
+<h1>OAuth 2.0 - Refresh Token and Rotation</h1>
+
+<ul class="post-metadata">
+	<li><time datetime="2023-12-08">08 December 2023</time></li>
+	<li><a href="/tags/oauth/" class="post-tag">oauth</a>, </li>
+	<li><a href="/tags/system-design/" class="post-tag">system design</a></li>
+</ul>
+
+<h2 id="specification" tabindex="-1">Specification <a class="header-anchor" href="#specification">#</a></h2>
+<ol>
+<li>
+<p>Refresh tokens are credentials used to obtain access tokens. <em>[REF] <a href="https://datatracker.ietf.org/doc/html/rfc6749#section-1.5">RFC 6749 1.5</a></em></p>
+<ul>
+<li>(1) when current access token expires.</li>
+<li>(2) to obtain additional access tokens with identical or narrower scope.</li>
+</ul>
+</li>
+<li>
+<p>Issuing a refresh token is optional at the discretion of the authorization server. <em>[REF] <a href="https://datatracker.ietf.org/doc/html/rfc6749#section-1.5">Oauth6749 1.5</a></em></p>
+</li>
+<li>
+<p>Refresh tokens MUST be kept confidential in transit and storage, and shared only among the authorization server and the client to whom the refresh tokens were issued. <em>[REF] <a href="https://datatracker.ietf.org/doc/html/rfc6749#section-10.4">RFC 6749 10.4</a></em></p>
+</li>
+<li>
+<p>The authorization server MUST maintain the binding between a refresh token and the client to whom it was issued. <em>[REF] <a href="https://datatracker.ietf.org/doc/html/rfc6749#section-10.4">RFC 6749 10.4</a></em></p>
+</li>
+<li>
+<p>Refresh tokens MUST only be transmitted using TLS <em>[REF] <a href="https://datatracker.ietf.org/doc/html/rfc6749#section-10.4">RFC 6749 10.4</a></em></p>
+</li>
+<li>
+<p>The authorization server MUST verify the binding between the refresh token and client identity. <em>[REF] <a href="https://datatracker.ietf.org/doc/html/rfc6749#section-10.4">RFC 6749 10.4</a></em></p>
+</li>
+<li>
+<p>When client authentication is not possible, the authorization server SHOULD deploy other means to detect refresh token abuse. <em>[REF] <a href="https://datatracker.ietf.org/doc/html/rfc6749#section-10.4">RFC 6749 10.4</a></em></p>
+<ul>
+<li>e.g. <a href="#refresh-token-rotation">Refresh Token Rotation</a></li>
+</ul>
+</li>
+<li>
+<p>If a refresh token is compromised and subsequently used by both the attacker and the legitimate client, one of them will present an  invalidated refresh token, which will inform the authorization server of the breach. <em>[REF] <a href="https://datatracker.ietf.org/doc/html/rfc6749#section-10.4">RFC 6749 10.4</a></em></p>
+</li>
+<li>
+<p>The authorization server MUST ensure that refresh tokens cannot be generated, modified, or guessed to produce valid refresh tokens by unauthorized parties. <em>[REF] <a href="https://datatracker.ietf.org/doc/html/rfc6749#section-10.4">RFC 6749 10.4</a></em></p>
+<ul>
+<li>cannot be modified: signing</li>
+<li>cannot be guessed: encryption</li>
+</ul>
+</li>
+</ol>
+<h3 id="other-specifications" tabindex="-1">Other Specifications <a class="header-anchor" href="#other-specifications">#</a></h3>
+<ol>
+<li>Refresh Token Revokation</li>
+<li>Refresh Token Expiration
+<ul>
+<li>The refresh token has not been used for six months. [REF]<a href="https://developers.google.com/identity/protocols/oauth2?hl=en#5.-refresh-the-access-token,-if-necessary">Google OAuth</a></li>
+<li>LinkedIn offers programmatic refresh tokens that are valid for a fixed length of time. [REF]<a href="https://learn.microsoft.com/en-us/linkedin/shared/authentication/programmatic-refresh-tokens">Google Refresh Tokens with OAuth 2.0</a></li>
+</ul>
+</li>
+</ol>
+<h2 id="refresh-access-token" tabindex="-1">Refresh Access Token <a class="header-anchor" href="#refresh-access-token">#</a></h2>
+<h3 id="why" tabindex="-1">Why <a class="header-anchor" href="#why">#</a></h3>
+<ul>
+<li>access token usually issued for a limited time.</li>
+<li>In the scenario of an expiring access token, your application has two alternatives:
+<ul>
+<li>Ask the users of your application to re-authenticate each time an access token expires.</li>
+<li>The authorization server automatically issues a new access token once it expires.</li>
+</ul>
+</li>
+</ul>
+<h3 id="how-to-refreshing-an-access-token" tabindex="-1">How to Refreshing an Access Token ? <a class="header-anchor" href="#how-to-refreshing-an-access-token">#</a></h3>
+<h4 id="client-request" tabindex="-1">Client Request <a class="header-anchor" href="#client-request">#</a></h4>
+<pre><code>     POST /token HTTP/1.1
+     Host: server.example.com
+     Authorization: Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW
+     Content-Type: application/x-www-form-urlencoded
+     grant_type=refresh_token&amp;refresh_token=tGzv3JOkF0XG5Qx2TlKWIA
+</code></pre>
+<h4 id="auth-server-ref-rfc-6749-6" tabindex="-1">Auth Server <em>[REF]<a href="https://datatracker.ietf.org/doc/html/rfc6749#section-6">RFC 6749 6</a></em> <a class="header-anchor" href="#auth-server-ref-rfc-6749-6">#</a></h4>
+<ol>
+<li>MUST authenticate the client if client authentication is included</li>
+<li>MUST validate the refresh token.</li>
+<li>IF valid and authorized, the authorization server issues an access token</li>
+<li>The authorization server MAY issue a new refresh token, in which case the client MUST discard the old refresh token and replace it with the new refresh token.</li>
+<li>The authorization server MAY revoke the old refresh token after issuing a new refresh token to the client.</li>
+<li>If a new refresh token is issued, the refresh token scope MUST be identical to that of the refresh token included by the client in the request.</li>
+</ol>
+<h4 id="flow" tabindex="-1">Flow <a class="header-anchor" href="#flow">#</a></h4>
+<pre><code>  +--------+                                           +---------------+
+  |        |--(A)------- Authorization Grant ---------&gt;|               |
+  |        |                                           |               |
+  |        |&lt;-(B)----------- Access Token -------------|               |
+  |        |               &amp; Refresh Token             |               |
+  |        |                                           |               |
+  |        |                            +----------+   |               |
+  |        |--(C)---- Access Token ----&gt;|          |   |               |
+  |        |                            |          |   |               |
+  |        |&lt;-(D)- Protected Resource --| Resource |   | Authorization |
+  | Client |                            |  Server  |   |     Server    |
+  |        |--(E)---- Access Token ----&gt;|          |   |               |
+  |        |                            |          |   |               |
+  |        |&lt;-(F)- Invalid Token Error -|          |   |               |
+  |        |                            +----------+   |               |
+  |        |                                           |               |
+  |        |--(G)----------- Refresh Token -----------&gt;|               |
+  |        |                                           |               |
+  |        |&lt;-(H)----------- Access Token -------------|               |
+  +--------+           &amp; Optional Refresh Token        +---------------+
+
+               Figure 2: Refreshing an Expired Access Token
+</code></pre>
+<p><em>[REF]<a href="https://datatracker.ietf.org/doc/html/rfc6749#section-1.5">RFC 6749 1.5</a></em></p>
+<h2 id="refresh-token-rotation" tabindex="-1">Refresh Token Rotation <a class="header-anchor" href="#refresh-token-rotation">#</a></h2>
+<ol>
+<li>Refresh token rotation is intended to automatically detect and prevent attempts to use the same refresh token in parallel from different apps/devices. This happens if a token gets stolen from the client and is subsequently used by both the attacker and the legitimate client. <em>[REF] <a href="https://datatracker.ietf.org/doc/html/rfc6819#section-5.2.2.3">RFC 6819 5.2.2.3</a></em></li>
+<li>The basic idea is to change the refresh token value with every refresh request in order to detect attempts to obtain access tokens using old refresh tokens. <em>[REF] <a href="https://datatracker.ietf.org/doc/html/rfc6819#section-5.2.2.3">RFC 6819 5.2.2.3</a></em></li>
+<li>It's a way to prevent token reuse according to <a href="#specification">Specification 7</a></li>
+</ol>
+<h3 id="implementatino-notes" tabindex="-1">Implementatino Notes <a class="header-anchor" href="#implementatino-notes">#</a></h3>
+<ol>
+<li>In accessing data storage layer, (1) New Refresh Token and (2) Invalidate Refresh Token should be atomic.</li>
+<li><a href="https://developer.okta.com/docs/guides/refresh-tokens/main/#refresh-token-rotation">Okta: Refresh token rotation</a></li>
+<li><a href="https://auth0.com/docs/secure/tokens/refresh-tokens/refresh-token-rotation">Auth0: Refresh Token Rotation</a></li>
+</ol>
+<h2 id="refresh-token-reuse-detection" tabindex="-1">Refresh token reuse detection <a class="header-anchor" href="#refresh-token-reuse-detection">#</a></h2>
+<ol>
+<li>If a previously used refresh token is used again with the token request, the authorization server automatically detects the attempted reuse of the refresh token. <em>[REF]<a href="https://developer.okta.com/docs/guides/refresh-tokens/main/#set-up-your-application">Okta: Refresh token reuse detection</a></em></li>
+<li>As a result, Okta immediately invalidates the most recently issued refresh token and all access tokens issued since the user authenticated. This protects your application from token compromise and replay attacks. <em>[REF]<a href="https://developer.okta.com/docs/guides/refresh-tokens/main/#set-up-your-application">Okta: Refresh token reuse detection</a></em>
+<ul>
+<li>Since the authorization server cannot determine whether the attacker or the legitimate client is trying to access, in case of such an access attempt the valid refresh token and the access authorization associated with it are both revoked. <em>[REF] <a href="https://datatracker.ietf.org/doc/html/rfc6819#section-5.2.2.3">RFC 6819 5.2.2.3</a></em></li>
+</ul>
+</li>
+</ol>
+<h3 id="reuse-scenario" tabindex="-1">Reuse Scenario <a class="header-anchor" href="#reuse-scenario">#</a></h3>
+<p><picture><source type="image/avif" srcset="/img/1-cV09DgQ2-2999.avif 2999w"><source type="image/webp" srcset="/img/1-cV09DgQ2-2999.webp 2999w"><img alt="Scenario 1: Refresh Token Reuse" loading="lazy" decoding="async" src="/img/1-cV09DgQ2-2999.png" width="2999" height="1687"></picture></p>
+<p><picture><source type="image/avif" srcset="/img/KIbZ25k-l1-2999.avif 2999w"><source type="image/webp" srcset="/img/KIbZ25k-l1-2999.webp 2999w"><img alt="Scenario 2: Refresh Token Reuse" loading="lazy" decoding="async" src="/img/KIbZ25k-l1-2999.png" width="2999" height="1687"></picture></p>
+<blockquote>
+<p>In these scenarios, the reuse of a refresh token triggers all kinds of alarms with the authorization server. Refresh token reuse likely means that a second party is trying to use a stolen refresh token. In response to this reuse, the authorization server immediately revokes the reused refresh token, along with all descendant tokens. Concretely, all refresh tokens that have ever been derived from the reused refresh token become invalid.</p>
+</blockquote>
+<p>[REF]<a href="https://www.pingidentity.com/en/resources/blog/post/refresh-token-rotation-spa.html">A Critical Analysis of Refresh Token Rotation in Single-page Applications</a></p>
+<h3 id="issue-client-retry-v-s-replay-attack" tabindex="-1">Issue: Client Retry v.s. Replay attack <a class="header-anchor" href="#issue-client-retry-v-s-replay-attack">#</a></h3>
+<ol>
+<li>
+<p>Token reuse detection can sometimes impact the user experience. For example, when users with poor network connections access apps, new tokens issued by Okta might not reach the client app. As a result, the client might want to reuse the refresh token to get new tokens. <em>[REF]<a href="https://developer.okta.com/docs/guides/refresh-tokens/main/#grace-period-for-token-rotation">Okta: Grace period for token rotation</a></em></p>
+</li>
+<li>
+<p>According to <a href="#specification">Specification 8</a>, Refresh token reuse detection should be implemented for preventing <a href="https://auth0.com/docs/secure/security-guidance/prevent-threats#replay-attacks">replay attack</a>.</p>
+</li>
+<li>
+<p>Without enforcing sender-constraint, it’s impossible for the authorization server to know which actor is legitimate or malicious in the event of a replay attack. <em>[REF]<a href="https://auth0.com/docs/secure/tokens/refresh-tokens/refresh-token-rotation">Auth0: Refresh Token Rotation</a></em></p>
+<ul>
+<li>If retry is allowed, it means somehow security is sacrificed in some degree.</li>
+</ul>
+</li>
+</ol>
+<h4 id="solution-from-okta-grace-period" tabindex="-1">Solution from Okta: Grace period <a class="header-anchor" href="#solution-from-okta-grace-period">#</a></h4>
+<ul>
+<li>Okta offers a grace period when you configure refresh token rotation. After the refresh token is rotated, the previous token remains valid for the configured amount of time to allow clients to get the new token.</li>
+<li>The default number of seconds for the Grace period for token rotation is set to <strong>30</strong> seconds. You can change the value to any number from 0-60 seconds. After the refresh token is rotated, the previous token remains valid for this amount of time to allow clients to get the new token.</li>
+<li>[REF]<a href="https://developer.okta.com/docs/guides/refresh-tokens/main/#grace-period-for-token-rotation">Grace period for token rotation</a></li>
+</ul>
+<h4 id="solution-from-auth0-grace-period" tabindex="-1">Solution from Auth0: Grace period <a class="header-anchor" href="#solution-from-auth0-grace-period">#</a></h4>
+<ul>
+<li>
+<p>Enter Reuse Interval (in seconds) for the refresh token to account for leeway time between request and response before triggering automatic reuse detection. This interval helps to avoid concurrency issues when exchanging the rotating refresh token multiple times within a given timeframe. During the leeway window the breach detection features don't apply and a new rotating refresh token is issued. Only the previous token can be reused; if the second-to-last one is exchanged, breach detection will be triggered.</p>
+</li>
+<li>
+<p>[REF]<a href="https://auth0.com/docs/secure/tokens/refresh-tokens/configure-refresh-token-rotation">Auth0: Configure Refresh Token Rotation</a></p>
+</li>
+</ul>
+<h4 id="solution-2-revokaion-on-use" tabindex="-1">Solution 2: Revokaion-On-Use <a class="header-anchor" href="#solution-2-revokaion-on-use">#</a></h4>
+<ol>
+<li>
+<p>Allow client retry with same refresh token</p>
+<ul>
+<li>Keep track of (1) one parent toke (RT1) and (2) a pool of child tokens.</li>
+<li>parent token means the latest token's</li>
+<li>child token means the retry-results of same parent. But <strong>we don't know if they actually successfully recieved by client</strong>.</li>
+<li>parent token (RT1) could generate multiple child refresh tokens and access tokens in pairs ((RT2, AT2), (RT2-1, AT2-1)...). Keep track of them.</li>
+</ul>
+</li>
+<li>
+<p>Invalidate other refresh tokens AFTER (1) one of sibling refresh token or (2) the corresponding <code>access_token</code> once used.</p>
+<ul>
+<li>Once <code>AT2-1</code> is used, (1) sibling (RT2, AT2), (RT2-2, AT2)... should be revoked
+<ul>
+<li>because it ensures client already received one of the retries.</li>
+</ul>
+</li>
+<li>Once <code>RT2-1</code> is used (in next refresh), (1) sibling (RT2, AT2), (RT2-2, AT2)... should be revoked (2) (RT3, AT3) should be generated (3) <code>RT2-1</code> should considered used and become parent.</li>
+</ul>
+</li>
+<li>
+<p>[REF]<a href="https://devforum.zoom.us/t/how-to-protect-against-losing-refresh-token-response/10375/1">How to protect against losing <code>refresh_token</code> response?</a></p>
+</li>
+<li>
+<p>Concurrent token READ (token introspection) and WRITE (refresh token) should be handled carefully.</p>
+</li>
+</ol>
+<h2 id="open-source-oauth-server" tabindex="-1">Open Source OAuth Server <a class="header-anchor" href="#open-source-oauth-server">#</a></h2>
+<ul>
+<li><a href="https://github.com/ory/fosite.git">https://github.com/ory/fosite.git</a></li>
+<li><a href="https://github.com/supertokens/supertokens-core">https://github.com/supertokens/supertokens-core</a></li>
+<li><a href="https://github.com/keycloak/keycloak/blob/main/services/src/main/java/org/keycloak/jose/jws/DefaultTokenManager.java">https://github.com/keycloak/keycloak/blob/main/services/src/main/java/org/keycloak/jose/jws/DefaultTokenManager.java</a></li>
+</ul>
+
+<ul class="links-nextprev"><li>Previous: <a href="/blog/charset-encoding/">Character Sets and Encodings</a></li>
+</ul>
+
+		</main>
+
+		<footer></footer>
+
+		<!-- Current page: /blog/oauth2-refresh-token/ -->
+	</body>
+</html>
