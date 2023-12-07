@@ -26,10 +26,10 @@ layout: layouts/post.njk
     - cannot be guessed: encryption
 
 ### Other Specifications
-1. Refresh Token Revokation
+1. OAuth 2.0 Token Revocation *[REF][RFC 7009](https://datatracker.ietf.org/doc/html/rfc7009)*
 2. Refresh Token Expiration
-    - The refresh token has not been used for six months. [REF][Google OAuth](https://developers.google.com/identity/protocols/oauth2?hl=en#5.-refresh-the-access-token,-if-necessary)
-    - LinkedIn offers programmatic refresh tokens that are valid for a fixed length of time. [REF][Google Refresh Tokens with OAuth 2.0](https://learn.microsoft.com/en-us/linkedin/shared/authentication/programmatic-refresh-tokens)
+    - The refresh token has not been used for six months. *[REF][Google OAuth](https://developers.google.com/identity/protocols/oauth2?hl=en#5.-refresh-the-access-token,-if-necessary)*
+    - LinkedIn offers programmatic refresh tokens that are valid for a fixed length of time. *[REF][Google Refresh Tokens with OAuth 2.0](https://learn.microsoft.com/en-us/linkedin/shared/authentication/programmatic-refresh-tokens)*
 
 ## Refresh Access Token
 ### Why
