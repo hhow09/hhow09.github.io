@@ -1,10 +1,10 @@
 {
 	"version": "https://jsonfeed.org/version/1.1",
-	"title": "Modern Tragedy",
+	"title": "hhow09&#39;s Blog",
 	"language": "en",
 	"home_page_url": "https://hhow09.github.io/",
 	"feed_url": "https://hhow09.github.io/feed/feed.json",
-	"description": "programming stuff",
+	"description": "sofware engineering stuff",
 	"author": {
 		"name": "HH",
 		"url": "https://hhow09.github.io/about-me/"
