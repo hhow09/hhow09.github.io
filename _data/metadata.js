@@ -1,8 +1,8 @@
 module.exports = {
-	title: "Modern Tragedy",
+	title: "hhow09's Blog",
 	url: "https://hhow09.github.io/",
 	language: "en",
-	description: "programming stuff",
+	description: "sofware engineering stuff",
 	author: {
 		name: "HH",
 		email: "hhow09@gmail.com",
