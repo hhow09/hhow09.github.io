@@ -59,11 +59,11 @@
 &lt;/ol&gt;
 &lt;h3 id=&quot;other-specifications&quot; tabindex=&quot;-1&quot;&gt;Other Specifications &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/oauth2-refresh-token/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
 &lt;ol&gt;
-&lt;li&gt;Refresh Token Revokation&lt;/li&gt;
+&lt;li&gt;OAuth 2.0 Token Revocation &lt;em&gt;[REF]&lt;a href=&quot;https://datatracker.ietf.org/doc/html/rfc7009&quot;&gt;RFC 7009&lt;/a&gt;&lt;/em&gt;&lt;/li&gt;
 &lt;li&gt;Refresh Token Expiration
 &lt;ul&gt;
-&lt;li&gt;The refresh token has not been used for six months. [REF]&lt;a href=&quot;https://developers.google.com/identity/protocols/oauth2?hl=en#5.-refresh-the-access-token,-if-necessary&quot;&gt;Google OAuth&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;LinkedIn offers programmatic refresh tokens that are valid for a fixed length of time. [REF]&lt;a href=&quot;https://learn.microsoft.com/en-us/linkedin/shared/authentication/programmatic-refresh-tokens&quot;&gt;Google Refresh Tokens with OAuth 2.0&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;The refresh token has not been used for six months. &lt;em&gt;[REF]&lt;a href=&quot;https://developers.google.com/identity/protocols/oauth2?hl=en#5.-refresh-the-access-token,-if-necessary&quot;&gt;Google OAuth&lt;/a&gt;&lt;/em&gt;&lt;/li&gt;
+&lt;li&gt;LinkedIn offers programmatic refresh tokens that are valid for a fixed length of time. &lt;em&gt;[REF]&lt;a href=&quot;https://learn.microsoft.com/en-us/linkedin/shared/authentication/programmatic-refresh-tokens&quot;&gt;Google Refresh Tokens with OAuth 2.0&lt;/a&gt;&lt;/em&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
