@@ -4,12 +4,201 @@
 	<subtitle>sofware engineering stuff</subtitle>
 	<link href="https://hhow09.github.io/feed/feed.xml" rel="self"/>
 	<link href="https://hhow09.github.io/"/>
-	<updated>2023-12-08T00:00:00Z</updated>
+	<updated>2023-12-14T00:00:00Z</updated>
 	<id>https://hhow09.github.io/</id>
 	<author>
 		<name>HH</name>
 		<email>hhow09@gmail.com</email>
 	</author>
+	
+	<entry>
+		<title>Idempotency</title>
+		<link href="https://hhow09.github.io/blog/idempotency/"/>
+		<updated>2023-12-14T00:00:00Z</updated>
+		<id>https://hhow09.github.io/blog/idempotency/</id>
+		<content type="html">&lt;h2 id=&quot;definition&quot; tabindex=&quot;-1&quot;&gt;Definition &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/idempotency/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;Definition in &lt;a href=&quot;https://en.wikipedia.org/wiki/Idempotence#Idempotent_functions&quot;&gt;Wikipedia&lt;/a&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Idempotence is the property of certain operations in mathematics and computer science whereby they can be applied multiple times without changing the result beyond the initial application.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;idempotent elements are the functions f: E → E […] such that for all x in E, &lt;code&gt;f(f(x)) = f(x)&lt;/code&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;In computer science, the term idempotence may have a different meaning depending on the context in which it is applied&lt;/p&gt;
+&lt;h3 id=&quot;in-http-protocol&quot; tabindex=&quot;-1&quot;&gt;In HTTP protocol &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/idempotency/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;&lt;code&gt;GET&lt;/code&gt;, &lt;code&gt;PUT&lt;/code&gt;, and &lt;code&gt;DELETE&lt;/code&gt; should be implemented in an idempotent manner according to the standard, but &lt;code&gt;POST&lt;/code&gt; doesn&#39;t need to be.&lt;/p&gt;
+&lt;h3 id=&quot;in-event-driven-driven-system&quot; tabindex=&quot;-1&quot;&gt;in event driven driven system &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/idempotency/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;In event stream processing, idempotence refers to the ability of a system to produce the same outcome, even if the same file, event or message is received more than once.&lt;/p&gt;
+&lt;h2 id=&quot;why-we-need-idempotency-in-distributed-system&quot; tabindex=&quot;-1&quot;&gt;Why we need idempotency in distributed system ? &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/idempotency/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;h3 id=&quot;requests-retry-is-inevitable&quot; tabindex=&quot;-1&quot;&gt;Requests retry is inevitable. &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/idempotency/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;h4 id=&quot;failures-happen&quot; tabindex=&quot;-1&quot;&gt;Failures Happen &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/idempotency/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Many kinds of failures become apparent as requests taking longer than usual, and potentially never completing. When a client is waiting longer than usual for a request to complete, it also holds on to the resources it was using for that request for a longer time. When a number of requests hold on to resources for a long time, the server can run out of those resources. These resources can include memory, threads, connections, ephemeral ports, or anything else that is limited.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;em&gt;[REF]&lt;a href=&quot;https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/&quot;&gt;AWS Timeouts, retries, and backoff with jitter&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;With idempotency, retry will just produce same side effect.&lt;/p&gt;
+&lt;p&gt;E.g. &lt;code&gt;/POST record&lt;/code&gt; 1st time, record inserted and returned. 2nd time, find the result and simply return it again.&lt;/p&gt;
+&lt;h3 id=&quot;duplicate-messages-are-inevitable&quot; tabindex=&quot;-1&quot;&gt;Duplicate Messages are Inevitable. &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/idempotency/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;In event driven system, we talks about duplicate messages in both producer and consumer.&lt;/p&gt;
+&lt;p&gt;For producer side, duplicate messages happens when message broker fail to acknowledge due temporary error.&lt;/p&gt;
+&lt;p&gt;For consumer side, &lt;code&gt;at-least-once&lt;/code&gt; delivery is the most common setting. Since exactly once delivery comes with much more complexity and configuration and performance hurt.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;An application typically uses a message broker, such as Apache Kafka or RabbitMQ, that implements at-least once delivery. At-least once delivery ensures that messages will be delivered. It does mean, however, that the message broker can invoke a message handler repeatedly for the same message. You must use the Idempotent Consumer pattern to ensure that your message handlers correctly handle duplicate messages.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;em&gt;[REF] &lt;a href=&quot;https://microservices.io/post/microservices/patterns/2020/10/16/idempotent-consumer.html&quot;&gt;Microservice Architecture: Idempotent consumer pattern&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;h2 id=&quot;determine-if-the-operation-naturally-idempotent&quot; tabindex=&quot;-1&quot;&gt;Determine if the operation naturally Idempotent ? &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/idempotency/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;some business logic naturally has follwing properties could be idempotent by default.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;(1) has unique key known by the client&lt;/li&gt;
+&lt;li&gt;(2) state does not need to sync between client and server&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&quot;for-example&quot; tabindex=&quot;-1&quot;&gt;For Example &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/idempotency/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;(O) register user with email (as primary key)
+&lt;ul&gt;
+&lt;li&gt;operation is naturally idempotent&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;withdraw account balance of user
+&lt;ul&gt;
+&lt;li&gt;(X) &lt;code&gt;withdraw(user_id, amount)&lt;/code&gt; cannot be idempotent because the &lt;strong&gt;current balance&lt;/strong&gt;  is not provided beforehand.&lt;/li&gt;
+&lt;li&gt;(O) &lt;code&gt;withdraw(user_id, amount, current_balance)&lt;/code&gt; can be made idempotent using &lt;code&gt;current_balance&lt;/code&gt; as optimistic lock. However, the requester need to retrieve &lt;code&gt;current_balance&lt;/code&gt; in advance.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&quot;the-request-included-an-external-api-call&quot; tabindex=&quot;-1&quot;&gt;The request included an external API call &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/idempotency/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;(O) external API provides idempotent design&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;e.g. &lt;a href=&quot;https://brandur.org/idempotency-keys#rocket-rides-phases&quot;&gt;Rocket Ride&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;(X) sending an email&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;contains non-idempotenet &lt;a href=&quot;https://hhow09.github.io/blog/idempotency/&quot;&gt;foreign state mutations&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;idempotency-key&quot; tabindex=&quot;-1&quot;&gt;Idempotency key &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/idempotency/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;h3 id=&quot;rfc&quot; tabindex=&quot;-1&quot;&gt;RFC &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/idempotency/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-idempotency-key-header-04&quot;&gt;RFC Draft: The Idempotency-Key HTTP Header Field&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&quot;definition-1&quot; tabindex=&quot;-1&quot;&gt;Definition &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/idempotency/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;blockquote&gt;
+&lt;p&gt;An idempotency key is a unique value that’s generated by a client and sent to an API along with a request. The server stores the key to use for bookkeeping the status of that request on its end. If a request should fail partway through, the client retries with the same idempotency key value, and the server uses it to look up the request’s state and continue from where it left off. The name “idempotency key” &lt;a href=&quot;https://stripe.com/blog/idempotency&quot;&gt;comes from Stripe’s API&lt;/a&gt;.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;[REF] &lt;a href=&quot;https://brandur.org/idempotency-keys#keys&quot;&gt;Implementing Stripe-like Idempotency Keys in Postgres&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&quot;key-generation&quot; tabindex=&quot;-1&quot;&gt;Key Generation &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/idempotency/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;The idempotency key that is supplied as part of every POST request MUST be unique and MUST NOT be reused with another request with a different request payload. &lt;em&gt;[REF] &lt;a href=&quot;https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-idempotency-key-header-04#section-2.2&quot;&gt;RFC Idempotency-Key 2.2&lt;/a&gt;&lt;/em&gt;&lt;/li&gt;
+&lt;li&gt;Uniqueness of the key MUST be defined by the resource owner and MUST be implemented by the clients of the resource server. &lt;em&gt;[REF] &lt;a href=&quot;https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-idempotency-key-header-04#section-2.2&quot;&gt;RFC Idempotency-Key 2.2&lt;/a&gt;&lt;/em&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;implementations&quot; tabindex=&quot;-1&quot;&gt;Implementations &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/idempotency/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;hr&gt;
+&lt;h2 id=&quot;idempotent-middleware&quot; tabindex=&quot;-1&quot;&gt;Idempotent Middleware &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/idempotency/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;Idempotency middleware allows for fault-tolerant APIs where duplicate requests.&lt;/p&gt;
+&lt;p&gt;business logic does not aware of the idempotent key&lt;/p&gt;
+&lt;h3 id=&quot;flow&quot; tabindex=&quot;-1&quot;&gt;Flow &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/idempotency/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;pre class=&quot;mermaid&quot;&gt;sequenceDiagram&amp;#10;    title: idempotent middleware flow;&amp;#10;    actor C as Client;&amp;#10;    participant server;&amp;#10;    participant R as request repo;&amp;#10;    participant LS as lock store;&amp;#10;    &amp;#10;    &amp;#10;    C -&amp;gt;&amp;gt; server: request (idempotent_key)&amp;#10;    note over server: verify key&amp;#10;    note over server: check key expiry&amp;#10;    server -&amp;gt;&amp;gt; R: GET Response&amp;#10;&amp;#10;    alt Not Exist (first pass)&amp;#10;        R --&amp;gt;&amp;gt; server: Not Exist&amp;#10;        server -&amp;gt;&amp;gt;+ LS: lock request&amp;#10;        LS --&amp;gt;&amp;gt;- server: success&amp;#10;        note over server: handle request&amp;#10;        server -&amp;gt;&amp;gt;+ R: SET Response&amp;#10;        R --&amp;gt;&amp;gt; server: Success&amp;#10;        server -&amp;gt;&amp;gt;+ LS: unlock request &amp;#10;        LS --&amp;gt;&amp;gt;- server: success    &amp;#10;        server -&amp;gt;&amp;gt; C: Response    &amp;#10;        R --&amp;gt;&amp;gt; server: Response&amp;#10;        server -&amp;gt;&amp;gt; C: Response&amp;#10;    else Exist&amp;#10;        R --&amp;gt;&amp;gt; server: Response&amp;#10;        server -&amp;gt;&amp;gt; C: Response&amp;#10;    end&amp;#10;&lt;/pre&gt;
+&lt;h3 id=&quot;idempotency-fingerprint&quot; tabindex=&quot;-1&quot;&gt;Idempotency Fingerprint &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/idempotency/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;blockquote&gt;
+&lt;p&gt;An idempotency fingerprint MAY be used in conjunction with an idempotency key to determine the uniqueness of a request.  Such a fingerprint is generated from request payload data by the resource server.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;em&gt;[REF]&lt;a href=&quot;https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-idempotency-key-header-04#section-2.4&quot;&gt;RFC Idempotency-Key 2.4&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;For Example:&lt;/p&gt;
+&lt;pre class=&quot;language-go&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-go&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;func&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;fingerPrint&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;r &lt;span class=&quot;token operator&quot;&gt;*&lt;/span&gt;http&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;Request&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;token builtin&quot;&gt;byte&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+	key &lt;span class=&quot;token operator&quot;&gt;:=&lt;/span&gt; r&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;Header&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;Get&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;Idempotency-Key&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+	body&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; err &lt;span class=&quot;token operator&quot;&gt;:=&lt;/span&gt; io&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;ReadAll&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;r&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;Body&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+	&lt;span class=&quot;token keyword&quot;&gt;if&lt;/span&gt; err &lt;span class=&quot;token operator&quot;&gt;!=&lt;/span&gt; &lt;span class=&quot;token boolean&quot;&gt;nil&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+		&lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;token boolean&quot;&gt;nil&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; fmt&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;Errorf&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;fail to read body, err: %w&quot;&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;+&lt;/span&gt; err&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;Error&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+	&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+	fields &lt;span class=&quot;token operator&quot;&gt;:=&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;map&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;token builtin&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;any&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+		&lt;span class=&quot;token string&quot;&gt;&quot;body&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;body&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+		&lt;span class=&quot;token string&quot;&gt;&quot;path&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; r&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;URL&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;Path&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+		&lt;span class=&quot;token string&quot;&gt;&quot;key&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;  key&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+	&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+	b&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; err &lt;span class=&quot;token operator&quot;&gt;:=&lt;/span&gt; json&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;Marshal&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;fields&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+	&lt;span class=&quot;token keyword&quot;&gt;if&lt;/span&gt; err &lt;span class=&quot;token operator&quot;&gt;!=&lt;/span&gt; &lt;span class=&quot;token boolean&quot;&gt;nil&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+		&lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;token boolean&quot;&gt;nil&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; fmt&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;Errorf&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;fail to marshal fields, err: %w&quot;&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;+&lt;/span&gt; err&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;Error&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+	&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+	sum &lt;span class=&quot;token operator&quot;&gt;:=&lt;/span&gt; sha1&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;Sum&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;b&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+	&lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; sum&lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token boolean&quot;&gt;nil&lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&quot;key-expiration&quot; tabindex=&quot;-1&quot;&gt;Key Expiration &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/idempotency/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;Does the server store idempotency keys forever?&lt;/p&gt;
+&lt;h4 id=&quot;stripe&quot; tabindex=&quot;-1&quot;&gt;Stripe &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/idempotency/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Clients can safely retry requests that include an idempotency key as long as the second request occurs within 24 hours from when you first receive the key (keys expire out of the system after 24 hours).&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;em&gt;[REF] &lt;a href=&quot;https://stripe.com/docs/error-low-level#post-requests&quot;&gt;Stripe Doc&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;h4 id=&quot;rfc-1&quot; tabindex=&quot;-1&quot;&gt;RFC &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/idempotency/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
+&lt;blockquote&gt;
+&lt;p&gt;The resource MAY enforce time based idempotency keys, thus, be able to purge or delete a key upon its expiry.  The resource server SHOULD define such expiration policy and publish it in the documentation.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;em&gt;[REF]&lt;a href=&quot;https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-idempotency-key-header-04#section-2.3&quot;&gt;RFC Idempotency-Key 2.3&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Resource server MUST publish idempotency related specification.  This specification MUST include expiration related policy if applicable. Server is responsible for managing the lifecycle of the idempotency key.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;em&gt;[REF]&lt;a href=&quot;https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-idempotency-key-header-04#section-2.5&quot;&gt;RFC Idempotency-Key 2.5&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;h3 id=&quot;frameworks&quot; tabindex=&quot;-1&quot;&gt;Frameworks &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/idempotency/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/gofiber/fiber/blob/master/middleware/idempotency/idempotency.go&quot;&gt;Idempotency middleware for Fiber&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h2 id=&quot;integrate-idempotent-key-into-business-logic&quot; tabindex=&quot;-1&quot;&gt;Integrate Idempotent key into business logic &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/idempotency/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;the blog post &lt;a href=&quot;https://brandur.org/idempotency-keys#acyclic-state-machine&quot;&gt;Implementing Stripe-like Idempotency Keys in Postgres&lt;/a&gt; provides example content in detail.&lt;/p&gt;
+&lt;p&gt;TLDR:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;broken steps into atomic phases&lt;/li&gt;
+&lt;li&gt;store the state in each atomic phases along with idempotent key&lt;/li&gt;
+&lt;li&gt;when user retry with same idempotent key, fetch the current state and continue the flow.&lt;/li&gt;
+&lt;li&gt;the external API call need to be idempotent.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&quot;concept&quot; tabindex=&quot;-1&quot;&gt;Concept &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/idempotency/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;h4 id=&quot;foreign-state-mutations&quot; tabindex=&quot;-1&quot;&gt;Foreign state mutations &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/idempotency/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
+&lt;blockquote&gt;
+&lt;p&gt;To shore up our backend, it’s key to identify where we’re making foreign state mutations; that is, calling out and manipulating data on another system. This might be creating a charge on Stripe, adding a DNS record, or sending an email.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Some foreign state mutations are idempotent by nature (e.g. adding a DNS record), some are not idempotent but can be made idempotent with the help of an idempotency key (e.g. charge on Stripe, sending an email), and some operations are not idempotent, most often because a foreign service hasn’t designed them that way and doesn’t provide a mechanism like an idempotency key.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;em&gt;[REF] &lt;a href=&quot;https://brandur.org/idempotency-keys#foreign-state&quot;&gt;Foreign state mutations&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;h4 id=&quot;atomic-phase&quot; tabindex=&quot;-1&quot;&gt;Atomic phase &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/idempotency/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
+&lt;blockquote&gt;
+&lt;p&gt;An atomic phase is a set of local state mutations that occur in transactions between foreign state mutations.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Atomic phases should be safely committed before initiating any foreign state mutation. If the call fails, our local state will still have a record of it happening that we can use to retry the operation.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h4 id=&quot;example-rocket-ride&quot; tabindex=&quot;-1&quot;&gt;Example: Rocket Ride &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/idempotency/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
+&lt;p&gt;&lt;picture&gt;&lt;source type=&quot;image/avif&quot; srcset=&quot;https://hhow09.github.io/img/N0P3bcUe8p-603.avif 603w&quot;&gt;&lt;source type=&quot;image/webp&quot; srcset=&quot;https://hhow09.github.io/img/N0P3bcUe8p-603.webp 603w&quot;&gt;&lt;img alt=&quot;Atomic Phases&quot; loading=&quot;lazy&quot; decoding=&quot;async&quot; src=&quot;https://hhow09.github.io/img/N0P3bcUe8p-603.svg&quot; width=&quot;603&quot; height=&quot;339&quot;&gt;&lt;/picture&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;[REF] &lt;a href=&quot;https://brandur.org/idempotency-keys#atomic-phases&quot;&gt;Atomic phases&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;h4 id=&quot;example-medusa&quot; tabindex=&quot;-1&quot;&gt;Example: Medusa &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/idempotency/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
+&lt;p&gt;&lt;picture&gt;&lt;source type=&quot;image/avif&quot; srcset=&quot;https://hhow09.github.io/img/9e3nk6Bf1--1474.avif 1474w&quot;&gt;&lt;source type=&quot;image/webp&quot; srcset=&quot;https://hhow09.github.io/img/9e3nk6Bf1--1474.webp 1474w&quot;&gt;&lt;img alt=&quot;Idempotency Key implementation in Expressjs&quot; loading=&quot;lazy&quot; decoding=&quot;async&quot; src=&quot;https://hhow09.github.io/img/9e3nk6Bf1--1474.png&quot; width=&quot;1474&quot; height=&quot;988&quot;&gt;&lt;/picture&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;[REF] &lt;a href=&quot;https://medusajs.com/blog/idempotency-nodejs-express-open-source/&quot;&gt;An open-source implementation of idempotency keys in NodeJS with Express&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;h3 id=&quot;what-if-external-api-is-not-idempotent&quot; tabindex=&quot;-1&quot;&gt;What if External API is not idempotent &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/idempotency/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Unfortunately, not every service will make this guarantee. If we try to make a non-idempotent foreign state mutation and we see a failure, we may have to persist this operation as permanently errored. In many cases we won’t know whether it’s safe to retry or not, and &lt;strong&gt;we’ll have to take the conservative route and fail the operation.&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;em&gt;[REF] &lt;a href=&quot;https://brandur.org/idempotency-keys#non-idempotent&quot;&gt;Non-idempotent foreign state mutations&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;h2 id=&quot;companies-posts&quot; tabindex=&quot;-1&quot;&gt;Companies Posts &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/idempotency/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Airbnb: &lt;a href=&quot;https://medium.com/airbnb-engineering/avoiding-double-payments-in-a-distributed-payments-system-2981f6b070bb&quot;&gt;Avoiding Double Payments in a Distributed Payments System&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Square: &lt;a href=&quot;https://developer.squareup.com/docs/working-with-apis/idempotency&quot;&gt;Working with APIs: Idempotency&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Stripe：&lt;a href=&quot;https://stripe.com/docs/api/idempotent_requests&quot;&gt;API Reference: Idempotent Requests&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;ref&quot; tabindex=&quot;-1&quot;&gt;Ref &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/idempotency/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://brandur.org/idempotency-keys&quot;&gt;Implementing Stripe-like Idempotency Keys in Postgres&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://william-yeh.net/post/2020/03/idempotency-key-test/&quot;&gt;Idempotency Key：原理與實測&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://andrewjdawson2016.medium.com/my-thoughts-on-idempotency-9a2f40a01a7e&quot;&gt;My Thoughts on Idempotency&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://nejckorasa.github.io/posts/idempotent-kafka-procesing/#understanding-the-intricacies-of-exactly-once-semantics-in-kafka&quot;&gt;Idempotent Processing with Kafka&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</content>
+	</entry>
 	
 	<entry>
 		<title>OAuth 2.0 - Refresh Token and Rotation</title>
