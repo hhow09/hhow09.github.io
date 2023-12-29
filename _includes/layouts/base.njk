@@ -6,6 +6,9 @@
 		<title>{{ title or metadata.title }}</title>
 		<meta name="description" content="{{ description or metadata.description }}">
 
+		{#- google search console #}
+		<meta name="google-site-verification" content="pV0LpMzGqiF5LrOEOtxdTzsIjD0Q6Zd3yXLXJstHuuQ" />
+
 		{#- Atom and JSON feeds included by default #}
 		<link rel="alternate" href="/feed/feed.xml" type="application/atom+xml" title="{{ metadata.title }}">
 		<link rel="alternate" href="/feed/feed.json" type="application/json" title="{{ metadata.title }}">
