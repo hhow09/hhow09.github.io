@@ -7,6 +7,9 @@ tags:
   - system design
 layout: layouts/post.njk
 ---
+
+Some notes after working on Auhtorization server at work.
+
 ## Requirement
 - support authentication and authorization for application servers.
 - Support different authorization methods for an account (e.g. google, apple and others... ).
