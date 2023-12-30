@@ -1,0 +1,649 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>OAuth server for mobile applications</title>
+		<meta name="description" content="implementation details of OAuth server for mobile applications">
+		<meta name="google-site-verification" content="pV0LpMzGqiF5LrOEOtxdTzsIjD0Q6Zd3yXLXJstHuuQ" />
+		<link rel="alternate" href="/feed/feed.xml" type="application/atom+xml" title="hhow09&#39;s Blog">
+		<link rel="alternate" href="/feed/feed.json" type="application/json" title="hhow09&#39;s Blog">
+		
+		<style>/**
+ * okaidia theme for JavaScript, CSS and HTML
+ * Loosely based on Monokai textmate theme by http://www.monokai.nl/
+ * @author ocodia
+ */
+
+code[class*="language-"],
+pre[class*="language-"] {
+	color: #f8f8f2;
+	background: none;
+	text-shadow: 0 1px rgba(0, 0, 0, 0.3);
+	font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+	font-size: 1em;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+	word-break: normal;
+	word-wrap: normal;
+	line-height: 1.5;
+
+	-moz-tab-size: 4;
+	-o-tab-size: 4;
+	tab-size: 4;
+
+	-webkit-hyphens: none;
+	-moz-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+	padding: 1em;
+	margin: .5em 0;
+	overflow: auto;
+	border-radius: 0.3em;
+}
+
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+	background: #272822;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+	padding: .1em;
+	border-radius: .3em;
+	white-space: normal;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+	color: #8292a2;
+}
+
+.token.punctuation {
+	color: #f8f8f2;
+}
+
+.token.namespace {
+	opacity: .7;
+}
+
+.token.property,
+.token.tag,
+.token.constant,
+.token.symbol,
+.token.deleted {
+	color: #f92672;
+}
+
+.token.boolean,
+.token.number {
+	color: #ae81ff;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+	color: #a6e22e;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string,
+.token.variable {
+	color: #f8f8f2;
+}
+
+.token.atrule,
+.token.attr-value,
+.token.function,
+.token.class-name {
+	color: #e6db74;
+}
+
+.token.keyword {
+	color: #66d9ef;
+}
+
+.token.regex,
+.token.important {
+	color: #fd971f;
+}
+
+.token.important,
+.token.bold {
+	font-weight: bold;
+}
+.token.italic {
+	font-style: italic;
+}
+
+.token.entity {
+	cursor: help;
+}
+/*
+ * New diff- syntax
+ */
+
+pre[class*="language-diff-"] {
+	--eleventy-code-padding: 1.25em;
+	padding-left: var(--eleventy-code-padding);
+	padding-right: var(--eleventy-code-padding);
+}
+.token.deleted {
+	background-color: hsl(0, 51%, 37%);
+	color: inherit;
+}
+.token.inserted {
+	background-color: hsl(126, 31%, 39%);
+	color: inherit;
+}
+
+/* Make the + and - characters unselectable for copy/paste */
+.token.prefix.unchanged,
+.token.prefix.inserted,
+.token.prefix.deleted {
+	-webkit-user-select: none;
+	user-select: none;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+.token.prefix.inserted,
+.token.prefix.deleted {
+	width: var(--eleventy-code-padding);
+	background-color: rgba(0,0,0,.2);
+}
+
+/* Optional: full-width background color */
+.token.inserted:not(.prefix),
+.token.deleted:not(.prefix) {
+	display: block;
+	margin-left: calc(-1 * var(--eleventy-code-padding));
+	margin-right: calc(-1 * var(--eleventy-code-padding));
+	text-decoration: none; /* override del, ins, mark defaults */
+	color: inherit; /* override del, ins, mark defaults */
+}
+.mermaid {
+    background: transparent;
+}
+* { box-sizing: border-box; }
+/* Defaults */
+:root {
+	--font-family: -apple-system, system-ui, sans-serif;
+	--font-family-monospace: Consolas, Menlo, Monaco, Andale Mono WT, Andale Mono, Lucida Console, Lucida Sans Typewriter, DejaVu Sans Mono, Bitstream Vera Sans Mono, Liberation Mono, Nimbus Mono L, Courier New, Courier, monospace;
+}
+
+/* Theme colors */
+:root {
+	--color-gray-20: #e0e0e0;
+	--color-gray-50: #C0C0C0;
+	--color-gray-90: #333;
+
+	--background-color: #fff;
+
+	--text-color: var(--color-gray-90);
+	--text-color-link: #082840;
+	--text-color-link-active: #5f2b48;
+	--text-color-link-visited: #17050F;
+
+	--syntax-tab-size: 2;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--color-gray-20: #e0e0e0;
+		--color-gray-50: #C0C0C0;
+		--color-gray-90: #dad8d8;
+
+		/* --text-color is assigned to --color-gray-_ above */
+		--text-color-link: #1493fb;
+		--text-color-link-active: #6969f7;
+		--text-color-link-visited: #a6a6f8;
+
+		--background-color: #15202b;
+	}
+}
+
+
+/* Global stylesheet */
+* {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	padding: 0;
+	margin: 0 auto;
+	font-family: var(--font-family);
+	color: var(--text-color);
+	background-color: var(--background-color);
+}
+html {
+	overflow-y: scroll;
+}
+body {
+	max-width: 40em;
+}
+
+/* https://www.a11yproject.com/posts/how-to-hide-content/ */
+.visually-hidden {
+	clip: rect(0 0 0 0);
+	clip-path: inset(50%);
+	height: 1px;
+	overflow: hidden;
+	position: absolute;
+	white-space: nowrap;
+	width: 1px;
+}
+
+p:last-child {
+	margin-bottom: 0;
+}
+p {
+	line-height: 1.5;
+}
+
+li {
+	line-height: 1.5;
+}
+
+a[href] {
+	color: var(--text-color-link);
+}
+a[href]:visited {
+	color: var(--text-color-link-visited);
+}
+a[href]:hover,
+a[href]:active {
+	color: var(--text-color-link-active);
+}
+
+main {
+	padding: 1rem;
+}
+main :first-child {
+	margin-top: 0;
+}
+
+header {
+	border-bottom: 1px dashed var(--color-gray-20);
+}
+header:after {
+	content: "";
+	display: table;
+	clear: both;
+}
+
+.links-nextprev {
+	list-style: none;
+	border-top: 1px dashed var(--color-gray-20);
+	padding: 1em 0;
+}
+table, table td, table th {
+	border: 1px solid;
+	border-collapse: collapse;
+}
+
+table {
+	margin: 1em 0;
+}
+table td,
+table th {
+	padding-right: 1em;
+}
+
+pre,
+code {
+	font-family: var(--font-family-monospace);
+	background: rgba(175,184,193,0.2);
+	padding: 0em .1em;
+}
+pre:not([class*="language-"]) {
+	margin: .5em 0;
+	line-height: 1.375; /* 22px /16 */
+	-moz-tab-size: var(--syntax-tab-size);
+	-o-tab-size: var(--syntax-tab-size);
+	tab-size: var(--syntax-tab-size);
+	-webkit-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+	direction: ltr;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+	word-break: normal;
+}
+
+
+/* Header */
+header {
+	display: flex;
+	gap: 1em .5em;
+	flex-wrap: wrap;
+	align-items: center;
+	padding: 1em;
+}
+.home-link {
+	font-size: 1em; /* 16px /16 */
+	font-weight: 700;
+	margin-right: 2em;
+}
+.home-link:link:not(:hover) {
+	text-decoration: none;
+}
+
+/* Nav */
+.nav {
+	display: flex;
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}
+.nav-item {
+	display: inline-block;
+	margin-right: 1em;
+}
+.nav-item a[href]:not(:hover) {
+	text-decoration: none;
+}
+.nav a[href][aria-current="page"] {
+	text-decoration: underline;
+}
+
+/* Posts list */
+.postlist {
+	list-style: none;
+	padding: 0;
+	padding-left: 1.5rem;
+}
+.postlist-item {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	counter-increment: start-from -1;
+	margin-bottom: 1em;
+}
+.postlist-item:before {
+	display: inline-block;
+	pointer-events: none;
+	content: "" counter(start-from, decimal-leading-zero) ". ";
+	line-height: 100%;
+	text-align: right;
+	margin-left: -1.5rem;
+}
+.postlist-date,
+.postlist-item:before {
+	font-size: 0.8125em; /* 13px /16 */
+	color: var(--color-gray-90);
+}
+.postlist-date {
+	word-spacing: -0.5px;
+}
+.postlist-link {
+	font-size: 1.1875em; /* 19px /16 */
+	font-weight: 700;
+	flex-basis: calc(100% - 1.5rem);
+	padding-left: .25em;
+	padding-right: .5em;
+	text-underline-position: from-font;
+	text-underline-offset: 0;
+	text-decoration-thickness: 1px;
+}
+.postlist-item-active .postlist-link {
+	font-weight: bold;
+}
+
+/* Tags */
+.post-tag {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	text-transform: capitalize;
+	font-style: italic;
+}
+.postlist-item > .post-tag {
+	align-self: center;
+}
+
+/* Tags list */
+.post-metadata {
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: .5em;
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+.post-metadata time {
+	margin-right: 1em;
+}
+
+/* Direct Links / Markdown Headers */
+.header-anchor {
+	text-decoration: none;
+	font-style: normal;
+	font-size: 1em;
+	margin-left: .1em;
+}
+a[href].header-anchor,
+a[href].header-anchor:visited {
+	color: transparent;
+}
+a[href].header-anchor:focus,
+a[href].header-anchor:hover {
+	text-decoration: underline;
+}
+a[href].header-anchor:focus,
+:hover > a[href].header-anchor {
+	color: #aaa;
+}
+
+h2 + .header-anchor {
+	font-size: 1.5em;
+}
+
+img {
+	max-width: 100%;
+}
+img[width] {
+	width: auto; /* Defer to max-width */
+}
+img[width][height] {
+	height: auto; /* Preserve aspect ratio */
+}
+
+blockquote {
+	background:		#f9f9f9;
+	border-left:	10px solid #ccc;
+	margin:			1.5em 10px;
+	padding:		.5em 10px;
+	quotes:			"\201C""\201D""\2018""\2019"; 
+}
+
+blockquote p {
+	display:		inline;
+}</style>
+		<script type="module" async>import mermaid from "https://unpkg.com/mermaid@10/dist/mermaid.esm.min.mjs";document.addEventListener('DOMContentLoaded', mermaid.initialize({startOnLoad:true}));</script>		
+	</head>
+	<body>
+		<a href="#skip" class="visually-hidden">Skip to main content</a>
+
+		<header>
+			<a href="/" class="home-link">hhow09&#39;s Blog</a>
+			<nav>
+				<h2 class="visually-hidden">Top level navigation menu</h2>
+				<ul class="nav">
+					<li class="nav-item"><a href="/">Home</a></li>
+					<li class="nav-item"><a href="/blog/">Archive</a></li>
+					<li class="nav-item"><a href="/about/">About Me</a></li>
+					<li class="nav-item"><a href="/rss/">Feeds</a></li>
+				</ul>
+			</nav>
+		</header>
+
+		<main id="skip">
+			
+<h1>OAuth server for mobile applications</h1>
+
+<ul class="post-metadata">
+	<li><time datetime="2023-12-30">30 December 2023</time></li>
+	<li><a href="/tags/oauth/" class="post-tag">oauth</a>, </li>
+	<li><a href="/tags/system-design/" class="post-tag">system design</a></li>
+</ul>
+
+<p>Some notes after working on Auhtorization server at work.</p>
+<h2 id="requirement" tabindex="-1">Requirement <a class="header-anchor" href="#requirement">#</a></h2>
+<ul>
+<li>support authentication and authorization for application servers.</li>
+<li>Support different authorization methods for an account (e.g. google, apple and others... ).
+<ul>
+<li>goal: login process for applications are unified <strong>as if interacting with a single authorization server</strong>.</li>
+</ul>
+</li>
+<li>Manage user account and sessions for application servers.</li>
+<li>Support refresh token rotation.</li>
+<li>Should follow <a href="https://datatracker.ietf.org/doc/html/rfc6749">OAuth 2.0 Authorization Framework</a></li>
+</ul>
+<h2 id="related-rfcs" tabindex="-1">Related RFCs <a class="header-anchor" href="#related-rfcs">#</a></h2>
+<ul>
+<li><a href="https://datatracker.ietf.org/doc/html/rfc6749">RFC 6749 OAuth 2.0 Authorization Framework</a></li>
+<li><a href="https://datatracker.ietf.org/doc/html/rfc8252">RFC 8252 OAuth 2.0 for Native Apps</a></li>
+<li><a href="https://datatracker.ietf.org/doc/html/rfc7662">RFC 7662 OAuth 2.0 Token Introspection</a></li>
+</ul>
+<h2 id="terms" tabindex="-1">Terms <a class="header-anchor" href="#terms">#</a></h2>
+<h3 id="client" tabindex="-1">Client <a class="header-anchor" href="#client">#</a></h3>
+<blockquote>
+<p>An application making protected resource requests on behalf of the resource owner and with its authorization.  The term &quot;client&quot; does not imply any particular implementation characteristics (e.g., whether the application executes on a server, a desktop, or other devices).</p>
+</blockquote>
+<p>[REF] <a href="https://datatracker.ietf.org/doc/html/rfc6749#section-1.1">RFC 6749 1.1</a></p>
+<h4 id="native-application-client" tabindex="-1">native application client <a class="header-anchor" href="#native-application-client">#</a></h4>
+<blockquote>
+<p>A native application is a public client installed and executed on the device used by the resource owner.  Protocol data and credentials are accessible to the resource owner.  It is assumed that any client authentication credentials included in the application can be extracted.  On the other hand, dynamically issued credentials such as access tokens or refresh tokens can receive an acceptable level of protection.  At a minimum, these credentials are protected from hostile servers with which the application may interact.  On some platforms, these credentials might be protected from other applications residing on the same device.</p>
+</blockquote>
+<p>[REF] <a href="https://datatracker.ietf.org/doc/html/rfc6749#section-2.1">RFC 6749 2.1</a></p>
+<h3 id="id-token" tabindex="-1">ID Token <a class="header-anchor" href="#id-token">#</a></h3>
+<blockquote>
+<p>The ID Token is a security token that contains Claims about the Authentication of an End-User by an Authorization Server when using a Client, and potentially other requested Claims. The ID Token is represented as a <a href="https://openid.net/specs/openid-connect-core-1_0.html#JWT">JSON Web Token (JWT)</a> [JWT].</p>
+</blockquote>
+<p>[REF] <a href="https://openid.net/specs/openid-connect-core-1_0.html#IDToken">OpenID Connect Core 1.0</a></p>
+<ul>
+<li><a href="https://developers.google.com/identity/openid-connect/openid-connect">Google supports open ID Connect</a></li>
+<li><a href="https://openid.net/apple-successfully-implements-openid-connect-with-sign-in-with-apple/">Apple Successfully Implements OpenID Connect with Sign In with Apple</a></li>
+</ul>
+<h2 id="login-flow" tabindex="-1">Login Flow <a class="header-anchor" href="#login-flow">#</a></h2>
+<h3 id="reference" tabindex="-1">Reference <a class="header-anchor" href="#reference">#</a></h3>
+<ul>
+<li>Login flow mainly follows <a href="https://datatracker.ietf.org/doc/html/rfc6749#section-4.4">OAuth2.0: Client Credentials Grant</a></li>
+<li>3rd Party Authentication flow follows <a href="https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest">OpenID Connect: 3.1.2.1.  Authentication Request</a></li>
+</ul>
+<h3 id="participants" tabindex="-1">Participants <a class="header-anchor" href="#participants">#</a></h3>
+<ul>
+<li>
+<p>Mobile App (client)</p>
+</li>
+<li>
+<p>Application Server (resource server)</p>
+<ul>
+<li>responsible for business logic</li>
+<li>responsible for validating <code>access_token</code></li>
+</ul>
+</li>
+<li>
+<p>Auth Service</p>
+<ul>
+<li>responsible for user authentication: validating <code>id_token</code></li>
+<li>responsible for user authorization: issue <code>access_token</code></li>
+<li>responsible manage user account and sessions for application server</li>
+</ul>
+</li>
+<li>
+<p>3rd Party Auth Service (e.g. Google, Apple)</p>
+<ul>
+<li>responsible for user authentication: issue <code>id_token</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="flow-chart" tabindex="-1">Flow Chart <a class="header-anchor" href="#flow-chart">#</a></h3>
+<pre class="mermaid">sequenceDiagram&#10;    autonumber&#10;    participant App as Mobile App&#10;    participant S as App Server&#10;    participant AS as Auth Service&#10;    participant 3AS as 3rd Party Auth Service (Google|Apple)&#10;&#10;    rect rgb(191, 223, 255)&#10;        note over App: native app plugin&#10;        App -&gt;&gt;+ 3AS: 3rd party login and authorization&#10;        3AS --&gt;&gt;- App: id_token&#10;    end&#10;&#10;    App -&gt;&gt;+ AS: Login(id_token)&#10;    AS -&gt;&gt;+ 3AS: Validate id_token&#10;    3AS --&gt;&gt;- AS: user info&#10;    Note over AS: Identify the existed account or link to a new account&#10;    Note over AS: Initiate new session for an account&#10;    AS --&gt;&gt;- App: Access Token, Refresh Token&#10;&#10;    App -&gt;&gt; S: Request(access_token)&#10;    Note over S: Validate access_token&#10;    Note over S: Handle request&#10;    S --&gt;&gt; App: response&#10;</pre>
+<h3 id="notes" tabindex="-1">Notes <a class="header-anchor" href="#notes">#</a></h3>
+<ol>
+<li>
+<p>for step 1 - 2, <a href="https://datatracker.ietf.org/doc/html/rfc6749#section-1.1">Roles</a> in the context of OAuth 2.0</p>
+<ul>
+<li>mobile App served as <a href="https://datatracker.ietf.org/doc/html/rfc6749#section-1.1">client</a></li>
+<li>3rd Party Auth Service (Google, Apple) served as <a href="https://datatracker.ietf.org/doc/html/rfc6749#section-1.1">authorization server</a></li>
+<li>App Server served as <a href="https://datatracker.ietf.org/doc/html/rfc6749#section-1.1">resource server</a></li>
+</ul>
+</li>
+<li>
+<p>details flow for step 1 - 2
+<picture><source type="image/avif" srcset="/img/zwKiqiahoB-364.avif 364w"><source type="image/webp" srcset="/img/zwKiqiahoB-364.webp 364w"><img alt="Authorization flow for Installed applications" loading="lazy" decoding="async" src="/img/zwKiqiahoB-364.png" width="364" height="377"></picture></p>
+<ul>
+<li>[REF] <a href="https://developers.google.com/identity/protocols/oauth2#installed">Google OAuth: Installed applications</a></li>
+</ul>
+</li>
+<li>
+<p>after step 3, <a href="https://datatracker.ietf.org/doc/html/rfc6749#section-1.1">Roles</a> in the context of OAuth 2.0</p>
+<ul>
+<li>mobile App served as <a href="https://datatracker.ietf.org/doc/html/rfc6749#section-1.1">client</a></li>
+<li><strong>Auth Service served as <a href="https://datatracker.ietf.org/doc/html/rfc6749#section-1.1">authorization server</a></strong></li>
+<li>App Server served as <a href="https://datatracker.ietf.org/doc/html/rfc6749#section-1.1">resource server</a></li>
+</ul>
+</li>
+<li>
+<p>step 7: resource server token validation</p>
+</li>
+</ol>
+<blockquote>
+<p>The resource server MUST validate the access token and ensure ... <em><a href="https://datatracker.ietf.org/doc/html/rfc6749#section-7">RFC 6749 7</a></em></p>
+</blockquote>
+<ol>
+<li>step 7: how to validate access token ?</li>
+</ol>
+<blockquote>
+<p>These include using structured token formats such as JWT or proprietary inter-service communication mechanisms <em><a href="https://datatracker.ietf.org/doc/html/rfc7662#section-1">RFC 7662</a></em></p>
+</blockquote>
+<h2 id="refresh-token-rotation" tabindex="-1">Refresh Token Rotation <a class="header-anchor" href="#refresh-token-rotation">#</a></h2>
+<p>in another post: <a href="/blog/oauth2-refresh-token">OAuth 2.0 - Refresh Token and Rotation</a></p>
+<hr>
+<h2 id="tricky-parts" tabindex="-1">Tricky Parts <a class="header-anchor" href="#tricky-parts">#</a></h2>
+<h3 id="client-authentication-for-mobile-apps" tabindex="-1">Client authentication for mobile apps <a class="header-anchor" href="#client-authentication-for-mobile-apps">#</a></h3>
+<blockquote>
+<p>Secrets that are statically included as part of an app distributed to multiple users should not be treated as confidential secrets, as one user may inspect their copy and learn the shared secret.
+Authorization servers that still require a statically included shared secret for native app clients MUST treat the client as a public client</p>
+</blockquote>
+<p>[REF] <a href="https://datatracker.ietf.org/doc/html/rfc8252#section-8.5">RFC 8252 Client Authentication</a></p>
+<h4 id="risk-client-impersonation" tabindex="-1">Risk: client impersonation <a class="header-anchor" href="#risk-client-impersonation">#</a></h4>
+<blockquote>
+<p>In short, OAuth client impersonation is when one OAuth client pretends to be another, usually to take advantage of any capabilities that the legitimate client may have that are not granted to other clients.</p>
+</blockquote>
+<h4 id="are-there-any-solutions-for-client-impersonation" tabindex="-1">Are there any solutions for client impersonation? <a class="header-anchor" href="#are-there-any-solutions-for-client-impersonation">#</a></h4>
+<blockquote>
+<p>For mobile apps, there is more hope. Apple has an API known as “App Attestation”, and Google has a similar API called “Google Play Integrity”. Both APIs work similarly, with a few technical differences. At a high level, both of them involve the application making a request to the operating system to sign some data. Then the app includes that signed string in the call it makes to the developer’s API. The API can validate the signature against the public key from Apple and Google to determine its confidence level that the API request is made from a real version of the mobile app.</p>
+</blockquote>
+<p>[REF]<a href="https://developer.okta.com/blog/2022/06/01/oauth-public-client-identity#what-is-oauth-client-impersonation">Okta: The Identity of OAuth Public Clients</a></p>
+
+<ul class="links-nextprev"><li>Previous: <a href="/blog/idempotency/">Idempotency</a></li>
+</ul>
+
+		</main>
+
+		<footer></footer>
+
+		<!-- Current page: /blog/oauth2-server/ -->
+	</body>
+</html>

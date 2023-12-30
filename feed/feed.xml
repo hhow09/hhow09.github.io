@@ -4,12 +4,151 @@
 	<subtitle>sofware engineering stuff</subtitle>
 	<link href="https://hhow09.github.io/feed/feed.xml" rel="self"/>
 	<link href="https://hhow09.github.io/"/>
-	<updated>2023-12-14T00:00:00Z</updated>
+	<updated>2023-12-30T00:00:00Z</updated>
 	<id>https://hhow09.github.io/</id>
 	<author>
 		<name>HH</name>
 		<email>hhow09@gmail.com</email>
 	</author>
+	
+	<entry>
+		<title>OAuth server for mobile applications</title>
+		<link href="https://hhow09.github.io/blog/oauth2-server/"/>
+		<updated>2023-12-30T00:00:00Z</updated>
+		<id>https://hhow09.github.io/blog/oauth2-server/</id>
+		<content type="html">&lt;p&gt;Some notes after working on Auhtorization server at work.&lt;/p&gt;
+&lt;h2 id=&quot;requirement&quot; tabindex=&quot;-1&quot;&gt;Requirement &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/oauth2-server/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;support authentication and authorization for application servers.&lt;/li&gt;
+&lt;li&gt;Support different authorization methods for an account (e.g. google, apple and others... ).
+&lt;ul&gt;
+&lt;li&gt;goal: login process for applications are unified &lt;strong&gt;as if interacting with a single authorization server&lt;/strong&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Manage user account and sessions for application servers.&lt;/li&gt;
+&lt;li&gt;Support refresh token rotation.&lt;/li&gt;
+&lt;li&gt;Should follow &lt;a href=&quot;https://datatracker.ietf.org/doc/html/rfc6749&quot;&gt;OAuth 2.0 Authorization Framework&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;related-rfcs&quot; tabindex=&quot;-1&quot;&gt;Related RFCs &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/oauth2-server/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://datatracker.ietf.org/doc/html/rfc6749&quot;&gt;RFC 6749 OAuth 2.0 Authorization Framework&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://datatracker.ietf.org/doc/html/rfc8252&quot;&gt;RFC 8252 OAuth 2.0 for Native Apps&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://datatracker.ietf.org/doc/html/rfc7662&quot;&gt;RFC 7662 OAuth 2.0 Token Introspection&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;terms&quot; tabindex=&quot;-1&quot;&gt;Terms &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/oauth2-server/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;h3 id=&quot;client&quot; tabindex=&quot;-1&quot;&gt;Client &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/oauth2-server/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;blockquote&gt;
+&lt;p&gt;An application making protected resource requests on behalf of the resource owner and with its authorization.  The term &amp;quot;client&amp;quot; does not imply any particular implementation characteristics (e.g., whether the application executes on a server, a desktop, or other devices).&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;[REF] &lt;a href=&quot;https://datatracker.ietf.org/doc/html/rfc6749#section-1.1&quot;&gt;RFC 6749 1.1&lt;/a&gt;&lt;/p&gt;
+&lt;h4 id=&quot;native-application-client&quot; tabindex=&quot;-1&quot;&gt;native application client &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/oauth2-server/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
+&lt;blockquote&gt;
+&lt;p&gt;A native application is a public client installed and executed on the device used by the resource owner.  Protocol data and credentials are accessible to the resource owner.  It is assumed that any client authentication credentials included in the application can be extracted.  On the other hand, dynamically issued credentials such as access tokens or refresh tokens can receive an acceptable level of protection.  At a minimum, these credentials are protected from hostile servers with which the application may interact.  On some platforms, these credentials might be protected from other applications residing on the same device.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;[REF] &lt;a href=&quot;https://datatracker.ietf.org/doc/html/rfc6749#section-2.1&quot;&gt;RFC 6749 2.1&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&quot;id-token&quot; tabindex=&quot;-1&quot;&gt;ID Token &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/oauth2-server/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;blockquote&gt;
+&lt;p&gt;The ID Token is a security token that contains Claims about the Authentication of an End-User by an Authorization Server when using a Client, and potentially other requested Claims. The ID Token is represented as a &lt;a href=&quot;https://openid.net/specs/openid-connect-core-1_0.html#JWT&quot;&gt;JSON Web Token (JWT)&lt;/a&gt; [JWT].&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;[REF] &lt;a href=&quot;https://openid.net/specs/openid-connect-core-1_0.html#IDToken&quot;&gt;OpenID Connect Core 1.0&lt;/a&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://developers.google.com/identity/openid-connect/openid-connect&quot;&gt;Google supports open ID Connect&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://openid.net/apple-successfully-implements-openid-connect-with-sign-in-with-apple/&quot;&gt;Apple Successfully Implements OpenID Connect with Sign In with Apple&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;login-flow&quot; tabindex=&quot;-1&quot;&gt;Login Flow &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/oauth2-server/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;h3 id=&quot;reference&quot; tabindex=&quot;-1&quot;&gt;Reference &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/oauth2-server/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Login flow mainly follows &lt;a href=&quot;https://datatracker.ietf.org/doc/html/rfc6749#section-4.4&quot;&gt;OAuth2.0: Client Credentials Grant&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;3rd Party Authentication flow follows &lt;a href=&quot;https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest&quot;&gt;OpenID Connect: 3.1.2.1.  Authentication Request&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&quot;participants&quot; tabindex=&quot;-1&quot;&gt;Participants &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/oauth2-server/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Mobile App (client)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Application Server (resource server)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;responsible for business logic&lt;/li&gt;
+&lt;li&gt;responsible for validating &lt;code&gt;access_token&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Auth Service&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;responsible for user authentication: validating &lt;code&gt;id_token&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;responsible for user authorization: issue &lt;code&gt;access_token&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;responsible manage user account and sessions for application server&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;3rd Party Auth Service (e.g. Google, Apple)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;responsible for user authentication: issue &lt;code&gt;id_token&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&quot;flow-chart&quot; tabindex=&quot;-1&quot;&gt;Flow Chart &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/oauth2-server/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;pre class=&quot;mermaid&quot;&gt;sequenceDiagram&amp;#10;    autonumber&amp;#10;    participant App as Mobile App&amp;#10;    participant S as App Server&amp;#10;    participant AS as Auth Service&amp;#10;    participant 3AS as 3rd Party Auth Service (Google|Apple)&amp;#10;&amp;#10;    rect rgb(191, 223, 255)&amp;#10;        note over App: native app plugin&amp;#10;        App -&amp;gt;&amp;gt;+ 3AS: 3rd party login and authorization&amp;#10;        3AS --&amp;gt;&amp;gt;- App: id_token&amp;#10;    end&amp;#10;&amp;#10;    App -&amp;gt;&amp;gt;+ AS: Login(id_token)&amp;#10;    AS -&amp;gt;&amp;gt;+ 3AS: Validate id_token&amp;#10;    3AS --&amp;gt;&amp;gt;- AS: user info&amp;#10;    Note over AS: Identify the existed account or link to a new account&amp;#10;    Note over AS: Initiate new session for an account&amp;#10;    AS --&amp;gt;&amp;gt;- App: Access Token, Refresh Token&amp;#10;&amp;#10;    App -&amp;gt;&amp;gt; S: Request(access_token)&amp;#10;    Note over S: Validate access_token&amp;#10;    Note over S: Handle request&amp;#10;    S --&amp;gt;&amp;gt; App: response&amp;#10;&lt;/pre&gt;
+&lt;h3 id=&quot;notes&quot; tabindex=&quot;-1&quot;&gt;Notes &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/oauth2-server/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;for step 1 - 2, &lt;a href=&quot;https://datatracker.ietf.org/doc/html/rfc6749#section-1.1&quot;&gt;Roles&lt;/a&gt; in the context of OAuth 2.0&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;mobile App served as &lt;a href=&quot;https://datatracker.ietf.org/doc/html/rfc6749#section-1.1&quot;&gt;client&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;3rd Party Auth Service (Google, Apple) served as &lt;a href=&quot;https://datatracker.ietf.org/doc/html/rfc6749#section-1.1&quot;&gt;authorization server&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;App Server served as &lt;a href=&quot;https://datatracker.ietf.org/doc/html/rfc6749#section-1.1&quot;&gt;resource server&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;details flow for step 1 - 2
+&lt;picture&gt;&lt;source type=&quot;image/avif&quot; srcset=&quot;https://hhow09.github.io/img/zwKiqiahoB-364.avif 364w&quot;&gt;&lt;source type=&quot;image/webp&quot; srcset=&quot;https://hhow09.github.io/img/zwKiqiahoB-364.webp 364w&quot;&gt;&lt;img alt=&quot;Authorization flow for Installed applications&quot; loading=&quot;lazy&quot; decoding=&quot;async&quot; src=&quot;https://hhow09.github.io/img/zwKiqiahoB-364.png&quot; width=&quot;364&quot; height=&quot;377&quot;&gt;&lt;/picture&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;[REF] &lt;a href=&quot;https://developers.google.com/identity/protocols/oauth2#installed&quot;&gt;Google OAuth: Installed applications&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;after step 3, &lt;a href=&quot;https://datatracker.ietf.org/doc/html/rfc6749#section-1.1&quot;&gt;Roles&lt;/a&gt; in the context of OAuth 2.0&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;mobile App served as &lt;a href=&quot;https://datatracker.ietf.org/doc/html/rfc6749#section-1.1&quot;&gt;client&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Auth Service served as &lt;a href=&quot;https://datatracker.ietf.org/doc/html/rfc6749#section-1.1&quot;&gt;authorization server&lt;/a&gt;&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;App Server served as &lt;a href=&quot;https://datatracker.ietf.org/doc/html/rfc6749#section-1.1&quot;&gt;resource server&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;step 7: resource server token validation&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;blockquote&gt;
+&lt;p&gt;The resource server MUST validate the access token and ensure ... &lt;em&gt;&lt;a href=&quot;https://datatracker.ietf.org/doc/html/rfc6749#section-7&quot;&gt;RFC 6749 7&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;ol&gt;
+&lt;li&gt;step 7: how to validate access token ?&lt;/li&gt;
+&lt;/ol&gt;
+&lt;blockquote&gt;
+&lt;p&gt;These include using structured token formats such as JWT or proprietary inter-service communication mechanisms &lt;em&gt;&lt;a href=&quot;https://datatracker.ietf.org/doc/html/rfc7662#section-1&quot;&gt;RFC 7662&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;refresh-token-rotation&quot; tabindex=&quot;-1&quot;&gt;Refresh Token Rotation &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/oauth2-server/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;in another post: &lt;a href=&quot;https://hhow09.github.io/blog/oauth2-refresh-token&quot;&gt;OAuth 2.0 - Refresh Token and Rotation&lt;/a&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&quot;tricky-parts&quot; tabindex=&quot;-1&quot;&gt;Tricky Parts &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/oauth2-server/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;h3 id=&quot;client-authentication-for-mobile-apps&quot; tabindex=&quot;-1&quot;&gt;Client authentication for mobile apps &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/oauth2-server/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Secrets that are statically included as part of an app distributed to multiple users should not be treated as confidential secrets, as one user may inspect their copy and learn the shared secret.
+Authorization servers that still require a statically included shared secret for native app clients MUST treat the client as a public client&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;[REF] &lt;a href=&quot;https://datatracker.ietf.org/doc/html/rfc8252#section-8.5&quot;&gt;RFC 8252 Client Authentication&lt;/a&gt;&lt;/p&gt;
+&lt;h4 id=&quot;risk-client-impersonation&quot; tabindex=&quot;-1&quot;&gt;Risk: client impersonation &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/oauth2-server/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
+&lt;blockquote&gt;
+&lt;p&gt;In short, OAuth client impersonation is when one OAuth client pretends to be another, usually to take advantage of any capabilities that the legitimate client may have that are not granted to other clients.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h4 id=&quot;are-there-any-solutions-for-client-impersonation&quot; tabindex=&quot;-1&quot;&gt;Are there any solutions for client impersonation? &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/oauth2-server/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
+&lt;blockquote&gt;
+&lt;p&gt;For mobile apps, there is more hope. Apple has an API known as “App Attestation”, and Google has a similar API called “Google Play Integrity”. Both APIs work similarly, with a few technical differences. At a high level, both of them involve the application making a request to the operating system to sign some data. Then the app includes that signed string in the call it makes to the developer’s API. The API can validate the signature against the public key from Apple and Google to determine its confidence level that the API request is made from a real version of the mobile app.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;[REF]&lt;a href=&quot;https://developer.okta.com/blog/2022/06/01/oauth-public-client-identity#what-is-oauth-client-impersonation&quot;&gt;Okta: The Identity of OAuth Public Clients&lt;/a&gt;&lt;/p&gt;
+</content>
+	</entry>
 	
 	<entry>
 		<title>Idempotency</title>
