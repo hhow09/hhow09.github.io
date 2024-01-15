@@ -508,38 +508,38 @@ blockquote p {
 <h2 id="specification" tabindex="-1">Specification <a class="header-anchor" href="#specification">#</a></h2>
 <ol>
 <li>
-<p>Refresh tokens are credentials used to obtain access tokens. <em>[REF] <a href="https://datatracker.ietf.org/doc/html/rfc6749#section-1.5">RFC 6749 1.5</a></em></p>
+<p>Refresh tokens are credentials used to obtain access tokens. <sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup></p>
 <ul>
 <li>(1) when current access token expires.</li>
 <li>(2) to obtain additional access tokens with identical or narrower scope.</li>
 </ul>
 </li>
 <li>
-<p>Issuing a refresh token is optional at the discretion of the authorization server. <em>[REF] <a href="https://datatracker.ietf.org/doc/html/rfc6749#section-1.5">Oauth6749 1.5</a></em></p>
+<p>Issuing a refresh token is optional at the discretion of the authorization server. <sup class="footnote-ref"><a href="#fn1" id="fnref1:1">[1:1]</a></sup></p>
 </li>
 <li>
-<p>Refresh tokens MUST be kept confidential in transit and storage, and shared only among the authorization server and the client to whom the refresh tokens were issued. <em>[REF] <a href="https://datatracker.ietf.org/doc/html/rfc6749#section-10.4">RFC 6749 10.4</a></em></p>
+<p>Refresh tokens MUST be kept confidential in transit and storage, and shared only among the authorization server and the client to whom the refresh tokens were issued. <sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup></p>
 </li>
 <li>
-<p>The authorization server MUST maintain the binding between a refresh token and the client to whom it was issued. <em>[REF] <a href="https://datatracker.ietf.org/doc/html/rfc6749#section-10.4">RFC 6749 10.4</a></em></p>
+<p>The authorization server MUST maintain the binding between a refresh token and the client to whom it was issued. <sup class="footnote-ref"><a href="#fn2" id="fnref2:1">[2:1]</a></sup></p>
 </li>
 <li>
-<p>Refresh tokens MUST only be transmitted using TLS <em>[REF] <a href="https://datatracker.ietf.org/doc/html/rfc6749#section-10.4">RFC 6749 10.4</a></em></p>
+<p>Refresh tokens MUST only be transmitted using TLS <sup class="footnote-ref"><a href="#fn2" id="fnref2:2">[2:2]</a></sup></p>
 </li>
 <li>
-<p>The authorization server MUST verify the binding between the refresh token and client identity. <em>[REF] <a href="https://datatracker.ietf.org/doc/html/rfc6749#section-10.4">RFC 6749 10.4</a></em></p>
+<p>The authorization server MUST verify the binding between the refresh token and client identity. <sup class="footnote-ref"><a href="#fn2" id="fnref2:3">[2:3]</a></sup></p>
 </li>
 <li>
-<p>When client authentication is not possible, the authorization server SHOULD deploy other means to detect refresh token abuse. <em>[REF] <a href="https://datatracker.ietf.org/doc/html/rfc6749#section-10.4">RFC 6749 10.4</a></em></p>
+<p>When client authentication is not possible, the authorization server SHOULD deploy other means to detect refresh token abuse. <sup class="footnote-ref"><a href="#fn2" id="fnref2:4">[2:4]</a></sup></p>
 <ul>
 <li>e.g. <a href="#refresh-token-rotation">Refresh Token Rotation</a></li>
 </ul>
 </li>
 <li>
-<p>If a refresh token is compromised and subsequently used by both the attacker and the legitimate client, one of them will present an  invalidated refresh token, which will inform the authorization server of the breach. <em>[REF] <a href="https://datatracker.ietf.org/doc/html/rfc6749#section-10.4">RFC 6749 10.4</a></em></p>
+<p>If a refresh token is compromised and subsequently used by both the attacker and the legitimate client, one of them will present an  invalidated refresh token, which will inform the authorization server of the breach. <sup class="footnote-ref"><a href="#fn2" id="fnref2:5">[2:5]</a></sup></p>
 </li>
 <li>
-<p>The authorization server MUST ensure that refresh tokens cannot be generated, modified, or guessed to produce valid refresh tokens by unauthorized parties. <em>[REF] <a href="https://datatracker.ietf.org/doc/html/rfc6749#section-10.4">RFC 6749 10.4</a></em></p>
+<p>The authorization server MUST ensure that refresh tokens cannot be generated, modified, or guessed to produce valid refresh tokens by unauthorized parties. <sup class="footnote-ref"><a href="#fn2" id="fnref2:6">[2:6]</a></sup></p>
 <ul>
 <li>cannot be modified: signing</li>
 <li>cannot be guessed: encryption</li>
@@ -548,11 +548,11 @@ blockquote p {
 </ol>
 <h3 id="other-specifications" tabindex="-1">Other Specifications <a class="header-anchor" href="#other-specifications">#</a></h3>
 <ol>
-<li>OAuth 2.0 Token Revocation <em>[REF]<a href="https://datatracker.ietf.org/doc/html/rfc7009">RFC 7009</a></em></li>
+<li>OAuth 2.0 Token Revocation <sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup></li>
 <li>Refresh Token Expiration
 <ul>
-<li>The refresh token has not been used for six months. <em>[REF]<a href="https://developers.google.com/identity/protocols/oauth2?hl=en#5.-refresh-the-access-token,-if-necessary">Google OAuth</a></em></li>
-<li>LinkedIn offers programmatic refresh tokens that are valid for a fixed length of time. <em>[REF]<a href="https://learn.microsoft.com/en-us/linkedin/shared/authentication/programmatic-refresh-tokens">Google Refresh Tokens with OAuth 2.0</a></em></li>
+<li>The refresh token has not been used for six months. <sup class="footnote-ref"><a href="#fn4" id="fnref4">[4]</a></sup></li>
+<li>LinkedIn offers programmatic refresh tokens that are valid for a fixed length of time. <sup class="footnote-ref"><a href="#fn5" id="fnref5">[5]</a></sup></li>
 </ul>
 </li>
 </ol>
@@ -575,7 +575,7 @@ blockquote p {
      Content-Type: application/x-www-form-urlencoded
      grant_type=refresh_token&amp;refresh_token=tGzv3JOkF0XG5Qx2TlKWIA
 </code></pre>
-<h4 id="auth-server-ref-rfc-6749-6" tabindex="-1">Auth Server <em>[REF]<a href="https://datatracker.ietf.org/doc/html/rfc6749#section-6">RFC 6749 6</a></em> <a class="header-anchor" href="#auth-server-ref-rfc-6749-6">#</a></h4>
+<h4 id="auth-server" tabindex="-1">Auth Server <sup class="footnote-ref"><a href="#fn6" id="fnref6">[6]</a></sup> <a class="header-anchor" href="#auth-server">#</a></h4>
 <ol>
 <li>MUST authenticate the client if client authentication is included</li>
 <li>MUST validate the refresh token.</li>
@@ -584,7 +584,7 @@ blockquote p {
 <li>The authorization server MAY revoke the old refresh token after issuing a new refresh token to the client.</li>
 <li>If a new refresh token is issued, the refresh token scope MUST be identical to that of the refresh token included by the client in the request.</li>
 </ol>
-<h4 id="flow" tabindex="-1">Flow <a class="header-anchor" href="#flow">#</a></h4>
+<h4 id="flow" tabindex="-1">Flow <sup class="footnote-ref"><a href="#fn7" id="fnref7">[7]</a></sup> <a class="header-anchor" href="#flow">#</a></h4>
 <pre><code>  +--------+                                           +---------------+
   |        |--(A)------- Authorization Grant ---------&gt;|               |
   |        |                                           |               |
@@ -608,11 +608,10 @@ blockquote p {
 
                Figure 2: Refreshing an Expired Access Token
 </code></pre>
-<p><em>[REF]<a href="https://datatracker.ietf.org/doc/html/rfc6749#section-1.5">RFC 6749 1.5</a></em></p>
 <h2 id="refresh-token-rotation" tabindex="-1">Refresh Token Rotation <a class="header-anchor" href="#refresh-token-rotation">#</a></h2>
 <ol>
-<li>Refresh token rotation is intended to automatically detect and prevent attempts to use the same refresh token in parallel from different apps/devices. This happens if a token gets stolen from the client and is subsequently used by both the attacker and the legitimate client. <em>[REF] <a href="https://datatracker.ietf.org/doc/html/rfc6819#section-5.2.2.3">RFC 6819 5.2.2.3</a></em></li>
-<li>The basic idea is to change the refresh token value with every refresh request in order to detect attempts to obtain access tokens using old refresh tokens. <em>[REF] <a href="https://datatracker.ietf.org/doc/html/rfc6819#section-5.2.2.3">RFC 6819 5.2.2.3</a></em></li>
+<li>Refresh token rotation is intended to automatically detect and prevent attempts to use the same refresh token in parallel from different apps/devices. This happens if a token gets stolen from the client and is subsequently used by both the attacker and the legitimate client. <sup class="footnote-ref"><a href="#fn8" id="fnref8">[8]</a></sup></li>
+<li>The basic idea is to change the refresh token value with every refresh request in order to detect attempts to obtain access tokens using old refresh tokens. <sup class="footnote-ref"><a href="#fn8" id="fnref8:1">[8:1]</a></sup></li>
 <li>It's a way to prevent token reuse according to <a href="#specification">Specification 7</a></li>
 </ol>
 <h3 id="implementatino-notes" tabindex="-1">Implementatino Notes <a class="header-anchor" href="#implementatino-notes">#</a></h3>
@@ -623,51 +622,44 @@ blockquote p {
 </ol>
 <h2 id="refresh-token-reuse-detection" tabindex="-1">Refresh token reuse detection <a class="header-anchor" href="#refresh-token-reuse-detection">#</a></h2>
 <ol>
-<li>If a previously used refresh token is used again with the token request, the authorization server automatically detects the attempted reuse of the refresh token. <em>[REF]<a href="https://developer.okta.com/docs/guides/refresh-tokens/main/#set-up-your-application">Okta: Refresh token reuse detection</a></em></li>
-<li>As a result, Okta immediately invalidates the most recently issued refresh token and all access tokens issued since the user authenticated. This protects your application from token compromise and replay attacks. <em>[REF]<a href="https://developer.okta.com/docs/guides/refresh-tokens/main/#set-up-your-application">Okta: Refresh token reuse detection</a></em>
+<li>If a previously used refresh token is used again with the token request, the authorization server automatically detects the attempted reuse of the refresh token. <sup class="footnote-ref"><a href="#fn9" id="fnref9">[9]</a></sup></li>
+<li>As a result, Okta immediately invalidates the most recently issued refresh token and all access tokens issued since the user authenticated. This protects your application from token compromise and replay attacks.<sup class="footnote-ref"><a href="#fn9" id="fnref9:1">[9:1]</a></sup>
 <ul>
-<li>Since the authorization server cannot determine whether the attacker or the legitimate client is trying to access, in case of such an access attempt the valid refresh token and the access authorization associated with it are both revoked. <em>[REF] <a href="https://datatracker.ietf.org/doc/html/rfc6819#section-5.2.2.3">RFC 6819 5.2.2.3</a></em></li>
+<li>Since the authorization server cannot determine whether the attacker or the legitimate client is trying to access, in case of such an access attempt the valid refresh token and the access authorization associated with it are both revoked. <sup class="footnote-ref"><a href="#fn8" id="fnref8:2">[8:2]</a></sup></li>
 </ul>
 </li>
 </ol>
-<h3 id="reuse-scenario" tabindex="-1">Reuse Scenario <a class="header-anchor" href="#reuse-scenario">#</a></h3>
+<h3 id="reuse-scenario" tabindex="-1">Reuse Scenario <sup class="footnote-ref"><a href="#fn10" id="fnref10">[10]</a></sup> <a class="header-anchor" href="#reuse-scenario">#</a></h3>
 <p><picture><source type="image/avif" srcset="/img/1-cV09DgQ2-2999.avif 2999w"><source type="image/webp" srcset="/img/1-cV09DgQ2-2999.webp 2999w"><img alt="Scenario 1: Refresh Token Reuse" loading="lazy" decoding="async" src="/img/1-cV09DgQ2-2999.png" width="2999" height="1687"></picture></p>
 <p><picture><source type="image/avif" srcset="/img/KIbZ25k-l1-2999.avif 2999w"><source type="image/webp" srcset="/img/KIbZ25k-l1-2999.webp 2999w"><img alt="Scenario 2: Refresh Token Reuse" loading="lazy" decoding="async" src="/img/KIbZ25k-l1-2999.png" width="2999" height="1687"></picture></p>
 <blockquote>
 <p>In these scenarios, the reuse of a refresh token triggers all kinds of alarms with the authorization server. Refresh token reuse likely means that a second party is trying to use a stolen refresh token. In response to this reuse, the authorization server immediately revokes the reused refresh token, along with all descendant tokens. Concretely, all refresh tokens that have ever been derived from the reused refresh token become invalid.</p>
 </blockquote>
-<p>[REF]<a href="https://www.pingidentity.com/en/resources/blog/post/refresh-token-rotation-spa.html">A Critical Analysis of Refresh Token Rotation in Single-page Applications</a></p>
 <h3 id="issue-client-retry-v-s-replay-attack" tabindex="-1">Issue: Client Retry v.s. Replay attack <a class="header-anchor" href="#issue-client-retry-v-s-replay-attack">#</a></h3>
 <ol>
 <li>
-<p>Token reuse detection can sometimes impact the user experience. For example, when users with poor network connections access apps, new tokens issued by Okta might not reach the client app. As a result, the client might want to reuse the refresh token to get new tokens. <em>[REF]<a href="https://developer.okta.com/docs/guides/refresh-tokens/main/#grace-period-for-token-rotation">Okta: Grace period for token rotation</a></em></p>
+<p>Token reuse detection can sometimes impact the user experience. For example, when users with poor network connections access apps, new tokens issued by Okta might not reach the client app. As a result, the client might want to reuse the refresh token to get new tokens. <sup class="footnote-ref"><a href="#fn11" id="fnref11">[11]</a></sup></p>
 </li>
 <li>
 <p>According to <a href="#specification">Specification 8</a>, Refresh token reuse detection should be implemented for preventing <a href="https://auth0.com/docs/secure/security-guidance/prevent-threats#replay-attacks">replay attack</a>.</p>
 </li>
 <li>
-<p>Without enforcing sender-constraint, it’s impossible for the authorization server to know which actor is legitimate or malicious in the event of a replay attack. <em>[REF]<a href="https://auth0.com/docs/secure/tokens/refresh-tokens/refresh-token-rotation">Auth0: Refresh Token Rotation</a></em></p>
+<p>Without enforcing sender-constraint, it’s impossible for the authorization server to know which actor is legitimate or malicious in the event of a replay attack. <sup class="footnote-ref"><a href="#fn12" id="fnref12">[12]</a></sup></p>
 <ul>
 <li>If retry is allowed, it means somehow security is sacrificed in some degree.</li>
 </ul>
 </li>
 </ol>
-<h4 id="solution-from-okta-grace-period" tabindex="-1">Solution from Okta: Grace period <a class="header-anchor" href="#solution-from-okta-grace-period">#</a></h4>
+<h4 id="solution-from-okta-grace-period" tabindex="-1">Solution from Okta: Grace period <sup class="footnote-ref"><a href="#fn11" id="fnref11:1">[11:1]</a></sup> <a class="header-anchor" href="#solution-from-okta-grace-period">#</a></h4>
 <ul>
 <li>Okta offers a grace period when you configure refresh token rotation. After the refresh token is rotated, the previous token remains valid for the configured amount of time to allow clients to get the new token.</li>
 <li>The default number of seconds for the Grace period for token rotation is set to <strong>30</strong> seconds. You can change the value to any number from 0-60 seconds. After the refresh token is rotated, the previous token remains valid for this amount of time to allow clients to get the new token.</li>
-<li>[REF]<a href="https://developer.okta.com/docs/guides/refresh-tokens/main/#grace-period-for-token-rotation">Grace period for token rotation</a></li>
 </ul>
-<h4 id="solution-from-auth0-grace-period" tabindex="-1">Solution from Auth0: Grace period <a class="header-anchor" href="#solution-from-auth0-grace-period">#</a></h4>
+<h4 id="solution-from-auth0-grace-period" tabindex="-1">Solution from Auth0: Grace period <sup class="footnote-ref"><a href="#fn13" id="fnref13">[13]</a></sup> <a class="header-anchor" href="#solution-from-auth0-grace-period">#</a></h4>
 <ul>
-<li>
-<p>Enter Reuse Interval (in seconds) for the refresh token to account for leeway time between request and response before triggering automatic reuse detection. This interval helps to avoid concurrency issues when exchanging the rotating refresh token multiple times within a given timeframe. During the leeway window the breach detection features don't apply and a new rotating refresh token is issued. Only the previous token can be reused; if the second-to-last one is exchanged, breach detection will be triggered.</p>
-</li>
-<li>
-<p>[REF]<a href="https://auth0.com/docs/secure/tokens/refresh-tokens/configure-refresh-token-rotation">Auth0: Configure Refresh Token Rotation</a></p>
-</li>
+<li>Enter Reuse Interval (in seconds) for the refresh token to account for leeway time between request and response before triggering automatic reuse detection. This interval helps to avoid concurrency issues when exchanging the rotating refresh token multiple times within a given timeframe. During the leeway window the breach detection features don't apply and a new rotating refresh token is issued. Only the previous token can be reused; if the second-to-last one is exchanged, breach detection will be triggered.</li>
 </ul>
-<h4 id="solution-2-revokaion-on-use" tabindex="-1">Solution 2: Revokaion-On-Use <a class="header-anchor" href="#solution-2-revokaion-on-use">#</a></h4>
+<h4 id="solution-2-revokaion-on-use" tabindex="-1">Solution 2: Revokaion-On-Use <sup class="footnote-ref"><a href="#fn14" id="fnref14">[14]</a></sup> <a class="header-anchor" href="#solution-2-revokaion-on-use">#</a></h4>
 <ol>
 <li>
 <p>Allow client retry with same refresh token</p>
@@ -690,9 +682,6 @@ blockquote p {
 </ul>
 </li>
 <li>
-<p>[REF]<a href="https://devforum.zoom.us/t/how-to-protect-against-losing-refresh-token-response/10375/1">How to protect against losing <code>refresh_token</code> response?</a></p>
-</li>
-<li>
 <p>Concurrent token READ (token introspection) and WRITE (refresh token) should be handled carefully.</p>
 </li>
 </ol>
@@ -702,6 +691,40 @@ blockquote p {
 <li><a href="https://github.com/supertokens/supertokens-core">https://github.com/supertokens/supertokens-core</a></li>
 <li><a href="https://github.com/keycloak/keycloak/blob/main/services/src/main/java/org/keycloak/jose/jws/DefaultTokenManager.java">https://github.com/keycloak/keycloak/blob/main/services/src/main/java/org/keycloak/jose/jws/DefaultTokenManager.java</a></li>
 </ul>
+<h2 id="reference" tabindex="-1">Reference <a class="header-anchor" href="#reference">#</a></h2>
+<hr class="footnotes-sep">
+<section class="footnotes">
+<ol class="footnotes-list">
+<li id="fn1" class="footnote-item"><p><a href="https://datatracker.ietf.org/doc/html/rfc6749#section-1.5">RFC 6749 1.5: Refresh Token</a> <a href="#fnref1" class="footnote-backref">↩︎</a> <a href="#fnref1:1" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn2" class="footnote-item"><p><a href="https://datatracker.ietf.org/doc/html/rfc6749#section-10.4">RFC 6749 10.4: Refresh Tokens</a> <a href="#fnref2" class="footnote-backref">↩︎</a> <a href="#fnref2:1" class="footnote-backref">↩︎</a> <a href="#fnref2:2" class="footnote-backref">↩︎</a> <a href="#fnref2:3" class="footnote-backref">↩︎</a> <a href="#fnref2:4" class="footnote-backref">↩︎</a> <a href="#fnref2:5" class="footnote-backref">↩︎</a> <a href="#fnref2:6" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn3" class="footnote-item"><p><a href="https://datatracker.ietf.org/doc/html/rfc7009">RFC 7009: OAuth 2.0 Token Revocation</a> <a href="#fnref3" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn4" class="footnote-item"><p><a href="https://developers.google.com/identity/protocols/oauth2?hl=en#5.-refresh-the-access-token,-if-necessary">Google OAuth</a> <a href="#fnref4" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn5" class="footnote-item"><p><a href="https://learn.microsoft.com/en-us/linkedin/shared/authentication/programmatic-refresh-tokens">Google Refresh Tokens with OAuth 2.0</a> <a href="#fnref5" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn6" class="footnote-item"><p><a href="https://datatracker.ietf.org/doc/html/rfc6749#section-6">RFC 6749 6: Refreshing an Access Token</a> <a href="#fnref6" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn7" class="footnote-item"><p><a href="https://datatracker.ietf.org/doc/html/rfc6749#section-1.5">RFC 6749 1.5: Refresh Token</a> <a href="#fnref7" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn8" class="footnote-item"><p><a href="https://datatracker.ietf.org/doc/html/rfc6819#section-5.2.2.3">RFC 6819 5.2.2.3: Refresh Token Rotation</a> <a href="#fnref8" class="footnote-backref">↩︎</a> <a href="#fnref8:1" class="footnote-backref">↩︎</a> <a href="#fnref8:2" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn9" class="footnote-item"><p><a href="https://developer.okta.com/docs/guides/refresh-tokens/main/#set-up-your-application">Okta: Refresh token reuse detection</a> <a href="#fnref9" class="footnote-backref">↩︎</a> <a href="#fnref9:1" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn10" class="footnote-item"><p><a href="https://www.pingidentity.com/en/resources/blog/post/refresh-token-rotation-spa.html">A Critical Analysis of Refresh Token Rotation in Single-page Applications</a> <a href="#fnref10" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn11" class="footnote-item"><p><a href="https://developer.okta.com/docs/guides/refresh-tokens/main/#grace-period-for-token-rotation">Okta: Grace period for token rotation</a> <a href="#fnref11" class="footnote-backref">↩︎</a> <a href="#fnref11:1" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn12" class="footnote-item"><p><a href="https://auth0.com/docs/secure/tokens/refresh-tokens/refresh-token-rotation">Auth0: Refresh Token Rotation</a> <a href="#fnref12" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn13" class="footnote-item"><p><a href="https://auth0.com/docs/secure/tokens/refresh-tokens/configure-refresh-token-rotation">Auth0: Configure Refresh Token Rotation</a> <a href="#fnref13" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn14" class="footnote-item"><p><a href="https://devforum.zoom.us/t/how-to-protect-against-losing-refresh-token-response/10375/1">How to protect against losing <code>refresh_token</code> response?</a> <a href="#fnref14" class="footnote-backref">↩︎</a></p>
+</li>
+</ol>
+</section>
 
 <ul class="links-nextprev"><li>Previous: <a href="/blog/charset-encoding/">Character Sets and Encodings</a></li><li>Next: <a href="/blog/idempotency/">Idempotency</a></li>
 </ul>
