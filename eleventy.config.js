@@ -1,6 +1,7 @@
 const { DateTime } = require("luxon");
 const markdownItAnchor = require("markdown-it-anchor");
 const markdownItFootnote = require("markdown-it-footnote");
+const pluginTOC = require('eleventy-plugin-toc');
 
 const pluginRss = require("@11ty/eleventy-plugin-rss");
 const pluginSyntaxHighlight = require("@11ty/eleventy-plugin-syntaxhighlight");
@@ -78,6 +79,13 @@ module.exports = function(eleventyConfig) {
 
 	eleventyConfig.addFilter("filterTagList", function filterTagList(tags) {
 		return (tags || []).filter(tag => ["all", "nav", "post", "posts"].indexOf(tag) === -1);
+	});
+
+
+	// Table of contents
+	eleventyConfig.addPlugin(pluginTOC,{
+		tags: ['h2'],
+		wrapper: 'div'
 	});
 
 	// Customize Markdown library settings:
