@@ -1,0 +1,754 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Distributed Lock with Redis, Redlock</title>
+		<meta name="description" content="Distributed Lock with Redis and review on Redlock algorithm">
+		<meta name="google-site-verification" content="pV0LpMzGqiF5LrOEOtxdTzsIjD0Q6Zd3yXLXJstHuuQ" />
+		<link rel="alternate" href="/feed/feed.xml" type="application/atom+xml" title="hhow09&#39;s Blog">
+		<link rel="alternate" href="/feed/feed.json" type="application/json" title="hhow09&#39;s Blog">
+		
+		<style>/**
+ * okaidia theme for JavaScript, CSS and HTML
+ * Loosely based on Monokai textmate theme by http://www.monokai.nl/
+ * @author ocodia
+ */
+
+code[class*="language-"],
+pre[class*="language-"] {
+	color: #f8f8f2;
+	background: none;
+	text-shadow: 0 1px rgba(0, 0, 0, 0.3);
+	font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+	font-size: 1em;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+	word-break: normal;
+	word-wrap: normal;
+	line-height: 1.5;
+
+	-moz-tab-size: 4;
+	-o-tab-size: 4;
+	tab-size: 4;
+
+	-webkit-hyphens: none;
+	-moz-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+	padding: 1em;
+	margin: .5em 0;
+	overflow: auto;
+	border-radius: 0.3em;
+}
+
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+	background: #272822;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+	padding: .1em;
+	border-radius: .3em;
+	white-space: normal;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+	color: #8292a2;
+}
+
+.token.punctuation {
+	color: #f8f8f2;
+}
+
+.token.namespace {
+	opacity: .7;
+}
+
+.token.property,
+.token.tag,
+.token.constant,
+.token.symbol,
+.token.deleted {
+	color: #f92672;
+}
+
+.token.boolean,
+.token.number {
+	color: #ae81ff;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+	color: #a6e22e;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string,
+.token.variable {
+	color: #f8f8f2;
+}
+
+.token.atrule,
+.token.attr-value,
+.token.function,
+.token.class-name {
+	color: #e6db74;
+}
+
+.token.keyword {
+	color: #66d9ef;
+}
+
+.token.regex,
+.token.important {
+	color: #fd971f;
+}
+
+.token.important,
+.token.bold {
+	font-weight: bold;
+}
+.token.italic {
+	font-style: italic;
+}
+
+.token.entity {
+	cursor: help;
+}
+/*
+ * New diff- syntax
+ */
+
+pre[class*="language-diff-"] {
+	--eleventy-code-padding: 1.25em;
+	padding-left: var(--eleventy-code-padding);
+	padding-right: var(--eleventy-code-padding);
+}
+.token.deleted {
+	background-color: hsl(0, 51%, 37%);
+	color: inherit;
+}
+.token.inserted {
+	background-color: hsl(126, 31%, 39%);
+	color: inherit;
+}
+
+/* Make the + and - characters unselectable for copy/paste */
+.token.prefix.unchanged,
+.token.prefix.inserted,
+.token.prefix.deleted {
+	-webkit-user-select: none;
+	user-select: none;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+.token.prefix.inserted,
+.token.prefix.deleted {
+	width: var(--eleventy-code-padding);
+	background-color: rgba(0,0,0,.2);
+}
+
+/* Optional: full-width background color */
+.token.inserted:not(.prefix),
+.token.deleted:not(.prefix) {
+	display: block;
+	margin-left: calc(-1 * var(--eleventy-code-padding));
+	margin-right: calc(-1 * var(--eleventy-code-padding));
+	text-decoration: none; /* override del, ins, mark defaults */
+	color: inherit; /* override del, ins, mark defaults */
+}
+.mermaid {
+    background: transparent;
+}
+* { box-sizing: border-box; }
+/* Defaults */
+:root {
+	--font-family: -apple-system, system-ui, sans-serif;
+	--font-family-monospace: Consolas, Menlo, Monaco, Andale Mono WT, Andale Mono, Lucida Console, Lucida Sans Typewriter, DejaVu Sans Mono, Bitstream Vera Sans Mono, Liberation Mono, Nimbus Mono L, Courier New, Courier, monospace;
+}
+
+/* Theme colors */
+:root {
+	--color-gray-20: #e0e0e0;
+	--color-gray-50: #C0C0C0;
+	--color-gray-90: #333;
+
+	--background-color: #fff;
+
+	--text-color: var(--color-gray-90);
+	--text-color-link: #082840;
+	--text-color-link-active: #5f2b48;
+	--text-color-link-visited: #17050F;
+
+	--syntax-tab-size: 2;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--color-gray-20: #e0e0e0;
+		--color-gray-50: #C0C0C0;
+		--color-gray-90: #dad8d8;
+
+		/* --text-color is assigned to --color-gray-_ above */
+		--text-color-link: #1493fb;
+		--text-color-link-active: #6969f7;
+		--text-color-link-visited: #a6a6f8;
+
+		--background-color: #15202b;
+	}
+}
+
+
+/* Global stylesheet */
+* {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	padding: 0;
+	margin: 0 auto;
+	font-family: var(--font-family);
+	color: var(--text-color);
+	background-color: var(--background-color);
+}
+html {
+	overflow-y: scroll;
+}
+body {
+	max-width: 40em;
+}
+
+/* https://www.a11yproject.com/posts/how-to-hide-content/ */
+.visually-hidden {
+	clip: rect(0 0 0 0);
+	clip-path: inset(50%);
+	height: 1px;
+	overflow: hidden;
+	position: absolute;
+	white-space: nowrap;
+	width: 1px;
+}
+
+p:last-child {
+	margin-bottom: 0;
+}
+p {
+	line-height: 1.5;
+}
+
+li {
+	line-height: 1.5;
+}
+
+a[href] {
+	color: var(--text-color-link);
+}
+a[href]:visited {
+	color: var(--text-color-link-visited);
+}
+a[href]:hover,
+a[href]:active {
+	color: var(--text-color-link-active);
+}
+
+main {
+	padding: 1rem;
+}
+main :first-child {
+	margin-top: 0;
+}
+
+header {
+	border-bottom: 1px dashed var(--color-gray-20);
+}
+header:after {
+	content: "";
+	display: table;
+	clear: both;
+}
+
+.links-nextprev {
+	list-style: none;
+	border-top: 1px dashed var(--color-gray-20);
+	padding: 1em 0;
+}
+table, table td, table th {
+	border: 1px solid;
+	border-collapse: collapse;
+}
+
+table {
+	margin: 1em 0;
+}
+table td,
+table th {
+	padding-right: 1em;
+}
+
+pre,
+code {
+	font-family: var(--font-family-monospace);
+	background: rgba(175,184,193,0.2);
+	padding: 0em .1em;
+}
+pre:not([class*="language-"]) {
+	margin: .5em 0;
+	line-height: 1.375; /* 22px /16 */
+	-moz-tab-size: var(--syntax-tab-size);
+	-o-tab-size: var(--syntax-tab-size);
+	tab-size: var(--syntax-tab-size);
+	-webkit-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+	direction: ltr;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+	word-break: normal;
+}
+
+
+/* Header */
+header {
+	display: flex;
+	gap: 1em .5em;
+	flex-wrap: wrap;
+	align-items: center;
+	padding: 1em;
+}
+.home-link {
+	font-size: 1em; /* 16px /16 */
+	font-weight: 700;
+	margin-right: 2em;
+}
+.home-link:link:not(:hover) {
+	text-decoration: none;
+}
+
+/* Nav */
+.nav {
+	display: flex;
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}
+.nav-item {
+	display: inline-block;
+	margin-right: 1em;
+}
+.nav-item a[href]:not(:hover) {
+	text-decoration: none;
+}
+.nav a[href][aria-current="page"] {
+	text-decoration: underline;
+}
+
+/* Posts list */
+.postlist {
+	list-style: none;
+	padding: 0;
+	padding-left: 1.5rem;
+}
+.postlist-item {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	counter-increment: start-from -1;
+	margin-bottom: 1em;
+}
+.postlist-item:before {
+	display: inline-block;
+	pointer-events: none;
+	content: "" counter(start-from, decimal-leading-zero) ". ";
+	line-height: 100%;
+	text-align: right;
+	margin-left: -1.5rem;
+}
+.postlist-date,
+.postlist-item:before {
+	font-size: 0.8125em; /* 13px /16 */
+	color: var(--color-gray-90);
+}
+.postlist-date {
+	word-spacing: -0.5px;
+}
+.postlist-link {
+	font-size: 1.1875em; /* 19px /16 */
+	font-weight: 700;
+	flex-basis: calc(100% - 1.5rem);
+	padding-left: .25em;
+	padding-right: .5em;
+	text-underline-position: from-font;
+	text-underline-offset: 0;
+	text-decoration-thickness: 1px;
+}
+.postlist-item-active .postlist-link {
+	font-weight: bold;
+}
+
+/* Tags */
+.post-tag {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	text-transform: capitalize;
+	font-style: italic;
+}
+.postlist-item > .post-tag {
+	align-self: center;
+}
+
+/* Tags list */
+.post-metadata {
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: .5em;
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+.post-metadata time {
+	margin-right: 1em;
+}
+
+/* Direct Links / Markdown Headers */
+.header-anchor {
+	text-decoration: none;
+	font-style: normal;
+	font-size: 1em;
+	margin-left: .1em;
+}
+a[href].header-anchor,
+a[href].header-anchor:visited {
+	color: transparent;
+}
+a[href].header-anchor:focus,
+a[href].header-anchor:hover {
+	text-decoration: underline;
+}
+a[href].header-anchor:focus,
+:hover > a[href].header-anchor {
+	color: #aaa;
+}
+
+h2 + .header-anchor {
+	font-size: 1.5em;
+}
+
+img {
+	max-width: 100%;
+}
+img[width] {
+	width: auto; /* Defer to max-width */
+}
+img[width][height] {
+	height: auto; /* Preserve aspect ratio */
+}
+
+blockquote {
+	background:		#f9f9f9;
+	border-left:	10px solid #ccc;
+	margin:			1.5em 10px;
+	padding:		.5em 10px;
+	quotes:			"\201C""\201D""\2018""\2019"; 
+}
+
+blockquote p {
+	display:		inline;
+}</style>
+		<script type="module" async>import mermaid from "https://unpkg.com/mermaid@10/dist/mermaid.esm.min.mjs";document.addEventListener('DOMContentLoaded', mermaid.initialize({startOnLoad:true}));</script>		
+	</head>
+	<body>
+		<a href="#skip" class="visually-hidden">Skip to main content</a>
+
+		<header>
+			<a href="/" class="home-link">hhow09&#39;s Blog</a>
+			<nav>
+				<h2 class="visually-hidden">Top level navigation menu</h2>
+				<ul class="nav">
+					<li class="nav-item"><a href="/">Home</a></li>
+					<li class="nav-item"><a href="/blog/">Archive</a></li>
+					<li class="nav-item"><a href="/about/">About Me</a></li>
+					<li class="nav-item"><a href="/rss/">Feeds</a></li>
+				</ul>
+			</nav>
+		</header>
+
+		<main id="skip">
+			
+<h1>Distributed Lock with Redis, Redlock</h1>
+
+<ul class="post-metadata">
+	<li><time datetime="2024-01-16">16 January 2024</time></li>
+	<li><a href="/tags/redis/" class="post-tag">redis</a>, </li>
+	<li><a href="/tags/distributed-lock/" class="post-tag">distributed lock</a>, </li>
+	<li><a href="/tags/system-design/" class="post-tag">system design</a></li>
+</ul>
+
+<p>Distributed Lock with Redis and reviews on Redlock algorithm.</p>
+<h2 id="lock-command-with-single-redis-instance" tabindex="-1">Lock Command With Single Redis Instance <sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup> <a class="header-anchor" href="#lock-command-with-single-redis-instance">#</a></h2>
+<h3 id="lock" tabindex="-1">Lock <a class="header-anchor" href="#lock">#</a></h3>
+<pre><code>SET resource_name my_random_value NX PX 30000
+</code></pre>
+<h3 id="unlock" tabindex="-1">Unlock <a class="header-anchor" href="#unlock">#</a></h3>
+<pre><code>if redis.call(&quot;get&quot;,KEYS[1]) == my_random_value then
+    return redis.call(&quot;del&quot;,KEYS[1])
+else
+    return 0
+end
+</code></pre>
+<h2 id="failure-mode" tabindex="-1">Failure mode <a class="header-anchor" href="#failure-mode">#</a></h2>
+<h3 id="1-single-instance-redis-down-single-point-of-failure" tabindex="-1">1. [Single Instance] Redis down (single point of failure) <a class="header-anchor" href="#1-single-instance-redis-down-single-point-of-failure">#</a></h3>
+<p>Solution: use Replica</p>
+<h3 id="2-replica-the-leader-crashes-before-the-write-to-the-key-is-transmitted-to-the-replica" tabindex="-1">2. [Replica] The Leader crashes before the write to the key is transmitted to the replica. <sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup> <a class="header-anchor" href="#2-replica-the-leader-crashes-before-the-write-to-the-key-is-transmitted-to-the-replica">#</a></h3>
+<pre class="mermaid">sequenceDiagram&#10;    participant Client_A&#10;    participant Client_B&#10;    participant Master&#10;    participant Replica&#10;    note over Client_A, Replica: vv normal case vv&#10;    Client_A -&gt;&gt;+ Master: Acquire Lock&#10;    Master --&gt;&gt;- Client_A: success&#10;    Master -&gt;&gt; Replica: replicate&#10;    Client_A -&gt;&gt;+ Master: UnLock&#10;    Master --&gt;&gt;- Client_A: success&#10;    Master -&gt;&gt; Replica: replicate&#10;    note over Client_A, Replica:  vv Failure case vv&#10;    Client_A -&gt;&gt;+ Master: Acquire Lock&#10;    Master --&gt;&gt;- Client_A: success&#10;    note over Master: crash before replicate&#10;    note over Replica: promoted as Master&#10;    Client_B -&gt;&gt;+ Replica: Acquire Lock&#10;    Replica --&gt;&gt;- Client_B: success&#10;    note over Client_B: SAFETY VIOLATION!&#10;</pre>
+<h4 id="solution" tabindex="-1">Solution <a class="header-anchor" href="#solution">#</a></h4>
+<p>Consensus algorithm e.g. <a href="#redlock-algorithm">Redlock</a></p>
+<h2 id="redlock-algorithm" tabindex="-1">Redlock Algorithm <sup class="footnote-ref"><a href="#fn1" id="fnref1:1">[1:1]</a></sup> <a class="header-anchor" href="#redlock-algorithm">#</a></h2>
+<h3 id="prerequisite" tabindex="-1">Prerequisite <a class="header-anchor" href="#prerequisite">#</a></h3>
+<blockquote>
+<p>In the distributed version of the algorithm we assume we have N Redis masters. Those nodes are totally independent, so we don’t use replication or any other implicit coordination system.</p>
+</blockquote>
+<h3 id="overview" tabindex="-1">Overview <sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup> <a class="header-anchor" href="#overview">#</a></h3>
+<blockquote>
+<p>The answer is through majority consensus. Since one Redis is not reliable, we form a committee of multiple Redis. If and only if more than half of the committee members agree, the lock will take effect; otherwise, the lock is invalid.</p>
+</blockquote>
+<blockquote>
+<p>The members can be single, master-slave, or even clusters, but nevertheless, they are independent of each other, in other words, they are not duplicates of each other, not to mention the same cluster.</p>
+</blockquote>
+<h3 id="flow" tabindex="-1">Flow <a class="header-anchor" href="#flow">#</a></h3>
+<p><picture><source type="image/avif" srcset="/img/CBZ_Vol0z6-862.avif 862w"><source type="image/webp" srcset="/img/CBZ_Vol0z6-862.webp 862w"><img alt="Redlock Flow" loading="lazy" decoding="async" src="/img/CBZ_Vol0z6-862.png" width="862" height="1118"></picture></p>
+<h3 id="go-redsync-redsync" tabindex="-1">go-redsync/redsync <sup class="footnote-ref"><a href="#fn4" id="fnref4">[4]</a></sup> <a class="header-anchor" href="#go-redsync-redsync">#</a></h3>
+<p>code snippet to acuire lock.</p>
+<pre class="language-go" tabindex="0"><code class="language-go"><span class="token comment">// https://github.com/go-redsync/redsync/blob/master/mutex.go</span>
+
+<span class="token comment">// lockContext locks m. In case it returns an error on failure, </span>
+<span class="token comment">// you may retry to acquire the lock by calling this method again.</span>
+<span class="token keyword">func</span> <span class="token punctuation">(</span>m <span class="token operator">*</span>Mutex<span class="token punctuation">)</span> <span class="token function">lockContext</span><span class="token punctuation">(</span>ctx context<span class="token punctuation">.</span>Context<span class="token punctuation">,</span> tries <span class="token builtin">int</span><span class="token punctuation">)</span> <span class="token builtin">error</span> <span class="token punctuation">{</span>
+	<span class="token keyword">if</span> ctx <span class="token operator">==</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+		ctx <span class="token operator">=</span> context<span class="token punctuation">.</span><span class="token function">Background</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+	<span class="token punctuation">}</span>
+
+    <span class="token comment">// every lock is "signed" with a random string, so the lock will</span>
+    <span class="token comment">// be removed only if it is still the one that was set by the client</span>
+    <span class="token comment">// trying to remove it.</span>
+	value<span class="token punctuation">,</span> err <span class="token operator">:=</span> m<span class="token punctuation">.</span><span class="token function">genValueFunc</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+	<span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+		<span class="token keyword">return</span> err
+	<span class="token punctuation">}</span>
+
+	<span class="token keyword">var</span> timer <span class="token operator">*</span>time<span class="token punctuation">.</span>Timer
+	<span class="token keyword">for</span> i <span class="token operator">:=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> tries<span class="token punctuation">;</span> i<span class="token operator">++</span> <span class="token punctuation">{</span>
+		<span class="token comment">// ... timer and retry part</span>
+
+        <span class="token comment">// 1. Get the current time.</span>
+		start <span class="token operator">:=</span> time<span class="token punctuation">.</span><span class="token function">Now</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+        <span class="token comment">// 2. … All the steps needed to acquire the lock …</span>
+		n<span class="token punctuation">,</span> err <span class="token operator">:=</span> <span class="token keyword">func</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">(</span><span class="token builtin">int</span><span class="token punctuation">,</span> <span class="token builtin">error</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token comment">// timeout factor: when setting the lock in each instance, </span>
+            <span class="token comment">// the client uses a timeout which is small compared to the</span>
+            <span class="token comment">// total lock auto-release time in order to acquire it.</span>
+			ctx<span class="token punctuation">,</span> cancel <span class="token operator">:=</span> context<span class="token punctuation">.</span><span class="token function">WithTimeout</span><span class="token punctuation">(</span>ctx<span class="token punctuation">,</span> time<span class="token punctuation">.</span><span class="token function">Duration</span><span class="token punctuation">(</span><span class="token function">int64</span><span class="token punctuation">(</span><span class="token function">float64</span><span class="token punctuation">(</span>m<span class="token punctuation">.</span>expiry<span class="token punctuation">)</span><span class="token operator">*</span>m<span class="token punctuation">.</span>timeoutFactor<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+			<span class="token keyword">defer</span> <span class="token function">cancel</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+			<span class="token keyword">return</span> m<span class="token punctuation">.</span><span class="token function">actOnPoolsAsync</span><span class="token punctuation">(</span><span class="token keyword">func</span><span class="token punctuation">(</span>pool redis<span class="token punctuation">.</span>Pool<span class="token punctuation">)</span> <span class="token punctuation">(</span><span class="token builtin">bool</span><span class="token punctuation">,</span> <span class="token builtin">error</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+				<span class="token keyword">return</span> m<span class="token punctuation">.</span><span class="token function">acquire</span><span class="token punctuation">(</span>ctx<span class="token punctuation">,</span> pool<span class="token punctuation">,</span> value<span class="token punctuation">)</span>
+			<span class="token punctuation">}</span><span class="token punctuation">)</span>
+		<span class="token punctuation">}</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+        <span class="token comment">// 3. Get the current time, again.</span>
+		now <span class="token operator">:=</span> time<span class="token punctuation">.</span><span class="token function">Now</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+        
+        <span class="token comment">// 4. Check if we are already out of time, or if we acquired the lock fast enough.</span>
+		until <span class="token operator">:=</span> now<span class="token punctuation">.</span><span class="token function">Add</span><span class="token punctuation">(</span>m<span class="token punctuation">.</span>expiry <span class="token operator">-</span> now<span class="token punctuation">.</span><span class="token function">Sub</span><span class="token punctuation">(</span>start<span class="token punctuation">)</span> <span class="token operator">-</span> time<span class="token punctuation">.</span><span class="token function">Duration</span><span class="token punctuation">(</span><span class="token function">int64</span><span class="token punctuation">(</span><span class="token function">float64</span><span class="token punctuation">(</span>m<span class="token punctuation">.</span>expiry<span class="token punctuation">)</span><span class="token operator">*</span>m<span class="token punctuation">.</span>driftFactor<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+        <span class="token comment">// quorum: len(r.pools)/2 + 1</span>
+        <span class="token comment">// As long as the quorum is met, we can assume the lock is acquired.</span>
+		<span class="token keyword">if</span> n <span class="token operator">>=</span> m<span class="token punctuation">.</span>quorum <span class="token operator">&amp;&amp;</span> now<span class="token punctuation">.</span><span class="token function">Before</span><span class="token punctuation">(</span>until<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+			m<span class="token punctuation">.</span>value <span class="token operator">=</span> value
+			m<span class="token punctuation">.</span>until <span class="token operator">=</span> until
+			<span class="token keyword">return</span> <span class="token boolean">nil</span>
+		<span class="token punctuation">}</span>
+
+        <span class="token comment">// lock not acquired</span>
+        <span class="token comment">// unlock previously locked key</span>
+		<span class="token keyword">func</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">(</span><span class="token builtin">int</span><span class="token punctuation">,</span> <span class="token builtin">error</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+			ctx<span class="token punctuation">,</span> cancel <span class="token operator">:=</span> context<span class="token punctuation">.</span><span class="token function">WithTimeout</span><span class="token punctuation">(</span>ctx<span class="token punctuation">,</span> time<span class="token punctuation">.</span><span class="token function">Duration</span><span class="token punctuation">(</span><span class="token function">int64</span><span class="token punctuation">(</span><span class="token function">float64</span><span class="token punctuation">(</span>m<span class="token punctuation">.</span>expiry<span class="token punctuation">)</span><span class="token operator">*</span>m<span class="token punctuation">.</span>timeoutFactor<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+			<span class="token keyword">defer</span> <span class="token function">cancel</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+			<span class="token keyword">return</span> m<span class="token punctuation">.</span><span class="token function">actOnPoolsAsync</span><span class="token punctuation">(</span><span class="token keyword">func</span><span class="token punctuation">(</span>pool redis<span class="token punctuation">.</span>Pool<span class="token punctuation">)</span> <span class="token punctuation">(</span><span class="token builtin">bool</span><span class="token punctuation">,</span> <span class="token builtin">error</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+				<span class="token keyword">return</span> m<span class="token punctuation">.</span><span class="token function">release</span><span class="token punctuation">(</span>ctx<span class="token punctuation">,</span> pool<span class="token punctuation">,</span> value<span class="token punctuation">)</span>
+			<span class="token punctuation">}</span><span class="token punctuation">)</span>
+		<span class="token punctuation">}</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token comment">// exceed max retry times</span>
+		<span class="token keyword">if</span> i <span class="token operator">==</span> m<span class="token punctuation">.</span>tries<span class="token operator">-</span><span class="token number">1</span> <span class="token operator">&amp;&amp;</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+			<span class="token keyword">return</span> err
+		<span class="token punctuation">}</span>
+	<span class="token punctuation">}</span>
+
+	<span class="token keyword">return</span> ErrFailed
+<span class="token punctuation">}</span></code></pre>
+<p>noted that at <strong>indefinite network delay or GC pause could happend</strong> <sup class="footnote-ref"><a href="#fn4" id="fnref4:1">[4:1]</a></sup>, so we need to re-check expiry time at step 3 and 4</p>
+<blockquote>
+<p>Note that whatever happens between 1 and 3, you can add the network delays you want, the lock will always be considered not valid if too much time elapsed, so Redlock looks completely immune from messages that have unbound delays between processes. It was designed with this goal in mind, and I cannot see how the above race condition could happen. <sup class="footnote-ref"><a href="#fn5" id="fnref5">[5]</a></sup></p>
+</blockquote>
+<hr>
+<h2 id="review-on-readlock-by-martin-kleppmann" tabindex="-1">Review on Readlock by Martin Kleppmann <sup class="footnote-ref"><a href="#fn1" id="fnref1:2">[1:2]</a></sup> <a class="header-anchor" href="#review-on-readlock-by-martin-kleppmann">#</a></h2>
+<h3 id="issue-1-clock-skew" tabindex="-1">Issue 1: Clock Skew <a class="header-anchor" href="#issue-1-clock-skew">#</a></h3>
+<blockquote>
+<p>What happens if a clock on one of the Redis nodes jumps forward?</p>
+</blockquote>
+<blockquote>
+<ol>
+<li>Client 1 acquires lock on nodes A, B, C. Due to a network issue, D and E cannot be reached.</li>
+<li>The clock on node C jumps forward, causing the lock to expire.</li>
+<li>Client 2 acquires lock on nodes C, D, E. Due to a network issue, A and B cannot be reached.</li>
+<li>Clients 1 and 2 now both believe they hold the lock.</li>
+</ol>
+</blockquote>
+<h4 id="response-from-antirez" tabindex="-1">Response from antirez <sup class="footnote-ref"><a href="#fn5" id="fnref5:1">[5:1]</a></sup> <a class="header-anchor" href="#response-from-antirez">#</a></h4>
+<blockquote>
+<p>Martin says that the clock can randomly jump in a system because of two issues:</p>
+<ol>
+<li>The system administrator manually alters the clock.</li>
+<li>The ntpd daemon changes the clock a lot because it receives an update.</li>
+</ol>
+</blockquote>
+<blockquote>
+<p>The above two problems can be avoided by “1” not doing this (otherwise even corrupting a Raft log with “echo foo &gt; /my/raft/log.bin” is a problem), and “2” using an ntpd that does not change the time by jumping directly, but by distributing the change over the course of a larger time span.</p>
+</blockquote>
+<h3 id="issue-2-long-gc-at-client-process" tabindex="-1">Issue 2: Long GC at Client Process <sup class="footnote-ref"><a href="#fn4" id="fnref4:2">[4:2]</a></sup> <a class="header-anchor" href="#issue-2-long-gc-at-client-process">#</a></h3>
+<p><picture><source type="image/avif" srcset="/img/rNglXUm5I2-1100.avif 1100w"><source type="image/webp" srcset="/img/rNglXUm5I2-1100.webp 1100w"><img alt="Unsafe Lock" loading="lazy" decoding="async" src="/img/rNglXUm5I2-1100.png" width="1100" height="400"></picture></p>
+<blockquote>
+<ol>
+<li>Client 1 requests lock on nodes A, B, C, D, E.</li>
+<li>While the responses to client 1 are in flight, client 1 goes into stop-the-world GC.</li>
+<li>Locks expire on all Redis nodes.</li>
+<li>Client 2 acquires lock on nodes A, B, C, D, E.</li>
+<li>Client 1 finishes GC, and receives the responses from Redis nodes indicating that it successfully acquired the lock (they were held in client 1’s kernel network buffers while the process was paused).</li>
+<li>Clients 1 and 2 now both believe they hold the lock.</li>
+</ol>
+</blockquote>
+<h4 id="reason" tabindex="-1">Reason <a class="header-anchor" href="#reason">#</a></h4>
+<blockquote>
+<p>This bug is not theoretical: HBase used to <a href="http://www.slideshare.net/enissoz/hbase-and-hdfs-understanding-filesystem-usage">have this problem</a> [3,4]. Normally, GC pauses are quite short, but “stop-the-world” GC pauses have sometimes been known to last for <a href="https://blog.cloudera.com/blog/2011/02/avoiding-full-gcs-in-hbase-with-memstore-local-allocation-buffers-part-1/">several minutes</a> [5] – certainly long enough for a lease to expire.</p>
+</blockquote>
+<h4 id="response-from-antirez-1" tabindex="-1">Response from antirez <sup class="footnote-ref"><a href="#fn5" id="fnref5:2">[5:2]</a></sup> <a class="header-anchor" href="#response-from-antirez-1">#</a></h4>
+<blockquote>
+<p>If you read the Redlock specification, that I hadn't touched for months, you can see the steps to acquire the lock are:</p>
+<ol>
+<li>Get the current time.</li>
+<li>… All the steps needed to acquire the lock …</li>
+<li>Get the current time, again.</li>
+<li>Check if we are already out of time, or if we acquired the lock fast enough.</li>
+<li>Do some work with your lock.</li>
+</ol>
+</blockquote>
+<p>He admitted that if long GC happens between step 3 and 4, it will actually calculate wrong expiration time.</p>
+<blockquote>
+<p>Let me tell again how this problem is common with <em>all the distributed locks implementations</em>, and how the token as a solution is both unrealistic and can be used with Redlock as well. <sup class="footnote-ref"><a href="#fn5" id="fnref5:3">[5:3]</a></sup></p>
+</blockquote>
+<h3 id="solution-from-martin-fencing-token" tabindex="-1">Solution from Martin: Fencing token <sup class="footnote-ref"><a href="#fn4" id="fnref4:3">[4:3]</a></sup> <a class="header-anchor" href="#solution-from-martin-fencing-token">#</a></h3>
+<blockquote>
+<p>In this context, a fencing token is simply a number that increases (e.g. incremented by the lock service) every time a client acquires the lock.</p>
+</blockquote>
+<blockquote>
+<p>Note this requires the storage server to take an active role in checking tokens, and rejecting any writes on which the token has gone backwards.</p>
+</blockquote>
+<p><picture><source type="image/avif" srcset="/img/Gux1iLMpYy-1100.avif 1100w"><source type="image/webp" srcset="/img/Gux1iLMpYy-1100.webp 1100w"><img alt="Fencing token" loading="lazy" decoding="async" src="/img/Gux1iLMpYy-1100.png" width="1100" height="400"></picture></p>
+<p>In simple word: use monotonic counter to know &quot;the order of different client acquiring same lock&quot;</p>
+<blockquote>
+<p>However, this leads us to the first big problem with Redlock: it does not have any facility for generating fencing tokens. The algorithm does not produce any number that is guaranteed to increase every time a client acquires a lock.</p>
+</blockquote>
+<h4 id="java-implementation-redisson-fencedlock" tabindex="-1">Java Implementation: redisson FencedLock <sup class="footnote-ref"><a href="#fn6" id="fnref6">[6]</a></sup> <a class="header-anchor" href="#java-implementation-redisson-fencedlock">#</a></h4>
+<blockquote>
+<p>This type of lock maintains the fencing token to avoid cases when Client acquired the lock was delayed due to long GC pause or other reason and can't detect that it doesn't own the lock anymore. To resolve this issue token is returned by locking methods or getToken() method.</p>
+</blockquote>
+<blockquote>
+<p>Token should be checked if it's greater or equal with the previous one by the service guarded by this lock and reject operation if condition is false.</p>
+</blockquote>
+<h5>Example</h5>
+<pre class="language-java" tabindex="0"><code class="language-java"><span class="token class-name">RFencedLock</span> lock <span class="token operator">=</span> redisson<span class="token punctuation">.</span><span class="token function">getFencedLock</span><span class="token punctuation">(</span><span class="token string">"myLock"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+<span class="token comment">// or wait for lock aquisition up to 100 seconds </span>
+<span class="token comment">// and automatically unlock it after 10 seconds</span>
+<span class="token class-name">Long</span> token <span class="token operator">=</span> lock<span class="token punctuation">.</span><span class="token function">tryLockAndGetToken</span><span class="token punctuation">(</span><span class="token number">100</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token class-name">TimeUnit</span><span class="token punctuation">.</span><span class="token constant">SECONDS</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">if</span> <span class="token punctuation">(</span>token <span class="token operator">!=</span> <span class="token keyword">null</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+   <span class="token keyword">try</span> <span class="token punctuation">{</span>
+     <span class="token comment">// check if token >= old token</span>
+     <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+   <span class="token punctuation">}</span> <span class="token keyword">finally</span> <span class="token punctuation">{</span>
+       lock<span class="token punctuation">.</span><span class="token function">unlock</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+   <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+<h3 id="the-synchrony-assumptions-of-redlock" tabindex="-1">The synchrony assumptions of Redlock <sup class="footnote-ref"><a href="#fn2" id="fnref2:1">[2:1]</a></sup> <a class="header-anchor" href="#the-synchrony-assumptions-of-redlock">#</a></h3>
+<blockquote>
+<p>These examples show that Redlock works correctly only if you assume a synchronous system model – that is, a system with the following properties:</p>
+<ul>
+<li>bounded network delay (you can guarantee that packets always arrive within some guaranteed maximum delay),</li>
+<li>bounded process pauses (in other words, hard real-time constraints, which you typically only find in car airbag systems and suchlike), and</li>
+<li>bounded clock error (cross your fingers that you don’t get your time from a bad NTP server).</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>Redlock assumes that delays, pauses and drift are all small relative to the time-to-live of a lock;</p>
+</blockquote>
+<blockquote>
+<p>if the timing issues become as large as the time-to-live, the algorithm fails.</p>
+</blockquote>
+<h2 id="conclusion" tabindex="-1">Conclusion <a class="header-anchor" href="#conclusion">#</a></h2>
+<ol>
+<li>Redlock is heavy</li>
+<li>Implement fencing token for consistency.</li>
+<li>Count the clock drift and network delay. e.g. lock watchdog <sup class="footnote-ref"><a href="#fn6" id="fnref6:1">[6:1]</a></sup>, Extending the lock<sup class="footnote-ref"><a href="#fn1" id="fnref1:3">[1:3]</a></sup></li>
+<li>Don't alter the system time.</li>
+</ol>
+<h2 id="reference" tabindex="-1">Reference <a class="header-anchor" href="#reference">#</a></h2>
+<hr class="footnotes-sep">
+<section class="footnotes">
+<ol class="footnotes-list">
+<li id="fn1" class="footnote-item"><p><a href="https://redis.io/docs/manual/patterns/distributed-locks/">Redis: Distributed Locks with Redis</a> <a href="#fnref1" class="footnote-backref">↩︎</a> <a href="#fnref1:1" class="footnote-backref">↩︎</a> <a href="#fnref1:2" class="footnote-backref">↩︎</a> <a href="#fnref1:3" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn2" class="footnote-item"><p><a href="https://martin.kleppmann.com/2016/02/08/how-to-do-distributed-locking.html">Martin Kleppmann: How to do distributed locking</a> <a href="#fnref2" class="footnote-backref">↩︎</a> <a href="#fnref2:1" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn3" class="footnote-item"><p><a href="https://medium.com/starbugs/explain-redlock-in-depth-dba95c107102">Explain Redlock in Depth</a> <a href="#fnref3" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn4" class="footnote-item"><p><a href="https://github.com/go-redsync/redsync">go-redsync/redsync</a> <a href="#fnref4" class="footnote-backref">↩︎</a> <a href="#fnref4:1" class="footnote-backref">↩︎</a> <a href="#fnref4:2" class="footnote-backref">↩︎</a> <a href="#fnref4:3" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn5" class="footnote-item"><p><a href="http://antirez.com/news/101">antirez: Is Redlock safe?</a> <a href="#fnref5" class="footnote-backref">↩︎</a> <a href="#fnref5:1" class="footnote-backref">↩︎</a> <a href="#fnref5:2" class="footnote-backref">↩︎</a> <a href="#fnref5:3" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn6" class="footnote-item"><p><a href="https://github.com/redisson/redisson/wiki/8.-distributed-locks-and-synchronizers#810-fenced-lock">redisson: Fenced Lock</a> <a href="#fnref6" class="footnote-backref">↩︎</a> <a href="#fnref6:1" class="footnote-backref">↩︎</a></p>
+</li>
+</ol>
+</section>
+
+<ul class="links-nextprev"><li>Previous: <a href="/blog/oauth2-server/">OAuth server for mobile applications</a></li>
+</ul>
+
+		</main>
+
+		<footer></footer>
+
+		<!-- Current page: /blog/redlock/ -->
+	</body>
+</html>

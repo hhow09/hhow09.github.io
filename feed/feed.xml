@@ -4,12 +4,255 @@
 	<subtitle>sofware engineering stuff</subtitle>
 	<link href="https://hhow09.github.io/feed/feed.xml" rel="self"/>
 	<link href="https://hhow09.github.io/"/>
-	<updated>2023-12-30T00:00:00Z</updated>
+	<updated>2024-01-16T00:00:00Z</updated>
 	<id>https://hhow09.github.io/</id>
 	<author>
 		<name>HH</name>
 		<email>hhow09@gmail.com</email>
 	</author>
+	
+	<entry>
+		<title>Distributed Lock with Redis, Redlock</title>
+		<link href="https://hhow09.github.io/blog/redlock/"/>
+		<updated>2024-01-16T00:00:00Z</updated>
+		<id>https://hhow09.github.io/blog/redlock/</id>
+		<content type="html">&lt;p&gt;Distributed Lock with Redis and reviews on Redlock algorithm.&lt;/p&gt;
+&lt;h2 id=&quot;lock-command-with-single-redis-instance&quot; tabindex=&quot;-1&quot;&gt;Lock Command With Single Redis Instance &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/redlock/&quot; id=&quot;fnref1&quot;&gt;[1]&lt;/a&gt;&lt;/sup&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/redlock/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;h3 id=&quot;lock&quot; tabindex=&quot;-1&quot;&gt;Lock &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/redlock/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;SET resource_name my_random_value NX PX 30000
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&quot;unlock&quot; tabindex=&quot;-1&quot;&gt;Unlock &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/redlock/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;if redis.call(&amp;quot;get&amp;quot;,KEYS[1]) == my_random_value then
+    return redis.call(&amp;quot;del&amp;quot;,KEYS[1])
+else
+    return 0
+end
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id=&quot;failure-mode&quot; tabindex=&quot;-1&quot;&gt;Failure mode &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/redlock/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;h3 id=&quot;1-single-instance-redis-down-single-point-of-failure&quot; tabindex=&quot;-1&quot;&gt;1. [Single Instance] Redis down (single point of failure) &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/redlock/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;Solution: use Replica&lt;/p&gt;
+&lt;h3 id=&quot;2-replica-the-leader-crashes-before-the-write-to-the-key-is-transmitted-to-the-replica&quot; tabindex=&quot;-1&quot;&gt;2. [Replica] The Leader crashes before the write to the key is transmitted to the replica. &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/redlock/&quot; id=&quot;fnref2&quot;&gt;[2]&lt;/a&gt;&lt;/sup&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/redlock/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;pre class=&quot;mermaid&quot;&gt;sequenceDiagram&amp;#10;    participant Client_A&amp;#10;    participant Client_B&amp;#10;    participant Master&amp;#10;    participant Replica&amp;#10;    note over Client_A, Replica: vv normal case vv&amp;#10;    Client_A -&amp;gt;&amp;gt;+ Master: Acquire Lock&amp;#10;    Master --&amp;gt;&amp;gt;- Client_A: success&amp;#10;    Master -&amp;gt;&amp;gt; Replica: replicate&amp;#10;    Client_A -&amp;gt;&amp;gt;+ Master: UnLock&amp;#10;    Master --&amp;gt;&amp;gt;- Client_A: success&amp;#10;    Master -&amp;gt;&amp;gt; Replica: replicate&amp;#10;    note over Client_A, Replica:  vv Failure case vv&amp;#10;    Client_A -&amp;gt;&amp;gt;+ Master: Acquire Lock&amp;#10;    Master --&amp;gt;&amp;gt;- Client_A: success&amp;#10;    note over Master: crash before replicate&amp;#10;    note over Replica: promoted as Master&amp;#10;    Client_B -&amp;gt;&amp;gt;+ Replica: Acquire Lock&amp;#10;    Replica --&amp;gt;&amp;gt;- Client_B: success&amp;#10;    note over Client_B: SAFETY VIOLATION!&amp;#10;&lt;/pre&gt;
+&lt;h4 id=&quot;solution&quot; tabindex=&quot;-1&quot;&gt;Solution &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/redlock/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
+&lt;p&gt;Consensus algorithm e.g. &lt;a href=&quot;https://hhow09.github.io/blog/redlock/&quot;&gt;Redlock&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&quot;redlock-algorithm&quot; tabindex=&quot;-1&quot;&gt;Redlock Algorithm &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/redlock/&quot; id=&quot;fnref1:1&quot;&gt;[1:1]&lt;/a&gt;&lt;/sup&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/redlock/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;h3 id=&quot;prerequisite&quot; tabindex=&quot;-1&quot;&gt;Prerequisite &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/redlock/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;blockquote&gt;
+&lt;p&gt;In the distributed version of the algorithm we assume we have N Redis masters. Those nodes are totally independent, so we don’t use replication or any other implicit coordination system.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id=&quot;overview&quot; tabindex=&quot;-1&quot;&gt;Overview &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/redlock/&quot; id=&quot;fnref3&quot;&gt;[3]&lt;/a&gt;&lt;/sup&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/redlock/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;blockquote&gt;
+&lt;p&gt;The answer is through majority consensus. Since one Redis is not reliable, we form a committee of multiple Redis. If and only if more than half of the committee members agree, the lock will take effect; otherwise, the lock is invalid.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;The members can be single, master-slave, or even clusters, but nevertheless, they are independent of each other, in other words, they are not duplicates of each other, not to mention the same cluster.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id=&quot;flow&quot; tabindex=&quot;-1&quot;&gt;Flow &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/redlock/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;&lt;picture&gt;&lt;source type=&quot;image/avif&quot; srcset=&quot;https://hhow09.github.io/img/CBZ_Vol0z6-862.avif 862w&quot;&gt;&lt;source type=&quot;image/webp&quot; srcset=&quot;https://hhow09.github.io/img/CBZ_Vol0z6-862.webp 862w&quot;&gt;&lt;img alt=&quot;Redlock Flow&quot; loading=&quot;lazy&quot; decoding=&quot;async&quot; src=&quot;https://hhow09.github.io/img/CBZ_Vol0z6-862.png&quot; width=&quot;862&quot; height=&quot;1118&quot;&gt;&lt;/picture&gt;&lt;/p&gt;
+&lt;h3 id=&quot;go-redsync-redsync&quot; tabindex=&quot;-1&quot;&gt;go-redsync/redsync &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/redlock/&quot; id=&quot;fnref4&quot;&gt;[4]&lt;/a&gt;&lt;/sup&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/redlock/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;code snippet to acuire lock.&lt;/p&gt;
+&lt;pre class=&quot;language-go&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-go&quot;&gt;&lt;span class=&quot;token comment&quot;&gt;// https://github.com/go-redsync/redsync/blob/master/mutex.go&lt;/span&gt;
+
+&lt;span class=&quot;token comment&quot;&gt;// lockContext locks m. In case it returns an error on failure, &lt;/span&gt;
+&lt;span class=&quot;token comment&quot;&gt;// you may retry to acquire the lock by calling this method again.&lt;/span&gt;
+&lt;span class=&quot;token keyword&quot;&gt;func&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;m &lt;span class=&quot;token operator&quot;&gt;*&lt;/span&gt;Mutex&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;lockContext&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;ctx context&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;Context&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; tries &lt;span class=&quot;token builtin&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;error&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+	&lt;span class=&quot;token keyword&quot;&gt;if&lt;/span&gt; ctx &lt;span class=&quot;token operator&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;token boolean&quot;&gt;nil&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+		ctx &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; context&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;Background&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+	&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;token comment&quot;&gt;// every lock is &quot;signed&quot; with a random string, so the lock will&lt;/span&gt;
+    &lt;span class=&quot;token comment&quot;&gt;// be removed only if it is still the one that was set by the client&lt;/span&gt;
+    &lt;span class=&quot;token comment&quot;&gt;// trying to remove it.&lt;/span&gt;
+	value&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; err &lt;span class=&quot;token operator&quot;&gt;:=&lt;/span&gt; m&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;genValueFunc&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+	&lt;span class=&quot;token keyword&quot;&gt;if&lt;/span&gt; err &lt;span class=&quot;token operator&quot;&gt;!=&lt;/span&gt; &lt;span class=&quot;token boolean&quot;&gt;nil&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+		&lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; err
+	&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+
+	&lt;span class=&quot;token keyword&quot;&gt;var&lt;/span&gt; timer &lt;span class=&quot;token operator&quot;&gt;*&lt;/span&gt;time&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;Timer
+	&lt;span class=&quot;token keyword&quot;&gt;for&lt;/span&gt; i &lt;span class=&quot;token operator&quot;&gt;:=&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt; i &lt;span class=&quot;token operator&quot;&gt;&amp;lt;&lt;/span&gt; tries&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt; i&lt;span class=&quot;token operator&quot;&gt;++&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+		&lt;span class=&quot;token comment&quot;&gt;// ... timer and retry part&lt;/span&gt;
+
+        &lt;span class=&quot;token comment&quot;&gt;// 1. Get the current time.&lt;/span&gt;
+		start &lt;span class=&quot;token operator&quot;&gt;:=&lt;/span&gt; time&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;Now&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+
+        &lt;span class=&quot;token comment&quot;&gt;// 2. … All the steps needed to acquire the lock …&lt;/span&gt;
+		n&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; err &lt;span class=&quot;token operator&quot;&gt;:=&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token builtin&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;token comment&quot;&gt;// timeout factor: when setting the lock in each instance, &lt;/span&gt;
+            &lt;span class=&quot;token comment&quot;&gt;// the client uses a timeout which is small compared to the&lt;/span&gt;
+            &lt;span class=&quot;token comment&quot;&gt;// total lock auto-release time in order to acquire it.&lt;/span&gt;
+			ctx&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; cancel &lt;span class=&quot;token operator&quot;&gt;:=&lt;/span&gt; context&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;WithTimeout&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;ctx&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; time&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;Duration&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;int64&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;float64&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;m&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;expiry&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;*&lt;/span&gt;m&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;timeoutFactor&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+			&lt;span class=&quot;token keyword&quot;&gt;defer&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;cancel&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+			&lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; m&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;actOnPoolsAsync&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token keyword&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;pool redis&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;Pool&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token builtin&quot;&gt;bool&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+				&lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; m&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;acquire&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;ctx&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; pool&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; value&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+			&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+		&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+
+        &lt;span class=&quot;token comment&quot;&gt;// 3. Get the current time, again.&lt;/span&gt;
+		now &lt;span class=&quot;token operator&quot;&gt;:=&lt;/span&gt; time&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;Now&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+        
+        &lt;span class=&quot;token comment&quot;&gt;// 4. Check if we are already out of time, or if we acquired the lock fast enough.&lt;/span&gt;
+		until &lt;span class=&quot;token operator&quot;&gt;:=&lt;/span&gt; now&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;Add&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;m&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;expiry &lt;span class=&quot;token operator&quot;&gt;-&lt;/span&gt; now&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;Sub&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;start&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;-&lt;/span&gt; time&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;Duration&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;int64&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;float64&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;m&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;expiry&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;*&lt;/span&gt;m&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;driftFactor&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+
+        &lt;span class=&quot;token comment&quot;&gt;// quorum: len(r.pools)/2 + 1&lt;/span&gt;
+        &lt;span class=&quot;token comment&quot;&gt;// As long as the quorum is met, we can assume the lock is acquired.&lt;/span&gt;
+		&lt;span class=&quot;token keyword&quot;&gt;if&lt;/span&gt; n &lt;span class=&quot;token operator&quot;&gt;&gt;=&lt;/span&gt; m&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;quorum &lt;span class=&quot;token operator&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; now&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;Before&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;until&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+			m&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;value &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; value
+			m&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;until &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; until
+			&lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;token boolean&quot;&gt;nil&lt;/span&gt;
+		&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+
+        &lt;span class=&quot;token comment&quot;&gt;// lock not acquired&lt;/span&gt;
+        &lt;span class=&quot;token comment&quot;&gt;// unlock previously locked key&lt;/span&gt;
+		&lt;span class=&quot;token keyword&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token builtin&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+			ctx&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; cancel &lt;span class=&quot;token operator&quot;&gt;:=&lt;/span&gt; context&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;WithTimeout&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;ctx&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; time&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;Duration&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;int64&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;float64&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;m&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;expiry&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;*&lt;/span&gt;m&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;timeoutFactor&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+			&lt;span class=&quot;token keyword&quot;&gt;defer&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;cancel&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+			&lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; m&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;actOnPoolsAsync&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token keyword&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;pool redis&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;Pool&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token builtin&quot;&gt;bool&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+				&lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; m&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;release&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;ctx&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; pool&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; value&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+			&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+		&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;token comment&quot;&gt;// exceed max retry times&lt;/span&gt;
+		&lt;span class=&quot;token keyword&quot;&gt;if&lt;/span&gt; i &lt;span class=&quot;token operator&quot;&gt;==&lt;/span&gt; m&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;tries&lt;span class=&quot;token operator&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;token number&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; err &lt;span class=&quot;token operator&quot;&gt;!=&lt;/span&gt; &lt;span class=&quot;token boolean&quot;&gt;nil&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+			&lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; err
+		&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+	&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+
+	&lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; ErrFailed
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;noted that at &lt;strong&gt;indefinite network delay or GC pause could happend&lt;/strong&gt; &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/redlock/&quot; id=&quot;fnref4:1&quot;&gt;[4:1]&lt;/a&gt;&lt;/sup&gt;, so we need to re-check expiry time at step 3 and 4&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Note that whatever happens between 1 and 3, you can add the network delays you want, the lock will always be considered not valid if too much time elapsed, so Redlock looks completely immune from messages that have unbound delays between processes. It was designed with this goal in mind, and I cannot see how the above race condition could happen. &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/redlock/&quot; id=&quot;fnref5&quot;&gt;[5]&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;h2 id=&quot;review-on-readlock-by-martin-kleppmann&quot; tabindex=&quot;-1&quot;&gt;Review on Readlock by Martin Kleppmann &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/redlock/&quot; id=&quot;fnref1:2&quot;&gt;[1:2]&lt;/a&gt;&lt;/sup&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/redlock/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;h3 id=&quot;issue-1-clock-skew&quot; tabindex=&quot;-1&quot;&gt;Issue 1: Clock Skew &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/redlock/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;blockquote&gt;
+&lt;p&gt;What happens if a clock on one of the Redis nodes jumps forward?&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;blockquote&gt;
+&lt;ol&gt;
+&lt;li&gt;Client 1 acquires lock on nodes A, B, C. Due to a network issue, D and E cannot be reached.&lt;/li&gt;
+&lt;li&gt;The clock on node C jumps forward, causing the lock to expire.&lt;/li&gt;
+&lt;li&gt;Client 2 acquires lock on nodes C, D, E. Due to a network issue, A and B cannot be reached.&lt;/li&gt;
+&lt;li&gt;Clients 1 and 2 now both believe they hold the lock.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/blockquote&gt;
+&lt;h4 id=&quot;response-from-antirez&quot; tabindex=&quot;-1&quot;&gt;Response from antirez &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/redlock/&quot; id=&quot;fnref5:1&quot;&gt;[5:1]&lt;/a&gt;&lt;/sup&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/redlock/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Martin says that the clock can randomly jump in a system because of two issues:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;The system administrator manually alters the clock.&lt;/li&gt;
+&lt;li&gt;The ntpd daemon changes the clock a lot because it receives an update.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;The above two problems can be avoided by “1” not doing this (otherwise even corrupting a Raft log with “echo foo &amp;gt; /my/raft/log.bin” is a problem), and “2” using an ntpd that does not change the time by jumping directly, but by distributing the change over the course of a larger time span.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id=&quot;issue-2-long-gc-at-client-process&quot; tabindex=&quot;-1&quot;&gt;Issue 2: Long GC at Client Process &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/redlock/&quot; id=&quot;fnref4:2&quot;&gt;[4:2]&lt;/a&gt;&lt;/sup&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/redlock/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;&lt;picture&gt;&lt;source type=&quot;image/avif&quot; srcset=&quot;https://hhow09.github.io/img/rNglXUm5I2-1100.avif 1100w&quot;&gt;&lt;source type=&quot;image/webp&quot; srcset=&quot;https://hhow09.github.io/img/rNglXUm5I2-1100.webp 1100w&quot;&gt;&lt;img alt=&quot;Unsafe Lock&quot; loading=&quot;lazy&quot; decoding=&quot;async&quot; src=&quot;https://hhow09.github.io/img/rNglXUm5I2-1100.png&quot; width=&quot;1100&quot; height=&quot;400&quot;&gt;&lt;/picture&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;ol&gt;
+&lt;li&gt;Client 1 requests lock on nodes A, B, C, D, E.&lt;/li&gt;
+&lt;li&gt;While the responses to client 1 are in flight, client 1 goes into stop-the-world GC.&lt;/li&gt;
+&lt;li&gt;Locks expire on all Redis nodes.&lt;/li&gt;
+&lt;li&gt;Client 2 acquires lock on nodes A, B, C, D, E.&lt;/li&gt;
+&lt;li&gt;Client 1 finishes GC, and receives the responses from Redis nodes indicating that it successfully acquired the lock (they were held in client 1’s kernel network buffers while the process was paused).&lt;/li&gt;
+&lt;li&gt;Clients 1 and 2 now both believe they hold the lock.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/blockquote&gt;
+&lt;h4 id=&quot;reason&quot; tabindex=&quot;-1&quot;&gt;Reason &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/redlock/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
+&lt;blockquote&gt;
+&lt;p&gt;This bug is not theoretical: HBase used to &lt;a href=&quot;http://www.slideshare.net/enissoz/hbase-and-hdfs-understanding-filesystem-usage&quot;&gt;have this problem&lt;/a&gt; [3,4]. Normally, GC pauses are quite short, but “stop-the-world” GC pauses have sometimes been known to last for &lt;a href=&quot;https://blog.cloudera.com/blog/2011/02/avoiding-full-gcs-in-hbase-with-memstore-local-allocation-buffers-part-1/&quot;&gt;several minutes&lt;/a&gt; [5] – certainly long enough for a lease to expire.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h4 id=&quot;response-from-antirez-1&quot; tabindex=&quot;-1&quot;&gt;Response from antirez &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/redlock/&quot; id=&quot;fnref5:2&quot;&gt;[5:2]&lt;/a&gt;&lt;/sup&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/redlock/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
+&lt;blockquote&gt;
+&lt;p&gt;If you read the Redlock specification, that I hadn&#39;t touched for months, you can see the steps to acquire the lock are:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Get the current time.&lt;/li&gt;
+&lt;li&gt;… All the steps needed to acquire the lock …&lt;/li&gt;
+&lt;li&gt;Get the current time, again.&lt;/li&gt;
+&lt;li&gt;Check if we are already out of time, or if we acquired the lock fast enough.&lt;/li&gt;
+&lt;li&gt;Do some work with your lock.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;He admitted that if long GC happens between step 3 and 4, it will actually calculate wrong expiration time.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Let me tell again how this problem is common with &lt;em&gt;all the distributed locks implementations&lt;/em&gt;, and how the token as a solution is both unrealistic and can be used with Redlock as well. &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/redlock/&quot; id=&quot;fnref5:3&quot;&gt;[5:3]&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id=&quot;solution-from-martin-fencing-token&quot; tabindex=&quot;-1&quot;&gt;Solution from Martin: Fencing token &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/redlock/&quot; id=&quot;fnref4:3&quot;&gt;[4:3]&lt;/a&gt;&lt;/sup&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/redlock/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;blockquote&gt;
+&lt;p&gt;In this context, a fencing token is simply a number that increases (e.g. incremented by the lock service) every time a client acquires the lock.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Note this requires the storage server to take an active role in checking tokens, and rejecting any writes on which the token has gone backwards.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;picture&gt;&lt;source type=&quot;image/avif&quot; srcset=&quot;https://hhow09.github.io/img/Gux1iLMpYy-1100.avif 1100w&quot;&gt;&lt;source type=&quot;image/webp&quot; srcset=&quot;https://hhow09.github.io/img/Gux1iLMpYy-1100.webp 1100w&quot;&gt;&lt;img alt=&quot;Fencing token&quot; loading=&quot;lazy&quot; decoding=&quot;async&quot; src=&quot;https://hhow09.github.io/img/Gux1iLMpYy-1100.png&quot; width=&quot;1100&quot; height=&quot;400&quot;&gt;&lt;/picture&gt;&lt;/p&gt;
+&lt;p&gt;In simple word: use monotonic counter to know &amp;quot;the order of different client acquiring same lock&amp;quot;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;However, this leads us to the first big problem with Redlock: it does not have any facility for generating fencing tokens. The algorithm does not produce any number that is guaranteed to increase every time a client acquires a lock.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h4 id=&quot;java-implementation-redisson-fencedlock&quot; tabindex=&quot;-1&quot;&gt;Java Implementation: redisson FencedLock &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/redlock/&quot; id=&quot;fnref6&quot;&gt;[6]&lt;/a&gt;&lt;/sup&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/redlock/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
+&lt;blockquote&gt;
+&lt;p&gt;This type of lock maintains the fencing token to avoid cases when Client acquired the lock was delayed due to long GC pause or other reason and can&#39;t detect that it doesn&#39;t own the lock anymore. To resolve this issue token is returned by locking methods or getToken() method.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Token should be checked if it&#39;s greater or equal with the previous one by the service guarded by this lock and reject operation if condition is false.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h5&gt;Example&lt;/h5&gt;
+&lt;pre class=&quot;language-java&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-java&quot;&gt;&lt;span class=&quot;token class-name&quot;&gt;RFencedLock&lt;/span&gt; lock &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; redisson&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;getFencedLock&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;myLock&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;
+&lt;span class=&quot;token comment&quot;&gt;// or wait for lock aquisition up to 100 seconds &lt;/span&gt;
+&lt;span class=&quot;token comment&quot;&gt;// and automatically unlock it after 10 seconds&lt;/span&gt;
+&lt;span class=&quot;token class-name&quot;&gt;Long&lt;/span&gt; token &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; lock&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;tryLockAndGetToken&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token number&quot;&gt;100&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token class-name&quot;&gt;TimeUnit&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token constant&quot;&gt;SECONDS&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;token keyword&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;token &lt;span class=&quot;token operator&quot;&gt;!=&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+   &lt;span class=&quot;token keyword&quot;&gt;try&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+     &lt;span class=&quot;token comment&quot;&gt;// check if token &gt;= old token&lt;/span&gt;
+     &lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;
+   &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;finally&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+       lock&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;unlock&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
+   &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&quot;the-synchrony-assumptions-of-redlock&quot; tabindex=&quot;-1&quot;&gt;The synchrony assumptions of Redlock &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/redlock/&quot; id=&quot;fnref2:1&quot;&gt;[2:1]&lt;/a&gt;&lt;/sup&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/redlock/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;blockquote&gt;
+&lt;p&gt;These examples show that Redlock works correctly only if you assume a synchronous system model – that is, a system with the following properties:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;bounded network delay (you can guarantee that packets always arrive within some guaranteed maximum delay),&lt;/li&gt;
+&lt;li&gt;bounded process pauses (in other words, hard real-time constraints, which you typically only find in car airbag systems and suchlike), and&lt;/li&gt;
+&lt;li&gt;bounded clock error (cross your fingers that you don’t get your time from a bad NTP server).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Redlock assumes that delays, pauses and drift are all small relative to the time-to-live of a lock;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;if the timing issues become as large as the time-to-live, the algorithm fails.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;conclusion&quot; tabindex=&quot;-1&quot;&gt;Conclusion &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/redlock/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;Redlock is heavy&lt;/li&gt;
+&lt;li&gt;Implement fencing token for consistency.&lt;/li&gt;
+&lt;li&gt;Count the clock drift and network delay. e.g. lock watchdog &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/redlock/&quot; id=&quot;fnref6:1&quot;&gt;[6:1]&lt;/a&gt;&lt;/sup&gt;, Extending the lock&lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/redlock/&quot; id=&quot;fnref1:3&quot;&gt;[1:3]&lt;/a&gt;&lt;/sup&gt;&lt;/li&gt;
+&lt;li&gt;Don&#39;t alter the system time.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&quot;reference&quot; tabindex=&quot;-1&quot;&gt;Reference &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/redlock/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;hr class=&quot;footnotes-sep&quot;&gt;
+&lt;section class=&quot;footnotes&quot;&gt;
+&lt;ol class=&quot;footnotes-list&quot;&gt;
+&lt;li id=&quot;fn1&quot; class=&quot;footnote-item&quot;&gt;&lt;p&gt;&lt;a href=&quot;https://redis.io/docs/manual/patterns/distributed-locks/&quot;&gt;Redis: Distributed Locks with Redis&lt;/a&gt; &lt;a href=&quot;https://hhow09.github.io/blog/redlock/&quot; class=&quot;footnote-backref&quot;&gt;↩︎&lt;/a&gt; &lt;a href=&quot;https://hhow09.github.io/blog/redlock/&quot; class=&quot;footnote-backref&quot;&gt;↩︎&lt;/a&gt; &lt;a href=&quot;https://hhow09.github.io/blog/redlock/&quot; class=&quot;footnote-backref&quot;&gt;↩︎&lt;/a&gt; &lt;a href=&quot;https://hhow09.github.io/blog/redlock/&quot; class=&quot;footnote-backref&quot;&gt;↩︎&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&quot;fn2&quot; class=&quot;footnote-item&quot;&gt;&lt;p&gt;&lt;a href=&quot;https://martin.kleppmann.com/2016/02/08/how-to-do-distributed-locking.html&quot;&gt;Martin Kleppmann: How to do distributed locking&lt;/a&gt; &lt;a href=&quot;https://hhow09.github.io/blog/redlock/&quot; class=&quot;footnote-backref&quot;&gt;↩︎&lt;/a&gt; &lt;a href=&quot;https://hhow09.github.io/blog/redlock/&quot; class=&quot;footnote-backref&quot;&gt;↩︎&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&quot;fn3&quot; class=&quot;footnote-item&quot;&gt;&lt;p&gt;&lt;a href=&quot;https://medium.com/starbugs/explain-redlock-in-depth-dba95c107102&quot;&gt;Explain Redlock in Depth&lt;/a&gt; &lt;a href=&quot;https://hhow09.github.io/blog/redlock/&quot; class=&quot;footnote-backref&quot;&gt;↩︎&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&quot;fn4&quot; class=&quot;footnote-item&quot;&gt;&lt;p&gt;&lt;a href=&quot;https://github.com/go-redsync/redsync&quot;&gt;go-redsync/redsync&lt;/a&gt; &lt;a href=&quot;https://hhow09.github.io/blog/redlock/&quot; class=&quot;footnote-backref&quot;&gt;↩︎&lt;/a&gt; &lt;a href=&quot;https://hhow09.github.io/blog/redlock/&quot; class=&quot;footnote-backref&quot;&gt;↩︎&lt;/a&gt; &lt;a href=&quot;https://hhow09.github.io/blog/redlock/&quot; class=&quot;footnote-backref&quot;&gt;↩︎&lt;/a&gt; &lt;a href=&quot;https://hhow09.github.io/blog/redlock/&quot; class=&quot;footnote-backref&quot;&gt;↩︎&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&quot;fn5&quot; class=&quot;footnote-item&quot;&gt;&lt;p&gt;&lt;a href=&quot;http://antirez.com/news/101&quot;&gt;antirez: Is Redlock safe?&lt;/a&gt; &lt;a href=&quot;https://hhow09.github.io/blog/redlock/&quot; class=&quot;footnote-backref&quot;&gt;↩︎&lt;/a&gt; &lt;a href=&quot;https://hhow09.github.io/blog/redlock/&quot; class=&quot;footnote-backref&quot;&gt;↩︎&lt;/a&gt; &lt;a href=&quot;https://hhow09.github.io/blog/redlock/&quot; class=&quot;footnote-backref&quot;&gt;↩︎&lt;/a&gt; &lt;a href=&quot;https://hhow09.github.io/blog/redlock/&quot; class=&quot;footnote-backref&quot;&gt;↩︎&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&quot;fn6&quot; class=&quot;footnote-item&quot;&gt;&lt;p&gt;&lt;a href=&quot;https://github.com/redisson/redisson/wiki/8.-distributed-locks-and-synchronizers#810-fenced-lock&quot;&gt;redisson: Fenced Lock&lt;/a&gt; &lt;a href=&quot;https://hhow09.github.io/blog/redlock/&quot; class=&quot;footnote-backref&quot;&gt;↩︎&lt;/a&gt; &lt;a href=&quot;https://hhow09.github.io/blog/redlock/&quot; class=&quot;footnote-backref&quot;&gt;↩︎&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/section&gt;
+</content>
+	</entry>
 	
 	<entry>
 		<title>OAuth server for mobile applications</title>
