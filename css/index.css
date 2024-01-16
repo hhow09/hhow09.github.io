@@ -294,3 +294,7 @@ blockquote {
 blockquote p {
 	display:		inline;
 }
+
+.toc{
+	margin-top: 20px !important;
+}
