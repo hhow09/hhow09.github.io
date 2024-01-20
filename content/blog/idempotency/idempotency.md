@@ -156,7 +156,7 @@ Does the server store idempotency keys forever? [^11]
 the blog post [Implementing Stripe-like Idempotency Keys in Postgres](https://brandur.org/idempotency-keys#acyclic-state-machine) provides example content in detail.
 
 TLDR: 
-- broken steps into atomic phases
+- break up steps into atomic phases
 - store the state in each atomic phases along with idempotent key
 - when user retry with same idempotent key, fetch the current state and continue the flow.
 - the external API call need to be idempotent.
