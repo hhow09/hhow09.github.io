@@ -645,7 +645,7 @@ blockquote p {
 <p>the blog post <a href="https://brandur.org/idempotency-keys#acyclic-state-machine">Implementing Stripe-like Idempotency Keys in Postgres</a> provides example content in detail.</p>
 <p>TLDR:</p>
 <ul>
-<li>broken steps into atomic phases</li>
+<li>break up steps into atomic phases</li>
 <li>store the state in each atomic phases along with idempotent key</li>
 <li>when user retry with same idempotent key, fetch the current state and continue the flow.</li>
 <li>the external API call need to be idempotent.</li>

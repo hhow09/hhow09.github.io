@@ -537,7 +537,7 @@ Authorization servers that still require a statically included shared secret for
 &lt;p&gt;the blog post &lt;a href=&quot;https://brandur.org/idempotency-keys#acyclic-state-machine&quot;&gt;Implementing Stripe-like Idempotency Keys in Postgres&lt;/a&gt; provides example content in detail.&lt;/p&gt;
 &lt;p&gt;TLDR:&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;broken steps into atomic phases&lt;/li&gt;
+&lt;li&gt;break up steps into atomic phases&lt;/li&gt;
 &lt;li&gt;store the state in each atomic phases along with idempotent key&lt;/li&gt;
 &lt;li&gt;when user retry with same idempotent key, fetch the current state and continue the flow.&lt;/li&gt;
 &lt;li&gt;the external API call need to be idempotent.&lt;/li&gt;
