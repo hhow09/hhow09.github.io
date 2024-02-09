@@ -32,6 +32,9 @@ With idempotency, retry will just produce same side effect.
 E.g. `/POST record` 1st time, record inserted and returned. 2nd time, find the result and simply return it again.
 
 ### Duplicate Messages are Inevitable. [^2] [^12]
+
+> I'm coining the phrase "effectively-once" for message processing with at-least-once + idempotent operations. [^13]
+
 In event driven system, we talks about duplicate messages in both producer and consumer.
 
 For producer side, duplicate messages happens when message broker fail to acknowledge due temporary error.
@@ -202,3 +205,4 @@ TLDR:
 [^10]: [An open-source implementation of idempotency keys in NodeJS with Express](https://medusajs.com/blog/idempotency-nodejs-express-open-source/)
 [^11]: [My Thoughts on Idempotency](https://andrewjdawson2016.medium.com/my-thoughts-on-idempotency-9a2f40a01a7e)
 [^12]: [Idempotent Processing with Kafka](https://nejckorasa.github.io/posts/idempotent-kafka-procesing/#understanding-the-intricacies-of-exactly-once-semantics-in-kafka)
+[^13]: [Viktor Klang's Twitter](https://twitter.com/viktorklang/status/789036133434978304)
