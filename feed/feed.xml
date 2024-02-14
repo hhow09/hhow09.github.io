@@ -4,12 +4,214 @@
 	<subtitle>sofware engineering stuff</subtitle>
 	<link href="https://hhow09.github.io/feed/feed.xml" rel="self"/>
 	<link href="https://hhow09.github.io/"/>
-	<updated>2024-01-16T00:00:00Z</updated>
+	<updated>2024-02-14T00:00:00Z</updated>
 	<id>https://hhow09.github.io/</id>
 	<author>
 		<name>HH</name>
 		<email>hhow09@gmail.com</email>
 	</author>
+	
+	<entry>
+		<title>Session guarantees for weakly consistent replicated data</title>
+		<link href="https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/"/>
+		<updated>2024-02-14T00:00:00Z</updated>
+		<id>https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/</id>
+		<content type="html">&lt;h2 id=&quot;introduction&quot; tabindex=&quot;-1&quot;&gt;Introduction &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;Eventual Consistency&lt;/strong&gt; is not enough.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;The term “eventually” is deliberately vague: in general, there is no limit to how far a replica can fall behind. &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot; id=&quot;fnref1&quot;&gt;[1]&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Unfortunately, the lack of guarantees concerning the ordering of read and write operations in weakly consistent systems can confuse users and applications, as reported in experiences with Grapevine [21]. A user may read some value for a data item and then later read an older value. Similarly, a user may update some data item based on reading some other data, while others read the updated item without seeing the data on which it is based. &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot; id=&quot;fnref2&quot;&gt;[2]&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;consistency-models&quot; tabindex=&quot;-1&quot;&gt;Consistency Models &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot; id=&quot;fnref3&quot;&gt;[3]&lt;/a&gt;&lt;/sup&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;&lt;picture&gt;&lt;source type=&quot;image/avif&quot; srcset=&quot;https://hhow09.github.io/img/R6EIySWboD-1590.avif 1590w&quot;&gt;&lt;source type=&quot;image/webp&quot; srcset=&quot;https://hhow09.github.io/img/R6EIySWboD-1590.webp 1590w&quot;&gt;&lt;img alt=&quot;Consistency Models by JEPSEN&quot; loading=&quot;lazy&quot; decoding=&quot;async&quot; src=&quot;https://hhow09.github.io/img/R6EIySWboD-1590.png&quot; width=&quot;1590&quot; height=&quot;1595&quot;&gt;&lt;/picture&gt;&lt;/p&gt;
+&lt;h2 id=&quot;pram-consistency&quot; tabindex=&quot;-1&quot;&gt;PRAM Consistency &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot; id=&quot;fnref3:1&quot;&gt;[3:1]&lt;/a&gt;&lt;/sup&gt; &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot; id=&quot;fnref4&quot;&gt;[4]&lt;/a&gt;&lt;/sup&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;PRAM stands for Pipeline Random Access Memory.&lt;/li&gt;
+&lt;li&gt;PRAM is exactly equivalent to &lt;a href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot;&gt;read your writes&lt;/a&gt;, &lt;a href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot;&gt;monotonic writes&lt;/a&gt;, and &lt;a href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot;&gt;monotonic reads&lt;/a&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&quot;defition&quot; tabindex=&quot;-1&quot;&gt;Defition &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;blockquote&gt;
+&lt;p&gt;all processes see write operations issued by a given process in the same order as they were invoked by that process.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;On the other hand, processes may observe writes issued by different processes in different orders.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;notations&quot; tabindex=&quot;-1&quot;&gt;Notations &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;code&gt;DB(S)&lt;/code&gt;: the current contents of the server&#39;s database.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;DB(S,t)&lt;/code&gt;: the ordered sequence of Writes that have been received by server &lt;code&gt;S&lt;/code&gt; at or before time &lt;code&gt;t&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;WriteOrder(W1,W2)&lt;/code&gt;: a boolean predicate indicating whether Write &lt;code&gt;W1&lt;/code&gt; should be ordered before Write &lt;code&gt;W2&lt;/code&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&quot;session-guarantees&quot; tabindex=&quot;-1&quot;&gt;Session Guarantees &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Sessions are not intended to correspond to atomic transactions that ensure atomicity and serializability. Instead, the intent is to present individual applications with a view of the database that is consistent with their own actions, even if they read and write from various, potentially inconsistent servers. We want the results of operations performed in a session to be consistent with the model of a single centralized server, possibly being read and updated concurrently by multiple clients. &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot; id=&quot;fnref2:1&quot;&gt;[2:1]&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id=&quot;read-your-writes&quot; tabindex=&quot;-1&quot;&gt;Read Your Writes &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;blockquote&gt;
+&lt;p&gt;read operations reflect previous writes.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;If Read R follows Write W in a session and R is performed at server S at time t, then W is included in &lt;code&gt;DB(S,t)&lt;/code&gt;.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;ul&gt;
+&lt;li&gt;this guarantee is limited within a session.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&quot;examples&quot; tabindex=&quot;-1&quot;&gt;Examples &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot; id=&quot;fnref2:2&quot;&gt;[2:2]&lt;/a&gt;&lt;/sup&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Shortly after changing password, user would occasionally type the new password and receive an &amp;quot;invalid password&amp;quot; response. The &lt;strong&gt;RYW-guarantee&lt;/strong&gt; ensures that the login process will always read the most recent password.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;As a user reads and deletes messages, those messages are removed from the displayed &amp;quot;new mail&amp;quot; folder. If the user stops reading mail and returns sometime later, she should not see deleted messages reappear simply because the mail reader refreshed its display from a different copy of the database.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&quot;monotonic-reads&quot; tabindex=&quot;-1&quot;&gt;Monotonic Reads &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;blockquote&gt;
+&lt;p&gt;successive reads must reflect a non-decreasing set of writes.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Namely, if a process has read a certain value v from an object, any successive read operation
+will not return any value written before v.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;ul&gt;
+&lt;li&gt;this guarantee is limited within a session.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&quot;examples-1&quot; tabindex=&quot;-1&quot;&gt;Examples &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot; id=&quot;fnref2:3&quot;&gt;[2:3]&lt;/a&gt;&lt;/sup&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
+&lt;ol&gt;
+&lt;li&gt;The user&#39;s calendar program periodically refreshes its display by reading all of today&#39;s calendar appointments from the database. If it accesses servers with inconsistent copies of the database, recently added (or deleted) meetings may appear to come and go. The &lt;strong&gt;MR-guarantee&lt;/strong&gt; can effectively prevent this since it disallows access to copies of the database that are less current than the previously read copy.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&quot;monotonic-writes&quot; tabindex=&quot;-1&quot;&gt;Monotonic Writes &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;blockquote&gt;
+&lt;p&gt;If Write W1 precedes Write W2 in a session, then, for any server S2, if W2 in &lt;code&gt;DB(S2)&lt;/code&gt; then W1 is also in &lt;code&gt;DB(S2)&lt;/code&gt; and &lt;code&gt;WriteOrder(W1,W2)&lt;/code&gt;.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;If a process performs write w1, then w2, then all processes observe w1 before w2.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;ul&gt;
+&lt;li&gt;this guarantee affects &lt;strong&gt;globally&lt;/strong&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&quot;examples-2&quot; tabindex=&quot;-1&quot;&gt;Examples &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot; id=&quot;fnref2:4&quot;&gt;[2:4]&lt;/a&gt;&lt;/sup&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
+&lt;ol&gt;
+&lt;li&gt;A text editor when editing replicated files to ensure that if the user saves version N of the file and later saves version N+1 then version N+1 will replace version N at all servers. In particular, it avoids the situation in which version N is written to some server and version N+1 to a different server and the versions get propagated such that version N is applied after N+1.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&quot;writes-follow-reads&quot; tabindex=&quot;-1&quot;&gt;Writes Follow Reads &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;blockquote&gt;
+&lt;p&gt;writes are propagated after reads on which they depend.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;if a process reads a value v, which came from a write w1, and later performs write w2, then w2 must be visible after w1. Once you’ve read something, you can’t change that read’s past.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;also known as &lt;strong&gt;session causality&lt;/strong&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;this guarantee affects &lt;strong&gt;globally&lt;/strong&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&quot;examples-3&quot; tabindex=&quot;-1&quot;&gt;Examples &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
+&lt;ol&gt;
+&lt;li&gt;User sees reactions (W) to posted articles only if he/she have read the original posting.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&quot;database-configurations&quot; tabindex=&quot;-1&quot;&gt;Database Configurations &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;h3 id=&quot;mongodb&quot; tabindex=&quot;-1&quot;&gt;MongoDB&lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot; id=&quot;fnref5&quot;&gt;[5]&lt;/a&gt;&lt;/sup&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th style=&quot;text-align:center&quot;&gt;Read Concern&lt;/th&gt;
+&lt;th style=&quot;text-align:center&quot;&gt;Write Concern&lt;/th&gt;
+&lt;th style=&quot;text-align:center&quot;&gt;Read own writes&lt;/th&gt;
+&lt;th style=&quot;text-align:center&quot;&gt;Monotonic reads&lt;/th&gt;
+&lt;th style=&quot;text-align:center&quot;&gt;Monotonic writes&lt;/th&gt;
+&lt;th style=&quot;text-align:center&quot;&gt;Writes follow reads&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align:center&quot;&gt;&amp;quot;majority&amp;quot;&lt;/td&gt;
+&lt;td style=&quot;text-align:center&quot;&gt;&amp;quot;majority&amp;quot;&lt;/td&gt;
+&lt;td style=&quot;text-align:center&quot;&gt;✅&lt;/td&gt;
+&lt;td style=&quot;text-align:center&quot;&gt;✅&lt;/td&gt;
+&lt;td style=&quot;text-align:center&quot;&gt;✅&lt;/td&gt;
+&lt;td style=&quot;text-align:center&quot;&gt;✅&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align:center&quot;&gt;&amp;quot;majority&amp;quot;&lt;/td&gt;
+&lt;td style=&quot;text-align:center&quot;&gt;{ w: 1 }&lt;/td&gt;
+&lt;td style=&quot;text-align:center&quot;&gt;&lt;/td&gt;
+&lt;td style=&quot;text-align:center&quot;&gt;✅&lt;/td&gt;
+&lt;td style=&quot;text-align:center&quot;&gt;&lt;/td&gt;
+&lt;td style=&quot;text-align:center&quot;&gt;✅&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align:center&quot;&gt;&amp;quot;local&amp;quot;&lt;/td&gt;
+&lt;td style=&quot;text-align:center&quot;&gt;{ w: 1 }&lt;/td&gt;
+&lt;td style=&quot;text-align:center&quot;&gt;&lt;/td&gt;
+&lt;td style=&quot;text-align:center&quot;&gt;&lt;/td&gt;
+&lt;td style=&quot;text-align:center&quot;&gt;&lt;/td&gt;
+&lt;td style=&quot;text-align:center&quot;&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align:center&quot;&gt;&amp;quot;local&amp;quot;&lt;/td&gt;
+&lt;td style=&quot;text-align:center&quot;&gt;&amp;quot;majority&amp;quot;&lt;/td&gt;
+&lt;td style=&quot;text-align:center&quot;&gt;&lt;/td&gt;
+&lt;td style=&quot;text-align:center&quot;&gt;&lt;/td&gt;
+&lt;td style=&quot;text-align:center&quot;&gt;✅&lt;/td&gt;
+&lt;td style=&quot;text-align:center&quot;&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h4 id=&quot;read-concern-majority&quot; tabindex=&quot;-1&quot;&gt;Read Concern Majority &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot; id=&quot;fnref6&quot;&gt;[6]&lt;/a&gt;&lt;/sup&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Majority does a timestamped read at the stable timestamp (also called the last committed snapshot in the code, for legacy reasons). The data read only reflects the oplog entries that have been replicated to a majority of nodes in the replica set. Any data seen in majority reads cannot roll back in the future. Thus majority reads prevent dirty reads, though they often are stale reads.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Read concern majority reads do not wait for anything to be committed; they just use different snapshots from local reads. Read concern majority reads usually return as fast as local reads, but sometimes will block. For example, right after startup or rollback when we do not have a committed snapshot, majority reads will be blocked. Also, when some of the secondaries are unavailable or lagging, majority reads could slow down or block.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id=&quot;postgresql&quot; tabindex=&quot;-1&quot;&gt;PostgreSQL &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot; id=&quot;fnref7&quot;&gt;[7]&lt;/a&gt;&lt;/sup&gt; &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot; id=&quot;fnref8&quot;&gt;[8]&lt;/a&gt;&lt;/sup&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;blockquote&gt;
+&lt;p&gt;PostgreSQL streaming replication is &lt;strong&gt;asynchronous&lt;/strong&gt; by default. If the primary server crashes then some transactions that were committed may not have been replicated to the standby server, causing data loss. The amount of data loss is proportional to the replication delay at the time of failover.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;synchronous_commit&lt;/code&gt; specifies how much WAL processing must complete before the database server returns a &lt;code&gt;success&lt;/code&gt; indication to the client.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Valid values are &lt;code&gt;remote_apply&lt;/code&gt;, &lt;code&gt;on&lt;/code&gt; (the default), &lt;code&gt;remote_write&lt;/code&gt;, &lt;code&gt;local&lt;/code&gt;, and &lt;code&gt;off&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Setting &lt;code&gt;synchronous_commit&lt;/code&gt; to &lt;code&gt;remote_write&lt;/code&gt; will cause each commit to wait for confirmation that the standby has received the commit record and written it out to its own operating system, but not for the data to be flushed to disk on the standby. This setting provides a weaker guarantee of durability than &lt;code&gt;on&lt;/code&gt; does: the standby could lose the data in the event of an operating system crash, though not a PostgreSQL crash. However, it&#39;s a useful setting in practice because it can decrease the response time for the transaction. Data loss could only occur if both the primary and the standby crash and the database of the primary gets corrupted at the same time.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Setting &lt;code&gt;synchronous_commit&lt;/code&gt; to &lt;code&gt;remote_apply&lt;/code&gt; will cause each commit to wait until the current synchronous standbys report that they have replayed the transaction, making it visible to user queries. In simple cases, &lt;strong&gt;this allows for load balancing with causal consistency&lt;/strong&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;reference&quot; tabindex=&quot;-1&quot;&gt;Reference &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;hr class=&quot;footnotes-sep&quot;&gt;
+&lt;section class=&quot;footnotes&quot;&gt;
+&lt;ol class=&quot;footnotes-list&quot;&gt;
+&lt;li id=&quot;fn1&quot; class=&quot;footnote-item&quot;&gt;&lt;p&gt;Designing Data Intensive Applications Chapter 5: Replication &lt;a href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot; class=&quot;footnote-backref&quot;&gt;↩︎&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&quot;fn2&quot; class=&quot;footnote-item&quot;&gt;&lt;p&gt;&lt;a href=&quot;https://www.cs.cornell.edu/courses/cs734/2000FA/cached%20papers/SessionGuaranteesPDIS_1.html&quot;&gt;Session Guarantees for Weakly Consistent Replicated Data&lt;/a&gt; &lt;a href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot; class=&quot;footnote-backref&quot;&gt;↩︎&lt;/a&gt; &lt;a href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot; class=&quot;footnote-backref&quot;&gt;↩︎&lt;/a&gt; &lt;a href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot; class=&quot;footnote-backref&quot;&gt;↩︎&lt;/a&gt; &lt;a href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot; class=&quot;footnote-backref&quot;&gt;↩︎&lt;/a&gt; &lt;a href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot; class=&quot;footnote-backref&quot;&gt;↩︎&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&quot;fn3&quot; class=&quot;footnote-item&quot;&gt;&lt;p&gt;&lt;a href=&quot;https://jepsen.io/consistency&quot;&gt;JEPSEN - Consistency Models&lt;/a&gt; &lt;a href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot; class=&quot;footnote-backref&quot;&gt;↩︎&lt;/a&gt; &lt;a href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot; class=&quot;footnote-backref&quot;&gt;↩︎&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&quot;fn4&quot; class=&quot;footnote-item&quot;&gt;&lt;p&gt;&lt;a href=&quot;https://dl.acm.org/doi/10.1145/2926965&quot;&gt;Consistency in Non-Transactional Distributed Storage Systems&lt;/a&gt; &lt;a href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot; class=&quot;footnote-backref&quot;&gt;↩︎&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&quot;fn5&quot; class=&quot;footnote-item&quot;&gt;&lt;p&gt;&lt;a href=&quot;https://www.mongodb.com/docs/manual/core/causal-consistency-read-write-concerns/&quot;&gt;MongoDB: Causal Consistency and Read and Write Concerns&lt;/a&gt; &lt;a href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot; class=&quot;footnote-backref&quot;&gt;↩︎&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&quot;fn6&quot; class=&quot;footnote-item&quot;&gt;&lt;p&gt;&lt;a href=&quot;https://github.com/mongodb/mongo/blob/master/src/mongo/db/repl/README.md#read-concern&quot;&gt;MongoDB: Replication Internals&lt;/a&gt; &lt;a href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot; class=&quot;footnote-backref&quot;&gt;↩︎&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&quot;fn7&quot; class=&quot;footnote-item&quot;&gt;&lt;p&gt;&lt;a href=&quot;https://www.postgresql.org/docs/current/runtime-config-wal.html#GUC-SYNCHRONOUS-COMMIT&quot;&gt;PostgreSQL synchronous_commit&lt;/a&gt; &lt;a href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot; class=&quot;footnote-backref&quot;&gt;↩︎&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&quot;fn8&quot; class=&quot;footnote-item&quot;&gt;&lt;p&gt;&lt;a href=&quot;https://www.postgresql.org/docs/11/warm-standby.html#SYNCHRONOUS-REPLICATION&quot;&gt;PostgreSQL: Synchronous Replication&lt;/a&gt; &lt;a href=&quot;https://hhow09.github.io/blog/session-guarantees-for-weakly-consistent-replicated-data/&quot; class=&quot;footnote-backref&quot;&gt;↩︎&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/section&gt;
+</content>
+	</entry>
 	
 	<entry>
 		<title>Distributed Lock with Redis, Redlock</title>
