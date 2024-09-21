@@ -946,7 +946,7 @@ Authorization servers that still require a statically included shared secret for
 &lt;blockquote&gt;
 &lt;p&gt;In these scenarios, the reuse of a refresh token triggers all kinds of alarms with the authorization server. Refresh token reuse likely means that a second party is trying to use a stolen refresh token. In response to this reuse, the authorization server immediately revokes the reused refresh token, along with all descendant tokens. Concretely, all refresh tokens that have ever been derived from the reused refresh token become invalid.&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h3 id=&quot;issue-client-retry-v-s-replay-attack&quot; tabindex=&quot;-1&quot;&gt;Issue: Client Retry v.s. Replay attack &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/oauth2-refresh-token/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;h3 id=&quot;issue-client-can-retry-v-s-replay-attack&quot; tabindex=&quot;-1&quot;&gt;Issue: Client Can Retry v.s. Replay attack &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/oauth2-refresh-token/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
 &lt;ol&gt;
 &lt;li&gt;
 &lt;p&gt;Token reuse detection can sometimes impact the user experience. For example, when users with poor network connections access apps, new tokens issued by Okta might not reach the client app. As a result, the client might want to reuse the refresh token to get new tokens. &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/oauth2-refresh-token/&quot; id=&quot;fnref11&quot;&gt;[11]&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
@@ -960,6 +960,9 @@ Authorization servers that still require a statically included shared secret for
 &lt;li&gt;If retry is allowed, it means somehow security is sacrificed in some degree.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Related discussion: &lt;a href=&quot;https://github.com/ory/hydra/issues/1831&quot;&gt;ory/hydra: Refresh tokens need a grace period to deal with network errors and similar issues #1831&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
 &lt;/ol&gt;
 &lt;h4 id=&quot;solution-from-okta-grace-period&quot; tabindex=&quot;-1&quot;&gt;Solution from Okta: Grace period &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/oauth2-refresh-token/&quot; id=&quot;fnref11:1&quot;&gt;[11:1]&lt;/a&gt;&lt;/sup&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/oauth2-refresh-token/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
 &lt;ul&gt;
@@ -969,6 +972,18 @@ Authorization servers that still require a statically included shared secret for
 &lt;h4 id=&quot;solution-from-auth0-grace-period&quot; tabindex=&quot;-1&quot;&gt;Solution from Auth0: Grace period &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/oauth2-refresh-token/&quot; id=&quot;fnref13&quot;&gt;[13]&lt;/a&gt;&lt;/sup&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/oauth2-refresh-token/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
 &lt;ul&gt;
 &lt;li&gt;Enter Reuse Interval (in seconds) for the refresh token to account for leeway time between request and response before triggering automatic reuse detection. This interval helps to avoid concurrency issues when exchanging the rotating refresh token multiple times within a given timeframe. During the leeway window the breach detection features don&#39;t apply and a new rotating refresh token is issued. Only the previous token can be reused; if the second-to-last one is exchanged, breach detection will be triggered.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&quot;solution-from-ory-fosite-grace-period&quot; tabindex=&quot;-1&quot;&gt;Solution from ory/fosite: Grace period &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/oauth2-refresh-token/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
+&lt;pre class=&quot;language-go&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-go&quot;&gt;&lt;span class=&quot;token comment&quot;&gt;// https://github.com/ory/fosite/blob/869a37ce486cb0ca921449319e1048004b2f1bd8/handler/oauth2/flow_refresh.go#L144&lt;/span&gt;
+&lt;span class=&quot;token keyword&quot;&gt;func&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;c &lt;span class=&quot;token operator&quot;&gt;*&lt;/span&gt;RefreshTokenGrantHandler&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;PopulateTokenEndpointResponse&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;ctx context&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;Context&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; requester fosite&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;AccessRequester&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; responder fosite&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;AccessResponder&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;err &lt;span class=&quot;token builtin&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;token comment&quot;&gt;// ...&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;if&lt;/span&gt; err &lt;span class=&quot;token operator&quot;&gt;:=&lt;/span&gt; c&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;TokenRevocationStorage&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;RevokeRefreshTokenMaybeGracePeriod&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;ctx&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; ts&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;GetID&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; signature&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt; err &lt;span class=&quot;token operator&quot;&gt;!=&lt;/span&gt; &lt;span class=&quot;token boolean&quot;&gt;nil&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; err
+    &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;token comment&quot;&gt;// ...&lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;PR on storage implimentation: &lt;a href=&quot;https://github.com/ory/hydra/pull/2827&quot;&gt;feat: Refresh token expiration window #2827&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h4 id=&quot;solution-2-revokaion-on-use&quot; tabindex=&quot;-1&quot;&gt;Solution 2: Revokaion-On-Use &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/oauth2-refresh-token/&quot; id=&quot;fnref14&quot;&gt;[14]&lt;/a&gt;&lt;/sup&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/oauth2-refresh-token/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
 &lt;ol&gt;

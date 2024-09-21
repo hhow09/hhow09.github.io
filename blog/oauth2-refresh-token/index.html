@@ -647,7 +647,7 @@ blockquote p {
 <blockquote>
 <p>In these scenarios, the reuse of a refresh token triggers all kinds of alarms with the authorization server. Refresh token reuse likely means that a second party is trying to use a stolen refresh token. In response to this reuse, the authorization server immediately revokes the reused refresh token, along with all descendant tokens. Concretely, all refresh tokens that have ever been derived from the reused refresh token become invalid.</p>
 </blockquote>
-<h3 id="issue-client-retry-v-s-replay-attack" tabindex="-1">Issue: Client Retry v.s. Replay attack <a class="header-anchor" href="#issue-client-retry-v-s-replay-attack">#</a></h3>
+<h3 id="issue-client-can-retry-v-s-replay-attack" tabindex="-1">Issue: Client Can Retry v.s. Replay attack <a class="header-anchor" href="#issue-client-can-retry-v-s-replay-attack">#</a></h3>
 <ol>
 <li>
 <p>Token reuse detection can sometimes impact the user experience. For example, when users with poor network connections access apps, new tokens issued by Okta might not reach the client app. As a result, the client might want to reuse the refresh token to get new tokens. <sup class="footnote-ref"><a href="#fn11" id="fnref11">[11]</a></sup></p>
@@ -661,6 +661,9 @@ blockquote p {
 <li>If retry is allowed, it means somehow security is sacrificed in some degree.</li>
 </ul>
 </li>
+<li>
+<p>Related discussion: <a href="https://github.com/ory/hydra/issues/1831">ory/hydra: Refresh tokens need a grace period to deal with network errors and similar issues #1831</a></p>
+</li>
 </ol>
 <h4 id="solution-from-okta-grace-period" tabindex="-1">Solution from Okta: Grace period <sup class="footnote-ref"><a href="#fn11" id="fnref11:1">[11:1]</a></sup> <a class="header-anchor" href="#solution-from-okta-grace-period">#</a></h4>
 <ul>
@@ -670,6 +673,18 @@ blockquote p {
 <h4 id="solution-from-auth0-grace-period" tabindex="-1">Solution from Auth0: Grace period <sup class="footnote-ref"><a href="#fn13" id="fnref13">[13]</a></sup> <a class="header-anchor" href="#solution-from-auth0-grace-period">#</a></h4>
 <ul>
 <li>Enter Reuse Interval (in seconds) for the refresh token to account for leeway time between request and response before triggering automatic reuse detection. This interval helps to avoid concurrency issues when exchanging the rotating refresh token multiple times within a given timeframe. During the leeway window the breach detection features don't apply and a new rotating refresh token is issued. Only the previous token can be reused; if the second-to-last one is exchanged, breach detection will be triggered.</li>
+</ul>
+<h4 id="solution-from-ory-fosite-grace-period" tabindex="-1">Solution from ory/fosite: Grace period <a class="header-anchor" href="#solution-from-ory-fosite-grace-period">#</a></h4>
+<pre class="language-go" tabindex="0"><code class="language-go"><span class="token comment">// https://github.com/ory/fosite/blob/869a37ce486cb0ca921449319e1048004b2f1bd8/handler/oauth2/flow_refresh.go#L144</span>
+<span class="token keyword">func</span> <span class="token punctuation">(</span>c <span class="token operator">*</span>RefreshTokenGrantHandler<span class="token punctuation">)</span> <span class="token function">PopulateTokenEndpointResponse</span><span class="token punctuation">(</span>ctx context<span class="token punctuation">.</span>Context<span class="token punctuation">,</span> requester fosite<span class="token punctuation">.</span>AccessRequester<span class="token punctuation">,</span> responder fosite<span class="token punctuation">.</span>AccessResponder<span class="token punctuation">)</span> <span class="token punctuation">(</span>err <span class="token builtin">error</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// ...</span>
+    <span class="token keyword">if</span> err <span class="token operator">:=</span> c<span class="token punctuation">.</span>TokenRevocationStorage<span class="token punctuation">.</span><span class="token function">RevokeRefreshTokenMaybeGracePeriod</span><span class="token punctuation">(</span>ctx<span class="token punctuation">,</span> ts<span class="token punctuation">.</span><span class="token function">GetID</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> signature<span class="token punctuation">)</span><span class="token punctuation">;</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> err
+    <span class="token punctuation">}</span>
+    <span class="token comment">// ...</span>
+<span class="token punctuation">}</span></code></pre>
+<ul>
+<li>PR on storage implimentation: <a href="https://github.com/ory/hydra/pull/2827">feat: Refresh token expiration window #2827</a></li>
 </ul>
 <h4 id="solution-2-revokaion-on-use" tabindex="-1">Solution 2: Revokaion-On-Use <sup class="footnote-ref"><a href="#fn14" id="fnref14">[14]</a></sup> <a class="header-anchor" href="#solution-2-revokaion-on-use">#</a></h4>
 <ol>
