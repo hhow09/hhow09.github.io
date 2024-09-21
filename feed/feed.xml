@@ -973,7 +973,7 @@ Authorization servers that still require a statically included shared secret for
 &lt;ul&gt;
 &lt;li&gt;Enter Reuse Interval (in seconds) for the refresh token to account for leeway time between request and response before triggering automatic reuse detection. This interval helps to avoid concurrency issues when exchanging the rotating refresh token multiple times within a given timeframe. During the leeway window the breach detection features don&#39;t apply and a new rotating refresh token is issued. Only the previous token can be reused; if the second-to-last one is exchanged, breach detection will be triggered.&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h4 id=&quot;solution-from-ory-fosite-grace-period&quot; tabindex=&quot;-1&quot;&gt;Solution from ory/fosite: Grace period &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/oauth2-refresh-token/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
+&lt;h4 id=&quot;solution-from-ory-fosite-grace-period&quot; tabindex=&quot;-1&quot;&gt;Solution from ory/fosite: Grace period &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/oauth2-refresh-token/&quot; id=&quot;fnref14&quot;&gt;[14]&lt;/a&gt;&lt;/sup&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/oauth2-refresh-token/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
 &lt;pre class=&quot;language-go&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-go&quot;&gt;&lt;span class=&quot;token comment&quot;&gt;// https://github.com/ory/fosite/blob/869a37ce486cb0ca921449319e1048004b2f1bd8/handler/oauth2/flow_refresh.go#L144&lt;/span&gt;
 &lt;span class=&quot;token keyword&quot;&gt;func&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;c &lt;span class=&quot;token operator&quot;&gt;*&lt;/span&gt;RefreshTokenGrantHandler&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;PopulateTokenEndpointResponse&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;ctx context&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;Context&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; requester fosite&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;AccessRequester&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; responder fosite&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;AccessResponder&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;err &lt;span class=&quot;token builtin&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
     &lt;span class=&quot;token comment&quot;&gt;// ...&lt;/span&gt;
@@ -985,7 +985,7 @@ Authorization servers that still require a statically included shared secret for
 &lt;ul&gt;
 &lt;li&gt;PR on storage implimentation: &lt;a href=&quot;https://github.com/ory/hydra/pull/2827&quot;&gt;feat: Refresh token expiration window #2827&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h4 id=&quot;solution-2-revokaion-on-use&quot; tabindex=&quot;-1&quot;&gt;Solution 2: Revokaion-On-Use &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/oauth2-refresh-token/&quot; id=&quot;fnref14&quot;&gt;[14]&lt;/a&gt;&lt;/sup&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/oauth2-refresh-token/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
+&lt;h4 id=&quot;solution-2-revokaion-on-use&quot; tabindex=&quot;-1&quot;&gt;Solution 2: Revokaion-On-Use &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/oauth2-refresh-token/&quot; id=&quot;fnref15&quot;&gt;[15]&lt;/a&gt;&lt;/sup&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/oauth2-refresh-token/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
 &lt;ol&gt;
 &lt;li&gt;
 &lt;p&gt;Allow client retry with same refresh token&lt;/p&gt;
@@ -1047,7 +1047,9 @@ Authorization servers that still require a statically included shared secret for
 &lt;/li&gt;
 &lt;li id=&quot;fn13&quot; class=&quot;footnote-item&quot;&gt;&lt;p&gt;&lt;a href=&quot;https://auth0.com/docs/secure/tokens/refresh-tokens/configure-refresh-token-rotation&quot;&gt;Auth0: Configure Refresh Token Rotation&lt;/a&gt; &lt;a href=&quot;https://hhow09.github.io/blog/oauth2-refresh-token/&quot; class=&quot;footnote-backref&quot;&gt;↩︎&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
-&lt;li id=&quot;fn14&quot; class=&quot;footnote-item&quot;&gt;&lt;p&gt;&lt;a href=&quot;https://devforum.zoom.us/t/how-to-protect-against-losing-refresh-token-response/10375/1&quot;&gt;How to protect against losing &lt;code&gt;refresh_token&lt;/code&gt; response?&lt;/a&gt; &lt;a href=&quot;https://hhow09.github.io/blog/oauth2-refresh-token/&quot; class=&quot;footnote-backref&quot;&gt;↩︎&lt;/a&gt;&lt;/p&gt;
+&lt;li id=&quot;fn14&quot; class=&quot;footnote-item&quot;&gt;&lt;p&gt;&lt;a href=&quot;https://github.com/ory/fosite&quot;&gt;ory/fosite&lt;/a&gt; &lt;a href=&quot;https://hhow09.github.io/blog/oauth2-refresh-token/&quot; class=&quot;footnote-backref&quot;&gt;↩︎&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&quot;fn15&quot; class=&quot;footnote-item&quot;&gt;&lt;p&gt;&lt;a href=&quot;https://devforum.zoom.us/t/how-to-protect-against-losing-refresh-token-response/10375/1&quot;&gt;How to protect against losing &lt;code&gt;refresh_token&lt;/code&gt; response?&lt;/a&gt; &lt;a href=&quot;https://hhow09.github.io/blog/oauth2-refresh-token/&quot; class=&quot;footnote-backref&quot;&gt;↩︎&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;/section&gt;

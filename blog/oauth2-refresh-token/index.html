@@ -674,7 +674,7 @@ blockquote p {
 <ul>
 <li>Enter Reuse Interval (in seconds) for the refresh token to account for leeway time between request and response before triggering automatic reuse detection. This interval helps to avoid concurrency issues when exchanging the rotating refresh token multiple times within a given timeframe. During the leeway window the breach detection features don't apply and a new rotating refresh token is issued. Only the previous token can be reused; if the second-to-last one is exchanged, breach detection will be triggered.</li>
 </ul>
-<h4 id="solution-from-ory-fosite-grace-period" tabindex="-1">Solution from ory/fosite: Grace period <a class="header-anchor" href="#solution-from-ory-fosite-grace-period">#</a></h4>
+<h4 id="solution-from-ory-fosite-grace-period" tabindex="-1">Solution from ory/fosite: Grace period <sup class="footnote-ref"><a href="#fn14" id="fnref14">[14]</a></sup> <a class="header-anchor" href="#solution-from-ory-fosite-grace-period">#</a></h4>
 <pre class="language-go" tabindex="0"><code class="language-go"><span class="token comment">// https://github.com/ory/fosite/blob/869a37ce486cb0ca921449319e1048004b2f1bd8/handler/oauth2/flow_refresh.go#L144</span>
 <span class="token keyword">func</span> <span class="token punctuation">(</span>c <span class="token operator">*</span>RefreshTokenGrantHandler<span class="token punctuation">)</span> <span class="token function">PopulateTokenEndpointResponse</span><span class="token punctuation">(</span>ctx context<span class="token punctuation">.</span>Context<span class="token punctuation">,</span> requester fosite<span class="token punctuation">.</span>AccessRequester<span class="token punctuation">,</span> responder fosite<span class="token punctuation">.</span>AccessResponder<span class="token punctuation">)</span> <span class="token punctuation">(</span>err <span class="token builtin">error</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     <span class="token comment">// ...</span>
@@ -686,7 +686,7 @@ blockquote p {
 <ul>
 <li>PR on storage implimentation: <a href="https://github.com/ory/hydra/pull/2827">feat: Refresh token expiration window #2827</a></li>
 </ul>
-<h4 id="solution-2-revokaion-on-use" tabindex="-1">Solution 2: Revokaion-On-Use <sup class="footnote-ref"><a href="#fn14" id="fnref14">[14]</a></sup> <a class="header-anchor" href="#solution-2-revokaion-on-use">#</a></h4>
+<h4 id="solution-2-revokaion-on-use" tabindex="-1">Solution 2: Revokaion-On-Use <sup class="footnote-ref"><a href="#fn15" id="fnref15">[15]</a></sup> <a class="header-anchor" href="#solution-2-revokaion-on-use">#</a></h4>
 <ol>
 <li>
 <p>Allow client retry with same refresh token</p>
@@ -748,7 +748,9 @@ blockquote p {
 </li>
 <li id="fn13" class="footnote-item"><p><a href="https://auth0.com/docs/secure/tokens/refresh-tokens/configure-refresh-token-rotation">Auth0: Configure Refresh Token Rotation</a> <a href="#fnref13" class="footnote-backref">↩︎</a></p>
 </li>
-<li id="fn14" class="footnote-item"><p><a href="https://devforum.zoom.us/t/how-to-protect-against-losing-refresh-token-response/10375/1">How to protect against losing <code>refresh_token</code> response?</a> <a href="#fnref14" class="footnote-backref">↩︎</a></p>
+<li id="fn14" class="footnote-item"><p><a href="https://github.com/ory/fosite">ory/fosite</a> <a href="#fnref14" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn15" class="footnote-item"><p><a href="https://devforum.zoom.us/t/how-to-protect-against-losing-refresh-token-response/10375/1">How to protect against losing <code>refresh_token</code> response?</a> <a href="#fnref15" class="footnote-backref">↩︎</a></p>
 </li>
 </ol>
 </section>
