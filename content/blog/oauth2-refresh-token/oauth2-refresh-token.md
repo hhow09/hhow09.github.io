@@ -106,20 +106,33 @@ layout: layouts/post.njk
 > In these scenarios, the reuse of a refresh token triggers all kinds of alarms with the authorization server. Refresh token reuse likely means that a second party is trying to use a stolen refresh token. In response to this reuse, the authorization server immediately revokes the reused refresh token, along with all descendant tokens. Concretely, all refresh tokens that have ever been derived from the reused refresh token become invalid.
 
 
-### Issue: Client Retry v.s. Replay attack
+### Issue: Client Can Retry v.s. Replay attack
 1. Token reuse detection can sometimes impact the user experience. For example, when users with poor network connections access apps, new tokens issued by Okta might not reach the client app. As a result, the client might want to reuse the refresh token to get new tokens. [^11]
 2. According to [Specification 8](#specification), Refresh token reuse detection should be implemented for preventing [replay attack](https://auth0.com/docs/secure/security-guidance/prevent-threats#replay-attacks).
 
 3. Without enforcing sender-constraint, it’s impossible for the authorization server to know which actor is legitimate or malicious in the event of a replay attack. [^14]
     - If retry is allowed, it means somehow security is sacrificed in some degree.
+4. Related discussion: [ory/hydra: Refresh tokens need a grace period to deal with network errors and similar issues #1831](https://github.com/ory/hydra/issues/1831)
 
 #### Solution from Okta: Grace period [^11]
 - Okta offers a grace period when you configure refresh token rotation. After the refresh token is rotated, the previous token remains valid for the configured amount of time to allow clients to get the new token.
 - The default number of seconds for the Grace period for token rotation is set to **30** seconds. You can change the value to any number from 0-60 seconds. After the refresh token is rotated, the previous token remains valid for this amount of time to allow clients to get the new token.
 
-
 #### Solution from Auth0: Grace period [^12]
 - Enter Reuse Interval (in seconds) for the refresh token to account for leeway time between request and response before triggering automatic reuse detection. This interval helps to avoid concurrency issues when exchanging the rotating refresh token multiple times within a given timeframe. During the leeway window the breach detection features don't apply and a new rotating refresh token is issued. Only the previous token can be reused; if the second-to-last one is exchanged, breach detection will be triggered.
+
+#### Solution from ory/fosite: Grace period [^15]
+```go
+// https://github.com/ory/fosite/blob/869a37ce486cb0ca921449319e1048004b2f1bd8/handler/oauth2/flow_refresh.go#L144
+func (c *RefreshTokenGrantHandler) PopulateTokenEndpointResponse(ctx context.Context, requester fosite.AccessRequester, responder fosite.AccessResponder) (err error) {
+    // ...
+    if err := c.TokenRevocationStorage.RevokeRefreshTokenMaybeGracePeriod(ctx, ts.GetID(), signature); err != nil {
+        return err
+    }
+    // ...
+}
+```
+- PR on storage implimentation: [feat: Refresh token expiration window #2827](https://github.com/ory/hydra/pull/2827)
 
 #### Solution 2: Revokaion-On-Use [^13]
 1. Allow client retry with same refresh token
@@ -154,3 +167,4 @@ layout: layouts/post.njk
 [^12]: [Auth0: Configure Refresh Token Rotation](https://auth0.com/docs/secure/tokens/refresh-tokens/configure-refresh-token-rotation)
 [^13]: [How to protect against losing `refresh_token` response?](https://devforum.zoom.us/t/how-to-protect-against-losing-refresh-token-response/10375/1)
 [^14]: [Auth0: Refresh Token Rotation](https://auth0.com/docs/secure/tokens/refresh-tokens/refresh-token-rotation)
+[^15]: [ory/fosite](https://github.com/ory/fosite)
