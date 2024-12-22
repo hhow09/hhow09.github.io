@@ -4,12 +4,89 @@
 	<subtitle>sofware engineering stuff</subtitle>
 	<link href="https://hhow09.github.io/feed/feed.xml" rel="self"/>
 	<link href="https://hhow09.github.io/"/>
-	<updated>2024-02-14T00:00:00Z</updated>
+	<updated>2024-12-22T00:00:00Z</updated>
 	<id>https://hhow09.github.io/</id>
 	<author>
 		<name>HH</name>
 		<email>hhow09@gmail.com</email>
 	</author>
+	
+	<entry>
+		<title>Protecting Replay Attack</title>
+		<link href="https://hhow09.github.io/blog/protect_replay_attack/"/>
+		<updated>2024-12-22T00:00:00Z</updated>
+		<id>https://hhow09.github.io/blog/protect_replay_attack/</id>
+		<content type="html">&lt;h2 id=&quot;requirement&quot; tabindex=&quot;-1&quot;&gt;Requirement &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/protect_replay_attack/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;public facing API with public client (e.g. mobile app, web app)&lt;/li&gt;
+&lt;li&gt;bot intercepted the requests and replaying them&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;approaches&quot; tabindex=&quot;-1&quot;&gt;Approaches &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/protect_replay_attack/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;IP rate limiting (extra cost)
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://cloud.google.com/armor/docs/rate-limiting-overview&quot;&gt;Google Cloud Armor&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Enterprise solution (extra cost)
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://aws.amazon.com/tw/waf/features/bot-control/&quot;&gt;AWS WAF Bot Control&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Recaptcha&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;s&gt;API key&lt;/s&gt; (not safe for public client)&lt;/li&gt;
+&lt;li&gt;nonce (with authentication)&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&quot;simple-solution-without-extra-cost-nonce&quot; tabindex=&quot;-1&quot;&gt;Simple solution without extra cost: Nonce &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/protect_replay_attack/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;The nonce helps to prove that the message received was sent by the intended sender and was not intercepted and resent by a bad actor.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id=&quot;how-to-choose-a-nonce&quot; tabindex=&quot;-1&quot;&gt;How to choose a nonce &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/protect_replay_attack/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Timestamp&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;client use timestamp as nonce in the request&lt;/li&gt;
+&lt;li&gt;server should verify the timestamp within a certain range&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;beware of client time skew&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;user could change the device time, therefore we could use &lt;strong&gt;timestamp returned from server&lt;/strong&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;random number&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;client generates a random number as nonce&lt;/li&gt;
+&lt;li&gt;server checks the nonce is not used before&lt;/li&gt;
+&lt;li&gt;cons: &lt;strong&gt;need to store nonce in server&lt;/strong&gt; for some time (e.g. in cache)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&quot;is-nonce-enough&quot; tabindex=&quot;-1&quot;&gt;Is nonce enough? &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/protect_replay_attack/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;using nonce without &lt;strong&gt;encryption&lt;/strong&gt; or &lt;strong&gt;authentication&lt;/strong&gt; is easy to be guessed by attacker.&lt;/p&gt;
+&lt;h3 id=&quot;encryption-authentication&quot; tabindex=&quot;-1&quot;&gt;Encryption / Authentication &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/protect_replay_attack/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;either way is fine&lt;/li&gt;
+&lt;li&gt;for authentication, &lt;a href=&quot;https://www.okta.com/identity-101/hmac/&quot;&gt;HMAC&lt;/a&gt; is a good choice&lt;/li&gt;
+&lt;li&gt;for encryption, &lt;a href=&quot;https://en.wikipedia.org/wiki/Public-key_cryptography&quot;&gt;asymmetric encryption&lt;/a&gt; is a good choice &lt;strong&gt;for public client&lt;/strong&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;solution-i-used&quot; tabindex=&quot;-1&quot;&gt;Solution I used &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/protect_replay_attack/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;client has public key from server&lt;/li&gt;
+&lt;li&gt;client receive &lt;strong&gt;timestamp&lt;/strong&gt; from server as nonce&lt;/li&gt;
+&lt;li&gt;client encrypt the nonce with public key and send to server&lt;/li&gt;
+&lt;li&gt;server decrypt the nonce with private key and verify the timestamp within a certain range.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&quot;reference&quot; tabindex=&quot;-1&quot;&gt;Reference &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/protect_replay_attack/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.reddit.com/r/ExperiencedDevs/comments/100iumt/how_to_prevent_the_public_rest_api_endpoints_from/&quot;&gt;Reddit: How to prevent the public REST API endpoints from bot attacks? &lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.okta.com/identity-101/nonce/&quot;&gt;What Is a Cryptographic Nonce? Definition and Meaning&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.linkedin.com/advice/0/how-do-you-prevent-replay-attacks-when-using-hmac-authentication&quot;&gt;How do you prevent replay attacks when using HMAC for authentication?&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</content>
+	</entry>
 	
 	<entry>
 		<title>Session guarantees for weakly consistent replicated data</title>

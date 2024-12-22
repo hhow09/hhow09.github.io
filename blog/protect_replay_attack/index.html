@@ -1,0 +1,599 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Protecting Replay Attack</title>
+		<meta name="description" content="protecting Replay Attack">
+		<meta name="google-site-verification" content="pV0LpMzGqiF5LrOEOtxdTzsIjD0Q6Zd3yXLXJstHuuQ" />
+		<link rel="alternate" href="/feed/feed.xml" type="application/atom+xml" title="hhow09&#39;s Blog">
+		<link rel="alternate" href="/feed/feed.json" type="application/json" title="hhow09&#39;s Blog">
+		
+		<style>/**
+ * okaidia theme for JavaScript, CSS and HTML
+ * Loosely based on Monokai textmate theme by http://www.monokai.nl/
+ * @author ocodia
+ */
+
+code[class*="language-"],
+pre[class*="language-"] {
+	color: #f8f8f2;
+	background: none;
+	text-shadow: 0 1px rgba(0, 0, 0, 0.3);
+	font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+	font-size: 1em;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+	word-break: normal;
+	word-wrap: normal;
+	line-height: 1.5;
+
+	-moz-tab-size: 4;
+	-o-tab-size: 4;
+	tab-size: 4;
+
+	-webkit-hyphens: none;
+	-moz-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+	padding: 1em;
+	margin: .5em 0;
+	overflow: auto;
+	border-radius: 0.3em;
+}
+
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+	background: #272822;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+	padding: .1em;
+	border-radius: .3em;
+	white-space: normal;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+	color: #8292a2;
+}
+
+.token.punctuation {
+	color: #f8f8f2;
+}
+
+.token.namespace {
+	opacity: .7;
+}
+
+.token.property,
+.token.tag,
+.token.constant,
+.token.symbol,
+.token.deleted {
+	color: #f92672;
+}
+
+.token.boolean,
+.token.number {
+	color: #ae81ff;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+	color: #a6e22e;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string,
+.token.variable {
+	color: #f8f8f2;
+}
+
+.token.atrule,
+.token.attr-value,
+.token.function,
+.token.class-name {
+	color: #e6db74;
+}
+
+.token.keyword {
+	color: #66d9ef;
+}
+
+.token.regex,
+.token.important {
+	color: #fd971f;
+}
+
+.token.important,
+.token.bold {
+	font-weight: bold;
+}
+.token.italic {
+	font-style: italic;
+}
+
+.token.entity {
+	cursor: help;
+}
+/*
+ * New diff- syntax
+ */
+
+pre[class*="language-diff-"] {
+	--eleventy-code-padding: 1.25em;
+	padding-left: var(--eleventy-code-padding);
+	padding-right: var(--eleventy-code-padding);
+}
+.token.deleted {
+	background-color: hsl(0, 51%, 37%);
+	color: inherit;
+}
+.token.inserted {
+	background-color: hsl(126, 31%, 39%);
+	color: inherit;
+}
+
+/* Make the + and - characters unselectable for copy/paste */
+.token.prefix.unchanged,
+.token.prefix.inserted,
+.token.prefix.deleted {
+	-webkit-user-select: none;
+	user-select: none;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+.token.prefix.inserted,
+.token.prefix.deleted {
+	width: var(--eleventy-code-padding);
+	background-color: rgba(0,0,0,.2);
+}
+
+/* Optional: full-width background color */
+.token.inserted:not(.prefix),
+.token.deleted:not(.prefix) {
+	display: block;
+	margin-left: calc(-1 * var(--eleventy-code-padding));
+	margin-right: calc(-1 * var(--eleventy-code-padding));
+	text-decoration: none; /* override del, ins, mark defaults */
+	color: inherit; /* override del, ins, mark defaults */
+}
+.mermaid {
+    background: transparent;
+}
+* { box-sizing: border-box; }
+/* Defaults */
+:root {
+	--font-family: -apple-system, system-ui, sans-serif;
+	--font-family-monospace: Consolas, Menlo, Monaco, Andale Mono WT, Andale Mono, Lucida Console, Lucida Sans Typewriter, DejaVu Sans Mono, Bitstream Vera Sans Mono, Liberation Mono, Nimbus Mono L, Courier New, Courier, monospace;
+}
+
+/* Theme colors */
+:root {
+	--color-gray-20: #e0e0e0;
+	--color-gray-50: #C0C0C0;
+	--color-gray-90: #333;
+
+	--background-color: #fff;
+
+	--text-color: var(--color-gray-90);
+	--text-color-link: #082840;
+	--text-color-link-active: #5f2b48;
+	--text-color-link-visited: #17050F;
+
+	--syntax-tab-size: 2;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--color-gray-20: #e0e0e0;
+		--color-gray-50: #C0C0C0;
+		--color-gray-90: #dad8d8;
+
+		/* --text-color is assigned to --color-gray-_ above */
+		--text-color-link: #1493fb;
+		--text-color-link-active: #6969f7;
+		--text-color-link-visited: #a6a6f8;
+
+		--background-color: #15202b;
+	}
+}
+
+
+/* Global stylesheet */
+* {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	padding: 0;
+	margin: 0 auto;
+	font-family: var(--font-family);
+	color: var(--text-color);
+	background-color: var(--background-color);
+}
+html {
+	overflow-y: scroll;
+}
+body {
+	max-width: 40em;
+}
+
+/* https://www.a11yproject.com/posts/how-to-hide-content/ */
+.visually-hidden {
+	clip: rect(0 0 0 0);
+	clip-path: inset(50%);
+	height: 1px;
+	overflow: hidden;
+	position: absolute;
+	white-space: nowrap;
+	width: 1px;
+}
+
+p:last-child {
+	margin-bottom: 0;
+}
+p {
+	line-height: 1.5;
+}
+
+li {
+	line-height: 1.5;
+}
+
+a[href] {
+	color: var(--text-color-link);
+}
+a[href]:visited {
+	color: var(--text-color-link-visited);
+}
+a[href]:hover,
+a[href]:active {
+	color: var(--text-color-link-active);
+}
+
+main {
+	padding: 1rem;
+}
+main :first-child {
+	margin-top: 0;
+}
+
+header {
+	border-bottom: 1px dashed var(--color-gray-20);
+}
+header:after {
+	content: "";
+	display: table;
+	clear: both;
+}
+
+.links-nextprev {
+	list-style: none;
+	border-top: 1px dashed var(--color-gray-20);
+	padding: 1em 0;
+}
+table, table td, table th {
+	border: 1px solid;
+	border-collapse: collapse;
+}
+
+table {
+	margin: 1em 0;
+}
+table td,
+table th {
+	padding-right: 1em;
+}
+
+pre,
+code {
+	font-family: var(--font-family-monospace);
+	background: rgba(175,184,193,0.2);
+	padding: 0em .1em;
+}
+pre:not([class*="language-"]) {
+	margin: .5em 0;
+	line-height: 1.375; /* 22px /16 */
+	-moz-tab-size: var(--syntax-tab-size);
+	-o-tab-size: var(--syntax-tab-size);
+	tab-size: var(--syntax-tab-size);
+	-webkit-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+	direction: ltr;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+	word-break: normal;
+}
+
+
+/* Header */
+header {
+	display: flex;
+	gap: 1em .5em;
+	flex-wrap: wrap;
+	align-items: center;
+	padding: 1em;
+}
+.home-link {
+	font-size: 1em; /* 16px /16 */
+	font-weight: 700;
+	margin-right: 2em;
+}
+.home-link:link:not(:hover) {
+	text-decoration: none;
+}
+
+/* Nav */
+.nav {
+	display: flex;
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}
+.nav-item {
+	display: inline-block;
+	margin-right: 1em;
+}
+.nav-item a[href]:not(:hover) {
+	text-decoration: none;
+}
+.nav a[href][aria-current="page"] {
+	text-decoration: underline;
+}
+
+/* Posts list */
+.postlist {
+	list-style: none;
+	padding: 0;
+	padding-left: 1.5rem;
+}
+.postlist-item {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	counter-increment: start-from -1;
+	margin-bottom: 1em;
+}
+.postlist-item:before {
+	display: inline-block;
+	pointer-events: none;
+	content: "" counter(start-from, decimal-leading-zero) ". ";
+	line-height: 100%;
+	text-align: right;
+	margin-left: -1.5rem;
+}
+.postlist-date,
+.postlist-item:before {
+	font-size: 0.8125em; /* 13px /16 */
+	color: var(--color-gray-90);
+}
+.postlist-date {
+	word-spacing: -0.5px;
+}
+.postlist-link {
+	font-size: 1.1875em; /* 19px /16 */
+	font-weight: 700;
+	flex-basis: calc(100% - 1.5rem);
+	padding-left: .25em;
+	padding-right: .5em;
+	text-underline-position: from-font;
+	text-underline-offset: 0;
+	text-decoration-thickness: 1px;
+}
+.postlist-item-active .postlist-link {
+	font-weight: bold;
+}
+
+/* Tags */
+.post-tag {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	text-transform: capitalize;
+	font-style: italic;
+}
+.postlist-item > .post-tag {
+	align-self: center;
+}
+
+/* Tags list */
+.post-metadata {
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: .5em;
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+.post-metadata time {
+	margin-right: 1em;
+}
+
+/* Direct Links / Markdown Headers */
+.header-anchor {
+	text-decoration: none;
+	font-style: normal;
+	font-size: 1em;
+	margin-left: .1em;
+}
+a[href].header-anchor,
+a[href].header-anchor:visited {
+	color: transparent;
+}
+a[href].header-anchor:focus,
+a[href].header-anchor:hover {
+	text-decoration: underline;
+}
+a[href].header-anchor:focus,
+:hover > a[href].header-anchor {
+	color: #aaa;
+}
+
+h2 + .header-anchor {
+	font-size: 1.5em;
+}
+
+img {
+	max-width: 100%;
+}
+img[width] {
+	width: auto; /* Defer to max-width */
+}
+img[width][height] {
+	height: auto; /* Preserve aspect ratio */
+}
+
+blockquote {
+	background:		#f9f9f9;
+	border-left:	10px solid #ccc;
+	margin:			1.5em 10px;
+	padding:		.5em 10px;
+	quotes:			"\201C""\201D""\2018""\2019"; 
+}
+
+blockquote p {
+	display:		inline;
+}
+
+.toc{
+	margin-top: 20px !important;
+}</style>
+		<script type="module" async>import mermaid from "https://unpkg.com/mermaid@10/dist/mermaid.esm.min.mjs";document.addEventListener('DOMContentLoaded', mermaid.initialize({startOnLoad:true}));</script>		
+	</head>
+	<body>
+		<a href="#skip" class="visually-hidden">Skip to main content</a>
+
+		<header>
+			<a href="/" class="home-link">hhow09&#39;s Blog</a>
+			<nav>
+				<h2 class="visually-hidden">Top level navigation menu</h2>
+				<ul class="nav">
+					<li class="nav-item"><a href="/">Home</a></li>
+					<li class="nav-item"><a href="/blog/">Archive</a></li>
+					<li class="nav-item"><a href="/about/">About Me</a></li>
+					<li class="nav-item"><a href="/rss/">Feeds</a></li>
+				</ul>
+			</nav>
+		</header>
+
+		<main id="skip">
+			
+<h1>Protecting Replay Attack</h1>
+
+<ul class="post-metadata">
+	<li><time datetime="2024-12-22">22 December 2024</time></li>
+	<li><a href="/tags/web-security/" class="post-tag">web security</a></li>
+</ul>
+
+<aside style="margin-top:20px;">
+  <h3> Table Of Contents </h3>
+  <div class="toc" >
+        <ol><li><a href="#requirement">Requirement</a></li><li><a href="#approaches">Approaches</a></li><li><a href="#simple-solution-without-extra-cost-nonce">Simple solution without extra cost: Nonce</a></li><li><a href="#solution-i-used">Solution I used</a></li><li><a href="#reference">Reference</a></li></ol>
+      </div>
+  <hr>
+</aside>
+<article>
+  <h2 id="requirement" tabindex="-1">Requirement <a class="header-anchor" href="#requirement">#</a></h2>
+<ul>
+<li>public facing API with public client (e.g. mobile app, web app)</li>
+<li>bot intercepted the requests and replaying them</li>
+</ul>
+<h2 id="approaches" tabindex="-1">Approaches <a class="header-anchor" href="#approaches">#</a></h2>
+<ol>
+<li>IP rate limiting (extra cost)
+<ul>
+<li><a href="https://cloud.google.com/armor/docs/rate-limiting-overview">Google Cloud Armor</a></li>
+</ul>
+</li>
+<li>Enterprise solution (extra cost)
+<ul>
+<li><a href="https://aws.amazon.com/tw/waf/features/bot-control/">AWS WAF Bot Control</a></li>
+<li>Recaptcha</li>
+</ul>
+</li>
+<li><s>API key</s> (not safe for public client)</li>
+<li>nonce (with authentication)</li>
+</ol>
+<h2 id="simple-solution-without-extra-cost-nonce" tabindex="-1">Simple solution without extra cost: Nonce <a class="header-anchor" href="#simple-solution-without-extra-cost-nonce">#</a></h2>
+<blockquote>
+<p>The nonce helps to prove that the message received was sent by the intended sender and was not intercepted and resent by a bad actor.</p>
+</blockquote>
+<h3 id="how-to-choose-a-nonce" tabindex="-1">How to choose a nonce <a class="header-anchor" href="#how-to-choose-a-nonce">#</a></h3>
+<ol>
+<li>
+<p>Timestamp</p>
+<ul>
+<li>client use timestamp as nonce in the request</li>
+<li>server should verify the timestamp within a certain range</li>
+<li><strong>beware of client time skew</strong>
+<ul>
+<li>user could change the device time, therefore we could use <strong>timestamp returned from server</strong>.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>random number</p>
+<ul>
+<li>client generates a random number as nonce</li>
+<li>server checks the nonce is not used before</li>
+<li>cons: <strong>need to store nonce in server</strong> for some time (e.g. in cache)</li>
+</ul>
+</li>
+</ol>
+<h3 id="is-nonce-enough" tabindex="-1">Is nonce enough? <a class="header-anchor" href="#is-nonce-enough">#</a></h3>
+<p>using nonce without <strong>encryption</strong> or <strong>authentication</strong> is easy to be guessed by attacker.</p>
+<h3 id="encryption-authentication" tabindex="-1">Encryption / Authentication <a class="header-anchor" href="#encryption-authentication">#</a></h3>
+<ul>
+<li>either way is fine</li>
+<li>for authentication, <a href="https://www.okta.com/identity-101/hmac/">HMAC</a> is a good choice</li>
+<li>for encryption, <a href="https://en.wikipedia.org/wiki/Public-key_cryptography">asymmetric encryption</a> is a good choice <strong>for public client</strong>.</li>
+</ul>
+<h2 id="solution-i-used" tabindex="-1">Solution I used <a class="header-anchor" href="#solution-i-used">#</a></h2>
+<ol>
+<li>client has public key from server</li>
+<li>client receive <strong>timestamp</strong> from server as nonce</li>
+<li>client encrypt the nonce with public key and send to server</li>
+<li>server decrypt the nonce with private key and verify the timestamp within a certain range.</li>
+</ol>
+<h2 id="reference" tabindex="-1">Reference <a class="header-anchor" href="#reference">#</a></h2>
+<ul>
+<li><a href="https://www.reddit.com/r/ExperiencedDevs/comments/100iumt/how_to_prevent_the_public_rest_api_endpoints_from/">Reddit: How to prevent the public REST API endpoints from bot attacks? </a></li>
+<li><a href="https://www.okta.com/identity-101/nonce/">What Is a Cryptographic Nonce? Definition and Meaning</a></li>
+<li><a href="https://www.linkedin.com/advice/0/how-do-you-prevent-replay-attacks-when-using-hmac-authentication">How do you prevent replay attacks when using HMAC for authentication?</a></li>
+</ul>
+
+</article>
+<ul class="links-nextprev"><li>Previous: <a href="/blog/session-guarantees-for-weakly-consistent-replicated-data/">Session guarantees for weakly consistent replicated data</a></li>
+</ul>
+
+		</main>
+
+		<footer></footer>
+
+		<!-- Current page: /blog/protect_replay_attack/ -->
+	</body>
+</html>
