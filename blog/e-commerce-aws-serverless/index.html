@@ -3,8 +3,8 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>Protecting Replay Attack</title>
-		<meta name="description" content="protecting Replay Attack">
+		<title>E-commerce website with AWS Serverless</title>
+		<meta name="description" content="E-commerce website with AWS Serverless (Lambda, DynamoDB, S3, API Gateway)">
 		<meta name="google-site-verification" content="pV0LpMzGqiF5LrOEOtxdTzsIjD0Q6Zd3yXLXJstHuuQ" />
 		<link rel="alternate" href="/feed/feed.xml" type="application/atom+xml" title="hhow09&#39;s Blog">
 		<link rel="alternate" href="/feed/feed.json" type="application/json" title="hhow09&#39;s Blog">
@@ -501,99 +501,103 @@ blockquote p {
 
 		<main id="skip">
 			
-<h1>Protecting Replay Attack</h1>
+<h1>E-commerce website with AWS Serverless</h1>
 
 <ul class="post-metadata">
-	<li><time datetime="2024-12-22">22 December 2024</time></li>
-	<li><a href="/tags/web-security/" class="post-tag">web security</a></li>
+	<li><time datetime="2025-01-14">14 January 2025</time></li>
+	<li><a href="/tags/aws/" class="post-tag">aws</a>, </li>
+	<li><a href="/tags/application/" class="post-tag">application</a></li>
 </ul>
 
 <aside style="margin-top:20px;">
   <h3> Table Of Contents </h3>
   <div class="toc" >
-        <ol><li><a href="#requirement">Requirement</a></li><li><a href="#approaches">Approaches</a></li><li><a href="#simple-solution-without-extra-cost-nonce">Simple solution without extra cost: Nonce</a></li><li><a href="#solution-i-used">Solution I used</a></li><li><a href="#reference">Reference</a></li></ol>
+        <ol><li><a href="#website">Website</a></li><li><a href="#features">Features</a></li><li><a href="#tech-stack">Tech Stack</a></li><li><a href="#design-choice">Design Choice</a></li><li><a href="#architecture">Architecture</a></li><li><a href="#user-story">User Story</a></li></ol>
       </div>
   <hr>
 </aside>
 <article>
-  <h2 id="requirement" tabindex="-1">Requirement <a class="header-anchor" href="#requirement">#</a></h2>
-<ul>
-<li>public facing API with public client (e.g. mobile app, web app)</li>
-<li>bot intercepted the requests and replaying them</li>
-</ul>
-<h2 id="approaches" tabindex="-1">Approaches <a class="header-anchor" href="#approaches">#</a></h2>
-<ol>
-<li>IP rate limiting (extra cost)
-<ul>
-<li><a href="https://cloud.google.com/armor/docs/rate-limiting-overview">Google Cloud Armor</a></li>
-</ul>
-</li>
-<li>Enterprise solution (extra cost)
-<ul>
-<li><a href="https://aws.amazon.com/tw/waf/features/bot-control/">AWS WAF Bot Control</a></li>
-<li>Recaptcha</li>
-</ul>
-</li>
-<li><s>API key</s> (not safe for public client)</li>
-<li>nonce (with authentication)</li>
-</ol>
-<h2 id="simple-solution-without-extra-cost-nonce" tabindex="-1">Simple solution without extra cost: Nonce <a class="header-anchor" href="#simple-solution-without-extra-cost-nonce">#</a></h2>
+  <p>An overview of the e-commerce website with AWS Serverless stack developed by me.</p>
+<h2 id="website" tabindex="-1">Website <a class="header-anchor" href="#website">#</a></h2>
+<p><a href="https://www.avocadotaiwan.com/">https://www.avocadotaiwan.com/</a></p>
 <blockquote>
-<p>The nonce helps to prove that the message received was sent by the intended sender and was not intercepted and resent by a bad actor.</p>
+<p>It is running in production so I cannot share the source code. WIP on share the code template.</p>
 </blockquote>
-<h3 id="how-to-choose-a-nonce" tabindex="-1">How to choose a nonce <a class="header-anchor" href="#how-to-choose-a-nonce">#</a></h3>
+<h2 id="features" tabindex="-1">Features <a class="header-anchor" href="#features">#</a></h2>
+<ul>
+<li>User can order products and pay with credit card or ATM transfer.</li>
+<li>User can query the order status with order id on order query page.</li>
+<li>Owner can see the order status (<code>created</code>, <code>paid</code>, <code>shipped</code>) on admin page.</li>
+<li>Owner can configurable product, unitprice, website status with admin interface.</li>
+<li>Owner can query and manage order with admin interface.</li>
+</ul>
+<h2 id="tech-stack" tabindex="-1">Tech Stack <a class="header-anchor" href="#tech-stack">#</a></h2>
+<h3 id="backend-and-admin-service" tabindex="-1">Backend &amp; Admin Service <a class="header-anchor" href="#backend-and-admin-service">#</a></h3>
+<ul>
+<li>Written in Golang</li>
+<li>Hosted on <a href="https://aws.amazon.com/lambda/">AWS Lambda</a> for backend business logic.</li>
+<li>AWS <a href="https://aws.amazon.com/api-gateway/">API Gateway</a> for exposing Lambda as REST API.</li>
+<li>AWS <a href="https://aws.amazon.com/pm/dynamodb/">DynamoDB</a> as main database.</li>
+<li>AWS <a href="https://aws.amazon.com/s3/">S3</a> for website status and static contents</li>
+<li><a href="https://corp.ecpay.com.tw/ecpay_en/">ECPay</a> for payment integration supporting credit card and ATM transfer.</li>
+</ul>
+<h3 id="frontend" tabindex="-1">Frontend <a class="header-anchor" href="#frontend">#</a></h3>
+<ul>
+<li><a href="https://nextjs.org/">Next.js</a> (in Typescript) hosted on <a href="https://pages.cloudflare.com/">Cloudflare pages</a> with <a href="https://www.cloudflare.com/application-services/products/dns/">Cloudflare DNS</a></li>
+</ul>
+<h3 id="deployment" tabindex="-1">Deployment <a class="header-anchor" href="#deployment">#</a></h3>
+<ul>
+<li>Environment: <code>staging</code>/ <code>production</code></li>
+<li>Tool: <a href="https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html">AWS Serverless Application Model (AWS SAM)</a> for fully automated deployment.</li>
+</ul>
+<h2 id="design-choice" tabindex="-1">Design Choice <a class="header-anchor" href="#design-choice">#</a></h2>
 <ol>
-<li>
-<p>Timestamp</p>
+<li>Use <strong>AWS Lambda</strong> and <strong>API Gateway</strong> for API due to
 <ul>
-<li>client use timestamp as nonce in the request</li>
-<li>server should verify the timestamp within a certain range</li>
-<li><strong>beware of client time skew</strong>
-<ul>
-<li>user could change the device time, therefore we could use <strong>timestamp returned from server</strong>.</li>
+<li>cost saving for <strong>low RPS</strong> website</li>
+<li>low maintenance effort</li>
 </ul>
 </li>
+<li>Use <strong>AWS DynamoDB</strong> for database
+<ul>
+<li>choose NoSQL since there is no join between tables, only <code>order</code> table.</li>
+<li>choose DynamoDB since it is serverless and easy to scale.</li>
 </ul>
 </li>
-<li>
-<p>random number</p>
+<li>Use <strong>AWS S3</strong> for static contents and website status.
 <ul>
-<li>client generates a random number as nonce</li>
-<li>server checks the nonce is not used before</li>
-<li>cons: <strong>need to store nonce in server</strong> for some time (e.g. in cache)</li>
+<li>website status is for feature flag or announcement, which does not change frequently.</li>
+<li>static contents rarely change.</li>
+<li>Therefore leveraging <a href="https://docs.aws.amazon.com/whitepapers/latest/build-static-websites-aws/controlling-how-long-amazon-s3-content-is-cached-by-amazon-cloudfront.html">cache control</a> for performance and cost saving.</li>
+</ul>
+</li>
+<li>Use <strong>Next.js</strong> for <a href="https://nextjs.org/docs/pages/building-your-application/rendering/static-site-generation">Static Site Generation</a>
+<ul>
+<li>since SEO is important for e-commerce website and server side rendering is an overkill for this project.</li>
 </ul>
 </li>
 </ol>
-<h3 id="is-nonce-enough" tabindex="-1">Is nonce enough? <a class="header-anchor" href="#is-nonce-enough">#</a></h3>
-<p>using nonce without <strong>encryption</strong> or <strong>authentication</strong> is easy to be guessed by attacker.</p>
-<h3 id="encryption-authentication" tabindex="-1">Encryption / Authentication <a class="header-anchor" href="#encryption-authentication">#</a></h3>
-<ul>
-<li>either way is fine</li>
-<li>for authentication, <a href="https://www.okta.com/identity-101/hmac/">HMAC</a> is a good choice</li>
-<li>for encryption, <a href="https://en.wikipedia.org/wiki/Public-key_cryptography">asymmetric encryption</a> is a good choice <strong>for public client</strong>.</li>
-</ul>
-<h2 id="solution-i-used" tabindex="-1">Solution I used <a class="header-anchor" href="#solution-i-used">#</a></h2>
+<h2 id="architecture" tabindex="-1">Architecture <a class="header-anchor" href="#architecture">#</a></h2>
+<p>important steps are numbered and can be found in the diagram in next section.</p>
+<p><picture><source type="image/avif" srcset="/img/OtZCsUKIji-2633.avif 2633w"><source type="image/webp" srcset="/img/OtZCsUKIji-2633.webp 2633w"><img alt="Architecture Diagram" loading="lazy" decoding="async" src="/img/OtZCsUKIji-2633.png" width="2633" height="1941"></picture></p>
+<h2 id="user-story" tabindex="-1">User Story <a class="header-anchor" href="#user-story">#</a></h2>
+<h3 id="notes-on-payment-option" tabindex="-1">Notes on Payment Option <a class="header-anchor" href="#notes-on-payment-option">#</a></h3>
 <ol>
-<li>client has public key from server</li>
-<li>client receive <strong>timestamp</strong> from server as nonce</li>
-<li>client encrypt the nonce with public key and send to server</li>
-<li>server decrypt the nonce with private key and verify the timestamp within a certain range.</li>
+<li>Credit Card: ECPay will callback to backend with payment result, user immediately see the order status updated.</li>
+<li>ATM Transfer: ECPay will asynchronously callback to backend with payment result.</li>
+<li>Pay on Arrive: Payment is collected by logistics, owner can ship as long as order is created.</li>
 </ol>
-<h2 id="reference" tabindex="-1">Reference <a class="header-anchor" href="#reference">#</a></h2>
-<ul>
-<li><a href="https://www.reddit.com/r/ExperiencedDevs/comments/100iumt/how_to_prevent_the_public_rest_api_endpoints_from/">Reddit: How to prevent the public REST API endpoints from bot attacks? </a></li>
-<li><a href="https://www.okta.com/identity-101/nonce/">What Is a Cryptographic Nonce? Definition and Meaning</a></li>
-<li><a href="https://www.linkedin.com/advice/0/how-do-you-prevent-replay-attacks-when-using-hmac-authentication">How do you prevent replay attacks when using HMAC for authentication?</a></li>
-</ul>
+<h3 id="flow-diagram" tabindex="-1">Flow Diagram <a class="header-anchor" href="#flow-diagram">#</a></h3>
+<pre class="mermaid">sequenceDiagram&#10;    participant FE&#10;    participant BE&#10;    participant DB&#10;    participant S3&#10;    participant PaymentGateway&#10;    FE-&gt;&gt;+S3: [1] GET site status and products&#10;    S3--&gt;&gt;-FE: site status&#10;    alt Site Not available&#10;        Note Over FE: user flow END&#10;    else Site Available&#10;        Note Over FE: user browse products, fill in order form.&#10;        FE-&gt;&gt;+BE: [2] POST /order&#10;        BE-&gt;&gt;+DB: Save Order&#10;        alt Payment Method: [Pay on arrive]&#10;            BE--&gt;&gt;FE: Order ID&#10;            FE--&gt;&gt;+BE: [6] GET /order&#10;            BE--&gt;&gt;-FE: Order Result (shipment scheduled)&#10;            Note Over FE: [Pay on arrive] END&#10;        else Payment Method: [Online Payment (ECPay)]&#10;            BE--&gt;&gt;-FE: Redirection&#10;            Note Over FE: [4] redirect to payment gateway&#10;            alt Ecpay [Credit Card]&#10;                FE-&gt;&gt;PaymentGateway: User Payment&#10;                PaymentGateway-&gt;&gt;+BE: [5] Notify Order Payed&#10;                BE--&gt;&gt;DB: Update Order to Payed&#10;                BE--&gt;&gt;-PaymentGateway: OK&#10;            else Ecpay [ATM transfer] (part 1)&#10;                rect rgb(191, 223, 255)&#10;                    PaymentGateway--&gt;&gt;FE: Display ATM payment Info&#10;                    Note Over FE: continue at Ecpay [ATM transfer] (part 2)&#10;                end&#10;            end&#10;            PaymentGateway--&gt;&gt;FE: redirect result page&#10;            Note Over FE: User redirected to show result page (with orderId)&#10;            FE-&gt;&gt;+BE: [6] GET /order&#10;            BE--&gt;&gt;-FE: Order&#10;            alt Ecpay [Credit Card]&#10;                Note Over FE: Display payment result&#10;            else Ecpay [ATM transfer] (part 1)&#10;                Note Over FE: Wait for ATM payment&#10;            end&#10;            Note Over FE: user flow END&#10;        end&#10;&#10;        Note Over FE, PaymentGateway: ASYNC&#10;&#10;        alt Ecpay [ATM transfer] (part 2)&#10;            rect rgb(191, 223, 255)&#10;                Note Over PaymentGateway: User Payed&#10;                PaymentGateway-&gt;&gt;+BE: Order Payed&#10;                BE--&gt;&gt;DB: Update Order Payed&#10;                BE--&gt;&gt;-PaymentGateway: OK&#10;            end&#10;            Note Over FE: Ecpay [ATM transfer] END&#10;        end&#10;    end&#10;</pre>
 
 </article>
-<ul class="links-nextprev"><li>Previous: <a href="/blog/session-guarantees-for-weakly-consistent-replicated-data/">Session guarantees for weakly consistent replicated data</a></li><li>Next: <a href="/blog/e-commerce-aws-serverless/">E-commerce website with AWS Serverless</a></li>
+<ul class="links-nextprev"><li>Previous: <a href="/blog/protect_replay_attack/">Protecting Replay Attack</a></li>
 </ul>
 
 		</main>
 
 		<footer></footer>
 
-		<!-- Current page: /blog/protect_replay_attack/ -->
+		<!-- Current page: /blog/e-commerce-aws-serverless/ -->
 	</body>
 </html>

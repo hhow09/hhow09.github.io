@@ -4,12 +4,92 @@
 	<subtitle>sofware engineering stuff</subtitle>
 	<link href="https://hhow09.github.io/feed/feed.xml" rel="self"/>
 	<link href="https://hhow09.github.io/"/>
-	<updated>2024-12-22T00:00:00Z</updated>
+	<updated>2025-01-14T00:00:00Z</updated>
 	<id>https://hhow09.github.io/</id>
 	<author>
 		<name>HH</name>
 		<email>hhow09@gmail.com</email>
 	</author>
+	
+	<entry>
+		<title>E-commerce website with AWS Serverless</title>
+		<link href="https://hhow09.github.io/blog/e-commerce-aws-serverless/"/>
+		<updated>2025-01-14T00:00:00Z</updated>
+		<id>https://hhow09.github.io/blog/e-commerce-aws-serverless/</id>
+		<content type="html">&lt;p&gt;An overview of the e-commerce website with AWS Serverless stack developed by me.&lt;/p&gt;
+&lt;h2 id=&quot;website&quot; tabindex=&quot;-1&quot;&gt;Website &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/e-commerce-aws-serverless/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;&lt;a href=&quot;https://www.avocadotaiwan.com/&quot;&gt;https://www.avocadotaiwan.com/&lt;/a&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;It is running in production so I cannot share the source code. WIP on share the code template.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;features&quot; tabindex=&quot;-1&quot;&gt;Features &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/e-commerce-aws-serverless/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;User can order products and pay with credit card or ATM transfer.&lt;/li&gt;
+&lt;li&gt;User can query the order status with order id on order query page.&lt;/li&gt;
+&lt;li&gt;Owner can see the order status (&lt;code&gt;created&lt;/code&gt;, &lt;code&gt;paid&lt;/code&gt;, &lt;code&gt;shipped&lt;/code&gt;) on admin page.&lt;/li&gt;
+&lt;li&gt;Owner can configurable product, unitprice, website status with admin interface.&lt;/li&gt;
+&lt;li&gt;Owner can query and manage order with admin interface.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;tech-stack&quot; tabindex=&quot;-1&quot;&gt;Tech Stack &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/e-commerce-aws-serverless/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;h3 id=&quot;backend-and-admin-service&quot; tabindex=&quot;-1&quot;&gt;Backend &amp;amp; Admin Service &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/e-commerce-aws-serverless/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Written in Golang&lt;/li&gt;
+&lt;li&gt;Hosted on &lt;a href=&quot;https://aws.amazon.com/lambda/&quot;&gt;AWS Lambda&lt;/a&gt; for backend business logic.&lt;/li&gt;
+&lt;li&gt;AWS &lt;a href=&quot;https://aws.amazon.com/api-gateway/&quot;&gt;API Gateway&lt;/a&gt; for exposing Lambda as REST API.&lt;/li&gt;
+&lt;li&gt;AWS &lt;a href=&quot;https://aws.amazon.com/pm/dynamodb/&quot;&gt;DynamoDB&lt;/a&gt; as main database.&lt;/li&gt;
+&lt;li&gt;AWS &lt;a href=&quot;https://aws.amazon.com/s3/&quot;&gt;S3&lt;/a&gt; for website status and static contents&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://corp.ecpay.com.tw/ecpay_en/&quot;&gt;ECPay&lt;/a&gt; for payment integration supporting credit card and ATM transfer.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&quot;frontend&quot; tabindex=&quot;-1&quot;&gt;Frontend &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/e-commerce-aws-serverless/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://nextjs.org/&quot;&gt;Next.js&lt;/a&gt; (in Typescript) hosted on &lt;a href=&quot;https://pages.cloudflare.com/&quot;&gt;Cloudflare pages&lt;/a&gt; with &lt;a href=&quot;https://www.cloudflare.com/application-services/products/dns/&quot;&gt;Cloudflare DNS&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&quot;deployment&quot; tabindex=&quot;-1&quot;&gt;Deployment &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/e-commerce-aws-serverless/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Environment: &lt;code&gt;staging&lt;/code&gt;/ &lt;code&gt;production&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Tool: &lt;a href=&quot;https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html&quot;&gt;AWS Serverless Application Model (AWS SAM)&lt;/a&gt; for fully automated deployment.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;design-choice&quot; tabindex=&quot;-1&quot;&gt;Design Choice &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/e-commerce-aws-serverless/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;Use &lt;strong&gt;AWS Lambda&lt;/strong&gt; and &lt;strong&gt;API Gateway&lt;/strong&gt; for API due to
+&lt;ul&gt;
+&lt;li&gt;cost saving for &lt;strong&gt;low RPS&lt;/strong&gt; website&lt;/li&gt;
+&lt;li&gt;low maintenance effort&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Use &lt;strong&gt;AWS DynamoDB&lt;/strong&gt; for database
+&lt;ul&gt;
+&lt;li&gt;choose NoSQL since there is no join between tables, only &lt;code&gt;order&lt;/code&gt; table.&lt;/li&gt;
+&lt;li&gt;choose DynamoDB since it is serverless and easy to scale.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Use &lt;strong&gt;AWS S3&lt;/strong&gt; for static contents and website status.
+&lt;ul&gt;
+&lt;li&gt;website status is for feature flag or announcement, which does not change frequently.&lt;/li&gt;
+&lt;li&gt;static contents rarely change.&lt;/li&gt;
+&lt;li&gt;Therefore leveraging &lt;a href=&quot;https://docs.aws.amazon.com/whitepapers/latest/build-static-websites-aws/controlling-how-long-amazon-s3-content-is-cached-by-amazon-cloudfront.html&quot;&gt;cache control&lt;/a&gt; for performance and cost saving.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Use &lt;strong&gt;Next.js&lt;/strong&gt; for &lt;a href=&quot;https://nextjs.org/docs/pages/building-your-application/rendering/static-site-generation&quot;&gt;Static Site Generation&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;since SEO is important for e-commerce website and server side rendering is an overkill for this project.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&quot;architecture&quot; tabindex=&quot;-1&quot;&gt;Architecture &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/e-commerce-aws-serverless/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;important steps are numbered and can be found in the diagram in next section.&lt;/p&gt;
+&lt;p&gt;&lt;picture&gt;&lt;source type=&quot;image/avif&quot; srcset=&quot;https://hhow09.github.io/img/OtZCsUKIji-2633.avif 2633w&quot;&gt;&lt;source type=&quot;image/webp&quot; srcset=&quot;https://hhow09.github.io/img/OtZCsUKIji-2633.webp 2633w&quot;&gt;&lt;img alt=&quot;Architecture Diagram&quot; loading=&quot;lazy&quot; decoding=&quot;async&quot; src=&quot;https://hhow09.github.io/img/OtZCsUKIji-2633.png&quot; width=&quot;2633&quot; height=&quot;1941&quot;&gt;&lt;/picture&gt;&lt;/p&gt;
+&lt;h2 id=&quot;user-story&quot; tabindex=&quot;-1&quot;&gt;User Story &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/e-commerce-aws-serverless/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;h3 id=&quot;notes-on-payment-option&quot; tabindex=&quot;-1&quot;&gt;Notes on Payment Option &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/e-commerce-aws-serverless/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;Credit Card: ECPay will callback to backend with payment result, user immediately see the order status updated.&lt;/li&gt;
+&lt;li&gt;ATM Transfer: ECPay will asynchronously callback to backend with payment result.&lt;/li&gt;
+&lt;li&gt;Pay on Arrive: Payment is collected by logistics, owner can ship as long as order is created.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&quot;flow-diagram&quot; tabindex=&quot;-1&quot;&gt;Flow Diagram &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/e-commerce-aws-serverless/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;pre class=&quot;mermaid&quot;&gt;sequenceDiagram&amp;#10;    participant FE&amp;#10;    participant BE&amp;#10;    participant DB&amp;#10;    participant S3&amp;#10;    participant PaymentGateway&amp;#10;    FE-&amp;gt;&amp;gt;+S3: [1] GET site status and products&amp;#10;    S3--&amp;gt;&amp;gt;-FE: site status&amp;#10;    alt Site Not available&amp;#10;        Note Over FE: user flow END&amp;#10;    else Site Available&amp;#10;        Note Over FE: user browse products, fill in order form.&amp;#10;        FE-&amp;gt;&amp;gt;+BE: [2] POST /order&amp;#10;        BE-&amp;gt;&amp;gt;+DB: Save Order&amp;#10;        alt Payment Method: [Pay on arrive]&amp;#10;            BE--&amp;gt;&amp;gt;FE: Order ID&amp;#10;            FE--&amp;gt;&amp;gt;+BE: [6] GET /order&amp;#10;            BE--&amp;gt;&amp;gt;-FE: Order Result (shipment scheduled)&amp;#10;            Note Over FE: [Pay on arrive] END&amp;#10;        else Payment Method: [Online Payment (ECPay)]&amp;#10;            BE--&amp;gt;&amp;gt;-FE: Redirection&amp;#10;            Note Over FE: [4] redirect to payment gateway&amp;#10;            alt Ecpay [Credit Card]&amp;#10;                FE-&amp;gt;&amp;gt;PaymentGateway: User Payment&amp;#10;                PaymentGateway-&amp;gt;&amp;gt;+BE: [5] Notify Order Payed&amp;#10;                BE--&amp;gt;&amp;gt;DB: Update Order to Payed&amp;#10;                BE--&amp;gt;&amp;gt;-PaymentGateway: OK&amp;#10;            else Ecpay [ATM transfer] (part 1)&amp;#10;                rect rgb(191, 223, 255)&amp;#10;                    PaymentGateway--&amp;gt;&amp;gt;FE: Display ATM payment Info&amp;#10;                    Note Over FE: continue at Ecpay [ATM transfer] (part 2)&amp;#10;                end&amp;#10;            end&amp;#10;            PaymentGateway--&amp;gt;&amp;gt;FE: redirect result page&amp;#10;            Note Over FE: User redirected to show result page (with orderId)&amp;#10;            FE-&amp;gt;&amp;gt;+BE: [6] GET /order&amp;#10;            BE--&amp;gt;&amp;gt;-FE: Order&amp;#10;            alt Ecpay [Credit Card]&amp;#10;                Note Over FE: Display payment result&amp;#10;            else Ecpay [ATM transfer] (part 1)&amp;#10;                Note Over FE: Wait for ATM payment&amp;#10;            end&amp;#10;            Note Over FE: user flow END&amp;#10;        end&amp;#10;&amp;#10;        Note Over FE, PaymentGateway: ASYNC&amp;#10;&amp;#10;        alt Ecpay [ATM transfer] (part 2)&amp;#10;            rect rgb(191, 223, 255)&amp;#10;                Note Over PaymentGateway: User Payed&amp;#10;                PaymentGateway-&amp;gt;&amp;gt;+BE: Order Payed&amp;#10;                BE--&amp;gt;&amp;gt;DB: Update Order Payed&amp;#10;                BE--&amp;gt;&amp;gt;-PaymentGateway: OK&amp;#10;            end&amp;#10;            Note Over FE: Ecpay [ATM transfer] END&amp;#10;        end&amp;#10;    end&amp;#10;&lt;/pre&gt;
+</content>
+	</entry>
 	
 	<entry>
 		<title>Protecting Replay Attack</title>
