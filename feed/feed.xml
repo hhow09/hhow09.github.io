@@ -47,7 +47,11 @@
 &lt;h3 id=&quot;deployment&quot; tabindex=&quot;-1&quot;&gt;Deployment &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/e-commerce-aws-serverless/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
 &lt;ul&gt;
 &lt;li&gt;Environment: &lt;code&gt;staging&lt;/code&gt;/ &lt;code&gt;production&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;Tool: &lt;a href=&quot;https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html&quot;&gt;AWS Serverless Application Model (AWS SAM)&lt;/a&gt; for fully automated deployment.&lt;/li&gt;
+&lt;li&gt;Tool: &lt;a href=&quot;https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html&quot;&gt;AWS Serverless Application Model (AWS SAM)&lt;/a&gt; for fully automated deployment.
+&lt;ul&gt;
+&lt;li&gt;template is shown in &lt;a href=&quot;https://hhow09.github.io/blog/e-commerce-aws-serverless/&quot;&gt;AWS SAM Template&lt;/a&gt; section.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h2 id=&quot;design-choice&quot; tabindex=&quot;-1&quot;&gt;Design Choice &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/e-commerce-aws-serverless/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;ol&gt;
@@ -88,6 +92,187 @@
 &lt;/ol&gt;
 &lt;h3 id=&quot;flow-diagram&quot; tabindex=&quot;-1&quot;&gt;Flow Diagram &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/e-commerce-aws-serverless/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
 &lt;pre class=&quot;mermaid&quot;&gt;sequenceDiagram&amp;#10;    participant FE&amp;#10;    participant BE&amp;#10;    participant DB&amp;#10;    participant S3&amp;#10;    participant PaymentGateway&amp;#10;    FE-&amp;gt;&amp;gt;+S3: [1] GET site status and products&amp;#10;    S3--&amp;gt;&amp;gt;-FE: site status&amp;#10;    alt Site Not available&amp;#10;        Note Over FE: user flow END&amp;#10;    else Site Available&amp;#10;        Note Over FE: user browse products, fill in order form.&amp;#10;        FE-&amp;gt;&amp;gt;+BE: [2] POST /order&amp;#10;        BE-&amp;gt;&amp;gt;+DB: Save Order&amp;#10;        alt Payment Method: [Pay on arrive]&amp;#10;            BE--&amp;gt;&amp;gt;FE: Order ID&amp;#10;            FE--&amp;gt;&amp;gt;+BE: [6] GET /order&amp;#10;            BE--&amp;gt;&amp;gt;-FE: Order Result (shipment scheduled)&amp;#10;            Note Over FE: [Pay on arrive] END&amp;#10;        else Payment Method: [Online Payment (ECPay)]&amp;#10;            BE--&amp;gt;&amp;gt;-FE: Redirection&amp;#10;            Note Over FE: [4] redirect to payment gateway&amp;#10;            alt Ecpay [Credit Card]&amp;#10;                FE-&amp;gt;&amp;gt;PaymentGateway: User Payment&amp;#10;                PaymentGateway-&amp;gt;&amp;gt;+BE: [5] Notify Order Payed&amp;#10;                BE--&amp;gt;&amp;gt;DB: Update Order to Payed&amp;#10;                BE--&amp;gt;&amp;gt;-PaymentGateway: OK&amp;#10;            else Ecpay [ATM transfer] (part 1)&amp;#10;                rect rgb(191, 223, 255)&amp;#10;                    PaymentGateway--&amp;gt;&amp;gt;FE: Display ATM payment Info&amp;#10;                    Note Over FE: continue at Ecpay [ATM transfer] (part 2)&amp;#10;                end&amp;#10;            end&amp;#10;            PaymentGateway--&amp;gt;&amp;gt;FE: redirect result page&amp;#10;            Note Over FE: User redirected to show result page (with orderId)&amp;#10;            FE-&amp;gt;&amp;gt;+BE: [6] GET /order&amp;#10;            BE--&amp;gt;&amp;gt;-FE: Order&amp;#10;            alt Ecpay [Credit Card]&amp;#10;                Note Over FE: Display payment result&amp;#10;            else Ecpay [ATM transfer] (part 1)&amp;#10;                Note Over FE: Wait for ATM payment&amp;#10;            end&amp;#10;            Note Over FE: user flow END&amp;#10;        end&amp;#10;&amp;#10;        Note Over FE, PaymentGateway: ASYNC&amp;#10;&amp;#10;        alt Ecpay [ATM transfer] (part 2)&amp;#10;            rect rgb(191, 223, 255)&amp;#10;                Note Over PaymentGateway: User Payed&amp;#10;                PaymentGateway-&amp;gt;&amp;gt;+BE: Order Payed&amp;#10;                BE--&amp;gt;&amp;gt;DB: Update Order Payed&amp;#10;                BE--&amp;gt;&amp;gt;-PaymentGateway: OK&amp;#10;            end&amp;#10;            Note Over FE: Ecpay [ATM transfer] END&amp;#10;        end&amp;#10;    end&amp;#10;&lt;/pre&gt;
+&lt;h2 id=&quot;aws-sam-template&quot; tabindex=&quot;-1&quot;&gt;&lt;a href=&quot;https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html&quot;&gt;AWS SAM&lt;/a&gt; Template &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/e-commerce-aws-serverless/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;pre class=&quot;language-yaml&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-yaml&quot;&gt;&lt;span class=&quot;token key atrule&quot;&gt;AWSTemplateFormatVersion&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;2010-09-09&quot;&lt;/span&gt;
+&lt;span class=&quot;token key atrule&quot;&gt;Transform&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; AWS&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;Serverless&lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;token datetime number&quot;&gt;2016-10-31&lt;/span&gt;
+
+&lt;span class=&quot;token key atrule&quot;&gt;Parameters&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;token comment&quot;&gt;# environment&lt;/span&gt;
+  &lt;span class=&quot;token key atrule&quot;&gt;Env&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;token key atrule&quot;&gt;Type&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; String
+    &lt;span class=&quot;token key atrule&quot;&gt;Default&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; prod
+    &lt;span class=&quot;token key atrule&quot;&gt;AllowedValues&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt; prod
+      &lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt; stag
+    &lt;span class=&quot;token key atrule&quot;&gt;Description&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; env
+  &lt;span class=&quot;token comment&quot;&gt;# API Gateway ID&lt;/span&gt;
+  &lt;span class=&quot;token key atrule&quot;&gt;ApiID&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;token key atrule&quot;&gt;Type&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; String
+    &lt;span class=&quot;token key atrule&quot;&gt;Description&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; API ID
+
+&lt;span class=&quot;token key atrule&quot;&gt;Globals&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;token key atrule&quot;&gt;Function&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;token key atrule&quot;&gt;MemorySize&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;128&lt;/span&gt;
+    &lt;span class=&quot;token key atrule&quot;&gt;Architectures&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;arm64&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;
+    &lt;span class=&quot;token key atrule&quot;&gt;Handler&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; bootstrap
+    &lt;span class=&quot;token key atrule&quot;&gt;Runtime&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; provided.al2
+    &lt;span class=&quot;token key atrule&quot;&gt;Timeout&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;5&lt;/span&gt;
+    &lt;span class=&quot;token key atrule&quot;&gt;Tracing&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; Active
+    &lt;span class=&quot;token key atrule&quot;&gt;Environment&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;token key atrule&quot;&gt;Variables&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;token key atrule&quot;&gt;ENV&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token tag&quot;&gt;!Ref&lt;/span&gt; Env
+        &lt;span class=&quot;token key atrule&quot;&gt;TABLE_ORDER&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token tag&quot;&gt;!Join&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&#39;-&#39;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt; &amp;lt;table&lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt;name&lt;span class=&quot;token punctuation&quot;&gt;&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token tag&quot;&gt;!Ref&lt;/span&gt; Env&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;
+        &lt;span class=&quot;token key atrule&quot;&gt;API_ENDPOINT&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token tag&quot;&gt;!Join&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&#39;&#39;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt; https&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;//&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token tag&quot;&gt;!Ref&lt;/span&gt; ApiID&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; .execute&lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt;api. &lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token tag&quot;&gt;!Ref&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;AWS::Region&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; .amazonaws.com&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;token comment&quot;&gt;# edit 2nd parameter&lt;/span&gt;
+        &lt;span class=&quot;token key atrule&quot;&gt;LOG_DYNAMODB_REQ&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token boolean important&quot;&gt;false&lt;/span&gt;
+        &lt;span class=&quot;token key atrule&quot;&gt;S3URL&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &amp;lt;bucket&lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt;name&lt;span class=&quot;token punctuation&quot;&gt;&gt;&lt;/span&gt;.s3.amazonaws.com
+
+&lt;span class=&quot;token key atrule&quot;&gt;Resources&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;token key atrule&quot;&gt;Api&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;token comment&quot;&gt;# API Gateway&lt;/span&gt;
+    &lt;span class=&quot;token comment&quot;&gt;# https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-httpapi.html&lt;/span&gt;
+    &lt;span class=&quot;token key atrule&quot;&gt;Type&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; AWS&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;Serverless&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;HttpApi
+    &lt;span class=&quot;token key atrule&quot;&gt;Properties&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;token key atrule&quot;&gt;CorsConfiguration&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;token key atrule&quot;&gt;AllowOrigins&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+          &lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;*&quot;&lt;/span&gt;
+        &lt;span class=&quot;token key atrule&quot;&gt;AllowMethods&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; 
+          &lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt; GET
+          &lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt; POST
+          &lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt; OPTIONS
+        &lt;span class=&quot;token key atrule&quot;&gt;AllowHeaders&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+          &lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt; Content&lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt;Type
+          &lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt; Accept
+          &lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt; Access&lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt;Control&lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt;Allow&lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt;Headers
+          &lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt; Access&lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt;Control&lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt;Request&lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt;Method
+          &lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt; Access&lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt;Control&lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt;Request&lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt;Headers
+          &lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt; Authorization
+  
+  &lt;span class=&quot;token comment&quot;&gt;# Lambda ping handler&lt;/span&gt;
+  &lt;span class=&quot;token key atrule&quot;&gt;RootFunction&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;token key atrule&quot;&gt;Type&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; AWS&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;Serverless&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;Function
+    &lt;span class=&quot;token key atrule&quot;&gt;Properties&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;token key atrule&quot;&gt;CodeUri&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; functions/root/
+      &lt;span class=&quot;token key atrule&quot;&gt;Events&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;token key atrule&quot;&gt;Api&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+          &lt;span class=&quot;token key atrule&quot;&gt;Type&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; HttpApi
+          &lt;span class=&quot;token key atrule&quot;&gt;Properties&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;token key atrule&quot;&gt;Path&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; /
+            &lt;span class=&quot;token key atrule&quot;&gt;Method&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; GET
+            &lt;span class=&quot;token key atrule&quot;&gt;ApiId&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token tag&quot;&gt;!Ref&lt;/span&gt; Api            
+    &lt;span class=&quot;token key atrule&quot;&gt;Metadata&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;token key atrule&quot;&gt;BuildMethod&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; makefile
+
+  &lt;span class=&quot;token comment&quot;&gt;# Lambda get order handler&lt;/span&gt;
+  &lt;span class=&quot;token key atrule&quot;&gt;GetOrderFunction&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;token key atrule&quot;&gt;Type&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; AWS&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;Serverless&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;Function
+    &lt;span class=&quot;token key atrule&quot;&gt;Properties&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;token key atrule&quot;&gt;CodeUri&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; functions/get&lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt;order/
+      &lt;span class=&quot;token key atrule&quot;&gt;Events&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;token key atrule&quot;&gt;Api&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+          &lt;span class=&quot;token key atrule&quot;&gt;Type&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; HttpApi
+          &lt;span class=&quot;token key atrule&quot;&gt;Properties&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;token key atrule&quot;&gt;Path&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; /order
+            &lt;span class=&quot;token key atrule&quot;&gt;Method&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; GET
+            &lt;span class=&quot;token key atrule&quot;&gt;ApiId&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token tag&quot;&gt;!Ref&lt;/span&gt; Api
+      &lt;span class=&quot;token key atrule&quot;&gt;Policies&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;token key atrule&quot;&gt;Version&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;2012-10-17&quot;&lt;/span&gt;
+          &lt;span class=&quot;token key atrule&quot;&gt;Statement&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;token key atrule&quot;&gt;Effect&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; Allow
+              &lt;span class=&quot;token key atrule&quot;&gt;Action&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; dynamodb&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;GetItem
+              &lt;span class=&quot;token key atrule&quot;&gt;Resource&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token tag&quot;&gt;!GetAtt&lt;/span&gt; OrdersTable.Arn
+            &lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;token key atrule&quot;&gt;Effect&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; Allow
+              &lt;span class=&quot;token key atrule&quot;&gt;Action&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; dynamodb&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;Scan
+              &lt;span class=&quot;token key atrule&quot;&gt;Resource&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token tag&quot;&gt;!GetAtt&lt;/span&gt; OrdersTable.Arn
+            &lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;token key atrule&quot;&gt;Effect&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; Allow
+              &lt;span class=&quot;token key atrule&quot;&gt;Action&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; dynamodb&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;Query
+              &lt;span class=&quot;token key atrule&quot;&gt;Resource&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; 
+                &lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;token tag&quot;&gt;!GetAtt&lt;/span&gt; OrdersTable.Arn
+                &lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;token tag&quot;&gt;!Join&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&#39;&#39;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt; &lt;span class=&quot;token tag&quot;&gt;!GetAtt&lt;/span&gt; OrdersTable.Arn&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; /index/*&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;token comment&quot;&gt;# index&lt;/span&gt;
+    &lt;span class=&quot;token key atrule&quot;&gt;Metadata&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;token key atrule&quot;&gt;BuildMethod&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; makefile
+
+  &lt;span class=&quot;token comment&quot;&gt;# post order handler&lt;/span&gt;
+  &lt;span class=&quot;token key atrule&quot;&gt;PostOrderFunction&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;token key atrule&quot;&gt;Type&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; AWS&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;Serverless&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;Function
+    &lt;span class=&quot;token key atrule&quot;&gt;Properties&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;token key atrule&quot;&gt;CodeUri&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; functions/post&lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt;order/
+      &lt;span class=&quot;token key atrule&quot;&gt;Events&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;token key atrule&quot;&gt;Api&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+          &lt;span class=&quot;token key atrule&quot;&gt;Type&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; HttpApi
+          &lt;span class=&quot;token key atrule&quot;&gt;Properties&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;token key atrule&quot;&gt;Path&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; /order
+            &lt;span class=&quot;token key atrule&quot;&gt;Method&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; POST
+            &lt;span class=&quot;token key atrule&quot;&gt;ApiId&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token tag&quot;&gt;!Ref&lt;/span&gt; Api            
+      &lt;span class=&quot;token key atrule&quot;&gt;Policies&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;token key atrule&quot;&gt;Version&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;2012-10-17&quot;&lt;/span&gt;
+          &lt;span class=&quot;token key atrule&quot;&gt;Statement&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;token key atrule&quot;&gt;Effect&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; Allow
+              &lt;span class=&quot;token key atrule&quot;&gt;Action&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; dynamodb&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;PutItem
+              &lt;span class=&quot;token key atrule&quot;&gt;Resource&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token tag&quot;&gt;!GetAtt&lt;/span&gt; OrdersTable.Arn
+    &lt;span class=&quot;token key atrule&quot;&gt;Metadata&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;token key atrule&quot;&gt;BuildMethod&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; makefile
+
+  &lt;span class=&quot;token comment&quot;&gt;# payment callback handler&lt;/span&gt;
+  &lt;span class=&quot;token key atrule&quot;&gt;EcpayFunction&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;token key atrule&quot;&gt;Type&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; AWS&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;Serverless&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;Function
+    &lt;span class=&quot;token key atrule&quot;&gt;Properties&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;token key atrule&quot;&gt;CodeUri&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; functions/ecpay&lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt;order/
+      &lt;span class=&quot;token key atrule&quot;&gt;Events&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;token key atrule&quot;&gt;Api&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+          &lt;span class=&quot;token key atrule&quot;&gt;Type&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; HttpApi
+          &lt;span class=&quot;token key atrule&quot;&gt;Properties&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;token key atrule&quot;&gt;Path&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; /ecpay
+            &lt;span class=&quot;token key atrule&quot;&gt;Method&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; POST
+            &lt;span class=&quot;token key atrule&quot;&gt;ApiId&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token tag&quot;&gt;!Ref&lt;/span&gt; Api            
+      &lt;span class=&quot;token key atrule&quot;&gt;Policies&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;token key atrule&quot;&gt;Version&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;2012-10-17&quot;&lt;/span&gt;
+          &lt;span class=&quot;token key atrule&quot;&gt;Statement&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;token key atrule&quot;&gt;Effect&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; Allow
+              &lt;span class=&quot;token key atrule&quot;&gt;Action&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; dynamodb&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;UpdateItem
+              &lt;span class=&quot;token key atrule&quot;&gt;Resource&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token tag&quot;&gt;!GetAtt&lt;/span&gt; OrdersTable.Arn
+    &lt;span class=&quot;token key atrule&quot;&gt;Metadata&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;token key atrule&quot;&gt;BuildMethod&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; makefile      
+
+  &lt;span class=&quot;token key atrule&quot;&gt;OrdersTable&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;token key atrule&quot;&gt;Type&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; AWS&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;DynamoDB&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;Table
+    &lt;span class=&quot;token key atrule&quot;&gt;Properties&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;token key atrule&quot;&gt;TableName&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token tag&quot;&gt;!Join&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&#39;-&#39;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt; &amp;lt;table&lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt;name&lt;span class=&quot;token punctuation&quot;&gt;&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token tag&quot;&gt;!Ref&lt;/span&gt; Env&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;
+      &lt;span class=&quot;token key atrule&quot;&gt;AttributeDefinitions&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;token key atrule&quot;&gt;AttributeName&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; ordertype
+          &lt;span class=&quot;token key atrule&quot;&gt;AttributeType&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; S
+        &lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;token key atrule&quot;&gt;AttributeName&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; idsk
+          &lt;span class=&quot;token key atrule&quot;&gt;AttributeType&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; N
+        &lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;token key atrule&quot;&gt;AttributeName&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; phone
+          &lt;span class=&quot;token key atrule&quot;&gt;AttributeType&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; S
+      &lt;span class=&quot;token key atrule&quot;&gt;KeySchema&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;token comment&quot;&gt;# the partition key&lt;/span&gt;
+        &lt;span class=&quot;token comment&quot;&gt;# https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/bp-partition-key-design.html&lt;/span&gt;
+        &lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;token key atrule&quot;&gt;AttributeName&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; ordertype
+          &lt;span class=&quot;token key atrule&quot;&gt;KeyType&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; HASH
+        &lt;span class=&quot;token comment&quot;&gt;# the sort key, essentially a timestamp&lt;/span&gt;
+        &lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;token key atrule&quot;&gt;AttributeName&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; idsk
+          &lt;span class=&quot;token key atrule&quot;&gt;KeyType&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; RANGE          
+      &lt;span class=&quot;token key atrule&quot;&gt;BillingMode&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; PAY_PER_REQUEST
+      &lt;span class=&quot;token key atrule&quot;&gt;LocalSecondaryIndexes&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;token comment&quot;&gt;# local secondary index&lt;/span&gt;
+        &lt;span class=&quot;token comment&quot;&gt;# user can query order by phone number&lt;/span&gt;
+        &lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;token key atrule&quot;&gt;IndexName&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; lsi&lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt;phone
+          &lt;span class=&quot;token key atrule&quot;&gt;KeySchema&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;token key atrule&quot;&gt;AttributeName&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; ordertype
+              &lt;span class=&quot;token key atrule&quot;&gt;KeyType&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; HASH
+            &lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;token key atrule&quot;&gt;AttributeName&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; phone
+              &lt;span class=&quot;token key atrule&quot;&gt;KeyType&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; RANGE
+          &lt;span class=&quot;token key atrule&quot;&gt;Projection&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;token key atrule&quot;&gt;ProjectionType&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; ALL
+
+&lt;span class=&quot;token key atrule&quot;&gt;Outputs&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;token key atrule&quot;&gt;ApiUrl&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;token key atrule&quot;&gt;Description&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;API Gateway endpoint URL&quot;&lt;/span&gt;
+    &lt;span class=&quot;token key atrule&quot;&gt;Value&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token tag&quot;&gt;!Sub&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;https://${Api}.execute-api.${AWS::Region}.amazonaws.com/&quot;&lt;/span&gt;
+  &lt;span class=&quot;token key atrule&quot;&gt;ApiId&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;token key atrule&quot;&gt;Description&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; Api id of HttpApi
+    &lt;span class=&quot;token key atrule&quot;&gt;Value&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;token key atrule&quot;&gt;Ref&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; Api&lt;/code&gt;&lt;/pre&gt;
 </content>
 	</entry>
 	
