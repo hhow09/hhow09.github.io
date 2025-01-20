@@ -157,7 +157,7 @@ Globals:
     Environment:
       Variables:
         ENV: !Ref Env
-        TABLE_ORDER: !Join [ '-', [ avocadotaiwan-order, !Ref Env] ]
+        TABLE_ORDER: !Join [ '-', [ <table-name>, !Ref Env] ]
         API_ENDPOINT: !Join [ '', [ https://, !Ref ApiID, .execute-api. , !Ref "AWS::Region", .amazonaws.com] ] # edit 2nd parameter
         LOG_DYNAMODB_REQ: false
         S3URL: <bucket-name>.s3.amazonaws.com
@@ -272,7 +272,7 @@ Resources:
   OrdersTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: !Join [ '-', [ avocadotaiwan-order, !Ref Env] ]
+      TableName: !Join [ '-', [ <table-name>, !Ref Env] ]
       AttributeDefinitions:
         - AttributeName: ordertype
           AttributeType: S
