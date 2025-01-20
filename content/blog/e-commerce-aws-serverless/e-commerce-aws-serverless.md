@@ -37,6 +37,7 @@ An overview of the e-commerce website with AWS Serverless stack developed by me.
 ### Deployment
 - Environment: `staging`/ `production`
 - Tool: [AWS Serverless Application Model (AWS SAM)](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html) for fully automated deployment.
+    - template is shown in [AWS SAM Template](#aws-sam-template) section.
 
 ## Design Choice
 1. Use **AWS Lambda** and **API Gateway** for API due to 
@@ -126,3 +127,186 @@ sequenceDiagram
     end
 ```
 
+## [AWS SAM](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html) Template
+```yaml
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  # environment
+  Env:
+    Type: String
+    Default: prod
+    AllowedValues:
+      - prod
+      - stag
+    Description: env
+  # API Gateway ID
+  ApiID:
+    Type: String
+    Description: API ID
+
+Globals:
+  Function:
+    MemorySize: 128
+    Architectures: ["arm64"]
+    Handler: bootstrap
+    Runtime: provided.al2
+    Timeout: 5
+    Tracing: Active
+    Environment:
+      Variables:
+        ENV: !Ref Env
+        TABLE_ORDER: !Join [ '-', [ <table-name>, !Ref Env] ]
+        API_ENDPOINT: !Join [ '', [ https://, !Ref ApiID, .execute-api. , !Ref "AWS::Region", .amazonaws.com] ] # edit 2nd parameter
+        LOG_DYNAMODB_REQ: false
+        S3URL: <bucket-name>.s3.amazonaws.com
+
+Resources:
+  Api:
+    # API Gateway
+    # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-httpapi.html
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowOrigins:
+          - "*"
+        AllowMethods: 
+          - GET
+          - POST
+          - OPTIONS
+        AllowHeaders:
+          - Content-Type
+          - Accept
+          - Access-Control-Allow-Headers
+          - Access-Control-Request-Method
+          - Access-Control-Request-Headers
+          - Authorization
+  
+  # Lambda ping handler
+  RootFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/root/
+      Events:
+        Api:
+          Type: HttpApi
+          Properties:
+            Path: /
+            Method: GET
+            ApiId: !Ref Api            
+    Metadata:
+      BuildMethod: makefile
+
+  # Lambda get order handler
+  GetOrderFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/get-order/
+      Events:
+        Api:
+          Type: HttpApi
+          Properties:
+            Path: /order
+            Method: GET
+            ApiId: !Ref Api
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action: dynamodb:GetItem
+              Resource: !GetAtt OrdersTable.Arn
+            - Effect: Allow
+              Action: dynamodb:Scan
+              Resource: !GetAtt OrdersTable.Arn
+            - Effect: Allow
+              Action: dynamodb:Query
+              Resource: 
+                - !GetAtt OrdersTable.Arn
+                - !Join [ '', [ !GetAtt OrdersTable.Arn, /index/*] ] # index
+    Metadata:
+      BuildMethod: makefile
+
+  # post order handler
+  PostOrderFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/post-order/
+      Events:
+        Api:
+          Type: HttpApi
+          Properties:
+            Path: /order
+            Method: POST
+            ApiId: !Ref Api            
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action: dynamodb:PutItem
+              Resource: !GetAtt OrdersTable.Arn
+    Metadata:
+      BuildMethod: makefile
+
+  # payment callback handler
+  EcpayFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/ecpay-order/
+      Events:
+        Api:
+          Type: HttpApi
+          Properties:
+            Path: /ecpay
+            Method: POST
+            ApiId: !Ref Api            
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action: dynamodb:UpdateItem
+              Resource: !GetAtt OrdersTable.Arn
+    Metadata:
+      BuildMethod: makefile      
+
+  OrdersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Join [ '-', [ <table-name>, !Ref Env] ]
+      AttributeDefinitions:
+        - AttributeName: ordertype
+          AttributeType: S
+        - AttributeName: idsk
+          AttributeType: N
+        - AttributeName: phone
+          AttributeType: S
+      KeySchema:
+        # the partition key
+        # https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/bp-partition-key-design.html
+        - AttributeName: ordertype
+          KeyType: HASH
+        # the sort key, essentially a timestamp
+        - AttributeName: idsk
+          KeyType: RANGE          
+      BillingMode: PAY_PER_REQUEST
+      LocalSecondaryIndexes:
+        # local secondary index
+        # user can query order by phone number
+        - IndexName: lsi-phone
+          KeySchema:
+            - AttributeName: ordertype
+              KeyType: HASH
+            - AttributeName: phone
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+
+Outputs:
+  ApiUrl:
+    Description: "API Gateway endpoint URL"
+    Value: !Sub "https://${Api}.execute-api.${AWS::Region}.amazonaws.com/"
+  ApiId:
+    Description: Api id of HttpApi
+    Value:
+      Ref: Api
+```
