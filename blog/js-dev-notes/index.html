@@ -1,0 +1,734 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>JavaScript Development Notes</title>
+		<meta name="description" content="JavaScript Development Notes">
+		<meta name="google-site-verification" content="pV0LpMzGqiF5LrOEOtxdTzsIjD0Q6Zd3yXLXJstHuuQ" />
+		<link rel="alternate" href="/feed/feed.xml" type="application/atom+xml" title="hhow09&#39;s Blog">
+		<link rel="alternate" href="/feed/feed.json" type="application/json" title="hhow09&#39;s Blog">
+		
+		<style>/**
+ * okaidia theme for JavaScript, CSS and HTML
+ * Loosely based on Monokai textmate theme by http://www.monokai.nl/
+ * @author ocodia
+ */
+
+code[class*="language-"],
+pre[class*="language-"] {
+	color: #f8f8f2;
+	background: none;
+	text-shadow: 0 1px rgba(0, 0, 0, 0.3);
+	font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+	font-size: 1em;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+	word-break: normal;
+	word-wrap: normal;
+	line-height: 1.5;
+
+	-moz-tab-size: 4;
+	-o-tab-size: 4;
+	tab-size: 4;
+
+	-webkit-hyphens: none;
+	-moz-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+	padding: 1em;
+	margin: .5em 0;
+	overflow: auto;
+	border-radius: 0.3em;
+}
+
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+	background: #272822;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+	padding: .1em;
+	border-radius: .3em;
+	white-space: normal;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+	color: #8292a2;
+}
+
+.token.punctuation {
+	color: #f8f8f2;
+}
+
+.token.namespace {
+	opacity: .7;
+}
+
+.token.property,
+.token.tag,
+.token.constant,
+.token.symbol,
+.token.deleted {
+	color: #f92672;
+}
+
+.token.boolean,
+.token.number {
+	color: #ae81ff;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+	color: #a6e22e;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string,
+.token.variable {
+	color: #f8f8f2;
+}
+
+.token.atrule,
+.token.attr-value,
+.token.function,
+.token.class-name {
+	color: #e6db74;
+}
+
+.token.keyword {
+	color: #66d9ef;
+}
+
+.token.regex,
+.token.important {
+	color: #fd971f;
+}
+
+.token.important,
+.token.bold {
+	font-weight: bold;
+}
+.token.italic {
+	font-style: italic;
+}
+
+.token.entity {
+	cursor: help;
+}
+/*
+ * New diff- syntax
+ */
+
+pre[class*="language-diff-"] {
+	--eleventy-code-padding: 1.25em;
+	padding-left: var(--eleventy-code-padding);
+	padding-right: var(--eleventy-code-padding);
+}
+.token.deleted {
+	background-color: hsl(0, 51%, 37%);
+	color: inherit;
+}
+.token.inserted {
+	background-color: hsl(126, 31%, 39%);
+	color: inherit;
+}
+
+/* Make the + and - characters unselectable for copy/paste */
+.token.prefix.unchanged,
+.token.prefix.inserted,
+.token.prefix.deleted {
+	-webkit-user-select: none;
+	user-select: none;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+.token.prefix.inserted,
+.token.prefix.deleted {
+	width: var(--eleventy-code-padding);
+	background-color: rgba(0,0,0,.2);
+}
+
+/* Optional: full-width background color */
+.token.inserted:not(.prefix),
+.token.deleted:not(.prefix) {
+	display: block;
+	margin-left: calc(-1 * var(--eleventy-code-padding));
+	margin-right: calc(-1 * var(--eleventy-code-padding));
+	text-decoration: none; /* override del, ins, mark defaults */
+	color: inherit; /* override del, ins, mark defaults */
+}
+.mermaid {
+    background: transparent;
+}
+* { box-sizing: border-box; }
+/* Defaults */
+:root {
+	--font-family: -apple-system, system-ui, sans-serif;
+	--font-family-monospace: Consolas, Menlo, Monaco, Andale Mono WT, Andale Mono, Lucida Console, Lucida Sans Typewriter, DejaVu Sans Mono, Bitstream Vera Sans Mono, Liberation Mono, Nimbus Mono L, Courier New, Courier, monospace;
+}
+
+/* Theme colors */
+:root {
+	--color-gray-20: #e0e0e0;
+	--color-gray-50: #C0C0C0;
+	--color-gray-90: #333;
+
+	--background-color: #fff;
+
+	--text-color: var(--color-gray-90);
+	--text-color-link: #082840;
+	--text-color-link-active: #5f2b48;
+	--text-color-link-visited: #17050F;
+
+	--syntax-tab-size: 2;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--color-gray-20: #e0e0e0;
+		--color-gray-50: #C0C0C0;
+		--color-gray-90: #dad8d8;
+
+		/* --text-color is assigned to --color-gray-_ above */
+		--text-color-link: #1493fb;
+		--text-color-link-active: #6969f7;
+		--text-color-link-visited: #a6a6f8;
+
+		--background-color: #15202b;
+	}
+}
+
+
+/* Global stylesheet */
+* {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	padding: 0;
+	margin: 0 auto;
+	font-family: var(--font-family);
+	color: var(--text-color);
+	background-color: var(--background-color);
+}
+html {
+	overflow-y: scroll;
+}
+body {
+	max-width: 40em;
+}
+
+/* https://www.a11yproject.com/posts/how-to-hide-content/ */
+.visually-hidden {
+	clip: rect(0 0 0 0);
+	clip-path: inset(50%);
+	height: 1px;
+	overflow: hidden;
+	position: absolute;
+	white-space: nowrap;
+	width: 1px;
+}
+
+p:last-child {
+	margin-bottom: 0;
+}
+p {
+	line-height: 1.5;
+}
+
+li {
+	line-height: 1.5;
+}
+
+a[href] {
+	color: var(--text-color-link);
+}
+a[href]:visited {
+	color: var(--text-color-link-visited);
+}
+a[href]:hover,
+a[href]:active {
+	color: var(--text-color-link-active);
+}
+
+main {
+	padding: 1rem;
+}
+main :first-child {
+	margin-top: 0;
+}
+
+header {
+	border-bottom: 1px dashed var(--color-gray-20);
+}
+header:after {
+	content: "";
+	display: table;
+	clear: both;
+}
+
+.links-nextprev {
+	list-style: none;
+	border-top: 1px dashed var(--color-gray-20);
+	padding: 1em 0;
+}
+table, table td, table th {
+	border: 1px solid;
+	border-collapse: collapse;
+}
+
+table {
+	margin: 1em 0;
+}
+table td,
+table th {
+	padding-right: 1em;
+}
+
+pre,
+code {
+	font-family: var(--font-family-monospace);
+	background: rgba(175,184,193,0.2);
+	padding: 0em .1em;
+}
+pre:not([class*="language-"]) {
+	margin: .5em 0;
+	line-height: 1.375; /* 22px /16 */
+	-moz-tab-size: var(--syntax-tab-size);
+	-o-tab-size: var(--syntax-tab-size);
+	tab-size: var(--syntax-tab-size);
+	-webkit-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+	direction: ltr;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+	word-break: normal;
+}
+
+
+/* Header */
+header {
+	display: flex;
+	gap: 1em .5em;
+	flex-wrap: wrap;
+	align-items: center;
+	padding: 1em;
+}
+.home-link {
+	font-size: 1em; /* 16px /16 */
+	font-weight: 700;
+	margin-right: 2em;
+}
+.home-link:link:not(:hover) {
+	text-decoration: none;
+}
+
+/* Nav */
+.nav {
+	display: flex;
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}
+.nav-item {
+	display: inline-block;
+	margin-right: 1em;
+}
+.nav-item a[href]:not(:hover) {
+	text-decoration: none;
+}
+.nav a[href][aria-current="page"] {
+	text-decoration: underline;
+}
+
+/* Posts list */
+.postlist {
+	list-style: none;
+	padding: 0;
+	padding-left: 1.5rem;
+}
+.postlist-item {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	counter-increment: start-from -1;
+	margin-bottom: 1em;
+}
+.postlist-item:before {
+	display: inline-block;
+	pointer-events: none;
+	content: "" counter(start-from, decimal-leading-zero) ". ";
+	line-height: 100%;
+	text-align: right;
+	margin-left: -1.5rem;
+}
+.postlist-date,
+.postlist-item:before {
+	font-size: 0.8125em; /* 13px /16 */
+	color: var(--color-gray-90);
+}
+.postlist-date {
+	word-spacing: -0.5px;
+}
+.postlist-link {
+	font-size: 1.1875em; /* 19px /16 */
+	font-weight: 700;
+	flex-basis: calc(100% - 1.5rem);
+	padding-left: .25em;
+	padding-right: .5em;
+	text-underline-position: from-font;
+	text-underline-offset: 0;
+	text-decoration-thickness: 1px;
+}
+.postlist-item-active .postlist-link {
+	font-weight: bold;
+}
+
+/* Tags */
+.post-tag {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	text-transform: capitalize;
+	font-style: italic;
+}
+.postlist-item > .post-tag {
+	align-self: center;
+}
+
+/* Tags list */
+.post-metadata {
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: .5em;
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+.post-metadata time {
+	margin-right: 1em;
+}
+
+/* Direct Links / Markdown Headers */
+.header-anchor {
+	text-decoration: none;
+	font-style: normal;
+	font-size: 1em;
+	margin-left: .1em;
+}
+a[href].header-anchor,
+a[href].header-anchor:visited {
+	color: transparent;
+}
+a[href].header-anchor:focus,
+a[href].header-anchor:hover {
+	text-decoration: underline;
+}
+a[href].header-anchor:focus,
+:hover > a[href].header-anchor {
+	color: #aaa;
+}
+
+h2 + .header-anchor {
+	font-size: 1.5em;
+}
+
+img {
+	max-width: 100%;
+}
+img[width] {
+	width: auto; /* Defer to max-width */
+}
+img[width][height] {
+	height: auto; /* Preserve aspect ratio */
+}
+
+blockquote {
+	background:		#f9f9f9;
+	border-left:	10px solid #ccc;
+	margin:			1.5em 10px;
+	padding:		.5em 10px;
+	quotes:			"\201C""\201D""\2018""\2019"; 
+}
+
+blockquote p {
+	display:		inline;
+}
+
+.toc{
+	margin-top: 20px !important;
+}</style>
+		<script type="module" async>import mermaid from "https://unpkg.com/mermaid@10/dist/mermaid.esm.min.mjs";document.addEventListener('DOMContentLoaded', mermaid.initialize({startOnLoad:true}));</script>		
+	</head>
+	<body>
+		<a href="#skip" class="visually-hidden">Skip to main content</a>
+
+		<header>
+			<a href="/" class="home-link">hhow09&#39;s Blog</a>
+			<nav>
+				<h2 class="visually-hidden">Top level navigation menu</h2>
+				<ul class="nav">
+					<li class="nav-item"><a href="/">Home</a></li>
+					<li class="nav-item"><a href="/blog/">Archive</a></li>
+					<li class="nav-item"><a href="/about/">About Me</a></li>
+					<li class="nav-item"><a href="/rss/">Feeds</a></li>
+				</ul>
+			</nav>
+		</header>
+
+		<main id="skip">
+			
+<h1>JavaScript Development Notes</h1>
+
+<ul class="post-metadata">
+	<li><time datetime="2022-06-19">19 June 2022</time></li>
+	<li><a href="/tags/javascript/" class="post-tag">javascript</a></li>
+</ul>
+
+<aside style="margin-top:20px;">
+  <h3> Table Of Contents </h3>
+  <div class="toc" >
+        <ol><li><a href="#1-trace-call-stack">1. Trace Call Stack [1] [2]</a></li><li><a href="#2-console-log-an-object-is-pass-by-reference">2. console.log an Object is pass by reference [3]</a></li><li><a href="#3-initializing-2d-array-with-array-fill">3. Initializing 2D array with Array.fill</a></li><li><a href="#4-deep-copy-v-s-shallow-copy">4. Deep Copy v.s. Shallow Copy</a></li><li><a href="#5-manipulate-with-floating-point-number">5. Manipulate with floating-point number [4]</a></li><li><a href="#6-key-order-of-object-keys-obj">6. Key order of Object.keys(obj)? [5]</a></li><li><a href="#7-remove-duplicate-element-in-array">7. Remove Duplicate Element in Array</a></li><li><a href="#8-dom-element">8.DOM Element</a></li><li><a href="#9-using-await-inside-setinterval-is-pointless">9. using await inside setInterval is pointless</a></li><li><a href="#reference">Reference</a></li></ol>
+      </div>
+  <hr>
+</aside>
+<article>
+  <p>Some gotchas I met in JS development.</p>
+<h2 id="1-trace-call-stack" tabindex="-1">1. Trace Call Stack <sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup> <sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup> <a class="header-anchor" href="#1-trace-call-stack">#</a></h2>
+<pre class="language-javascript" tabindex="0"><code class="language-javascript"><span class="token keyword">function</span> <span class="token function">foo</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token function">bar</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">function</span> <span class="token function">bar</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token function">baz</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">function</span> <span class="token function">baz</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">Error</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>stack<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token function">foo</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
+<hr>
+<h2 id="2-console-log-an-object-is-pass-by-reference" tabindex="-1">2. <code>console.log</code> an Object is pass by reference <sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup> <a class="header-anchor" href="#2-console-log-an-object-is-pass-by-reference">#</a></h2>
+<ul>
+<li>object is pass by reference</li>
+<li>object may have changed when log shows</li>
+</ul>
+<h3 id="solution" tabindex="-1">Solution <a class="header-anchor" href="#solution">#</a></h3>
+<ul>
+<li>Don't use <code>console.log(obj)</code>, use <code>console.log(JSON.parse(JSON.stringify(obj)))</code> instead.</li>
+<li>This way you are sure you are seeing the value of obj at the moment you log it. Otherwise, many browsers provide a live view that constantly updates as values change. This may not be what you want.</li>
+</ul>
+<hr>
+<h2 id="3-initializing-2d-array-with-array-fill" tabindex="-1">3. Initializing 2D array with <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/fill">Array.fill</a> <a class="header-anchor" href="#3-initializing-2d-array-with-array-fill">#</a></h2>
+<ul>
+<li>if the filled value is Object, Array or function (pass by reference), they will reference to the same object.</li>
+</ul>
+<pre class="language-javascript" tabindex="0"><code class="language-javascript"><span class="token comment">// filled each row with `same reference` of `new Array(4).fill(1)`.</span>
+<span class="token keyword">const</span> list <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Array</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">fill</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">Array</span><span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">fill</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// filled each row with `different reference` of `new Array(4).fill(1)`.</span>
+<span class="token keyword">const</span> list2 <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Array</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">fill</span><span class="token punctuation">(</span><span class="token keyword">null</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token keyword">new</span> <span class="token class-name">Array</span><span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">fill</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+list<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">2</span><span class="token punctuation">;</span>
+list2<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">2</span><span class="token punctuation">;</span>
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>list<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// false</span>
+<span class="token comment">//[</span>
+<span class="token comment">//  [ 1, 1, 2, 1 ],</span>
+<span class="token comment">//  [ 1, 1, 2, 1 ],</span>
+<span class="token comment">//  [ 1, 1, 2, 1 ]</span>
+<span class="token comment">//]</span>
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>list2<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// correct</span>
+<span class="token comment">//[</span>
+<span class="token comment">//  [ 1, 1, 1, 1 ],</span>
+<span class="token comment">//  [ 1, 1, 2, 1 ],</span>
+<span class="token comment">//  [ 1, 1, 1, 1 ]</span>
+<span class="token comment">//]</span></code></pre>
+<hr>
+<h2 id="4-deep-copy-v-s-shallow-copy" tabindex="-1">4. Deep Copy v.s. Shallow Copy <a class="header-anchor" href="#4-deep-copy-v-s-shallow-copy">#</a></h2>
+<h4 id="shallow-copy" tabindex="-1">Shallow Copy <a class="header-anchor" href="#shallow-copy">#</a></h4>
+<ol>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice">Array.prototype.slice()</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign">Object.assign({}, obj)</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax">Spread Syntax: A2 = {...A1}</a></li>
+</ol>
+<h4 id="deep-copy" tabindex="-1">Deep Copy <a class="header-anchor" href="#deep-copy">#</a></h4>
+<ol>
+<li>
+<p><code>JSON.parse(JSON.stringify(object))</code>.</p>
+<ul>
+<li>If you do not use <code>circular reference</code>, <code>Dates</code>, <code>functions</code>, <code>undefined</code>, <code>Infinity</code>, <code>RegExps</code>, <code>Maps</code>, <code>Sets</code>, <code>Blobs</code>, <code>FileLists</code>, <code>ImageDatas</code>, <code>sparse Arrays</code>, <code>Typed Arrays</code> or other complex types within your object, it is a very simple one liner to deep clone an object.</li>
+</ul>
+</li>
+<li>
+<p>with library: <a href="https://lodash.com/docs#cloneDeep">lodash - cloneDeep</a></p>
+</li>
+</ol>
+<hr>
+<h2 id="5-manipulate-with-floating-point-number" tabindex="-1">5. Manipulate with floating-point number <sup class="footnote-ref"><a href="#fn4" id="fnref4">[4]</a></sup> <a class="header-anchor" href="#5-manipulate-with-floating-point-number">#</a></h2>
+<p>JavaScript has a single and unpredictable number type, 64-bit floating point.</p>
+<pre class="language-javascript" tabindex="0"><code class="language-javascript"><span class="token number">0.1</span> <span class="token operator">+</span> <span class="token number">0.2</span> <span class="token operator">===</span> <span class="token number">0.3</span><span class="token punctuation">;</span> <span class="token comment">// false</span>
+
+<span class="token keyword">function</span> <span class="token function">numbersCloseEnoughToEqual</span><span class="token punctuation">(</span><span class="token parameter">n1<span class="token punctuation">,</span> n2</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">return</span> Math<span class="token punctuation">.</span><span class="token function">abs</span><span class="token punctuation">(</span>n1 <span class="token operator">-</span> n2<span class="token punctuation">)</span> <span class="token operator">&lt;</span> Number<span class="token punctuation">.</span><span class="token constant">EPSILON</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token function">numbersCloseEnoughToEqual</span><span class="token punctuation">(</span><span class="token number">0.1</span> <span class="token operator">+</span> <span class="token number">0.2</span><span class="token punctuation">,</span> <span class="token number">0.3</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
+<hr>
+<h2 id="6-key-order-of-object-keys-obj" tabindex="-1">6. Key order of <code>Object.keys(obj)</code>? <sup class="footnote-ref"><a href="#fn5" id="fnref5">[5]</a></sup> <a class="header-anchor" href="#6-key-order-of-object-keys-obj">#</a></h2>
+<h4 id="es5" tabindex="-1">ES5 <a class="header-anchor" href="#es5">#</a></h4>
+<ul>
+<li>depend on browser</li>
+<li>ref: <a href="https://262.ecma-international.org/5.1/#sec-15.2.3.14">ECMA 5.0 Object.keys (O)</a></li>
+</ul>
+<blockquote>
+<ol start="5">
+<li>For each own enumerable property of O whose name String is P</li>
+</ol>
+<ul>
+<li>
+<p>Call the [[DefineOwnProperty]] internal method of array with arguments ToString(index), the PropertyDescriptor {[[Value]]: P, [[Writable]]: true, [[Enumerable]]: true, [[Configurable]]: true}, and false.</p>
+</li>
+<li>
+<p>Increment index by 1.</p>
+</li>
+</ul>
+<p>If an implementation defines a specific order of enumeration for the for-in statement, that same enumeration order must be used in step 5 of this algorithm.</p>
+</blockquote>
+<h4 id="es6" tabindex="-1">ES6: <a class="header-anchor" href="#es6">#</a></h4>
+<ul>
+<li>depend on <a href="https://262.ecma-international.org/6.0/#sec-ordinary-object-internal-methods-and-internal-slots-ownpropertykeys"><code>OwnPropertyKeys</code></a> method
+<ul>
+<li><code>Reflect.ownKeys</code> also depend on <code>OwnPropertyKeys</code></li>
+</ul>
+</li>
+<li>Order of <a href="https://262.ecma-international.org/6.0/#sec-ordinary-object-internal-methods-and-internal-slots-ownpropertykeys"><code>OwnPropertyKeys</code></a>
+<ul>
+<li><code>integers</code>: in numeric order</li>
+<li><code>strings</code>: in chronological order</li>
+<li><code>Symbols</code>: in chronological order</li>
+</ul>
+</li>
+<li>ref: <a href="https://262.ecma-international.org/6.0/#sec-object.keys">ECMA 6.0 Object.keys ( O )</a></li>
+</ul>
+<pre class="language-javascript" tabindex="0"><code class="language-javascript"><span class="token keyword">const</span> obj <span class="token operator">=</span> <span class="token punctuation">{</span>
+  <span class="token number">2</span><span class="token operator">:</span> <span class="token string">"integer: 2"</span><span class="token punctuation">,</span>
+  <span class="token literal-property property">foo</span><span class="token operator">:</span> <span class="token string">"string: foo"</span><span class="token punctuation">,</span>
+  <span class="token string-property property">"01"</span><span class="token operator">:</span> <span class="token string">"string: 01"</span><span class="token punctuation">,</span>
+  <span class="token number">1</span><span class="token operator">:</span> <span class="token string">"integer: 1"</span><span class="token punctuation">,</span>
+  <span class="token punctuation">[</span><span class="token function">Symbol</span><span class="token punctuation">(</span><span class="token string">"first"</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token operator">:</span> <span class="token string">"symbol: first"</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+obj<span class="token punctuation">[</span><span class="token string">"0"</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">"integer: 0"</span><span class="token punctuation">;</span>
+obj<span class="token punctuation">[</span><span class="token function">Symbol</span><span class="token punctuation">(</span><span class="token string">"last"</span><span class="token punctuation">)</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">"symbol: last"</span><span class="token punctuation">;</span>
+obj<span class="token punctuation">[</span><span class="token string">"veryLast"</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">"string: very last"</span><span class="token punctuation">;</span>
+
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>Reflect<span class="token punctuation">.</span><span class="token function">ownKeys</span><span class="token punctuation">(</span>obj<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// [ "0", "1", "2", "foo", "01", "veryLast", Symbol(first), Symbol(last) ]</span></code></pre>
+<hr>
+<h2 id="7-remove-duplicate-element-in-array" tabindex="-1">7. Remove Duplicate Element in Array <a class="header-anchor" href="#7-remove-duplicate-element-in-array">#</a></h2>
+<pre class="language-javascript" tabindex="0"><code class="language-javascript"><span class="token keyword">const</span> chars <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token string">"A"</span><span class="token punctuation">,</span> <span class="token string">"B"</span><span class="token punctuation">,</span> <span class="token string">"A"</span><span class="token punctuation">,</span> <span class="token string">"C"</span><span class="token punctuation">,</span> <span class="token string">"B"</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> uniqueChars <span class="token operator">=</span> chars<span class="token punctuation">.</span><span class="token function">filter</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter">c<span class="token punctuation">,</span> index</span><span class="token punctuation">)</span> <span class="token operator">=></span> chars<span class="token punctuation">.</span><span class="token function">indexOf</span><span class="token punctuation">(</span>c<span class="token punctuation">)</span> <span class="token operator">===</span> index<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">//[ 'A', 'B', 'C' ]</span></code></pre>
+<h2 id="8-dom-element" tabindex="-1">8.DOM Element <a class="header-anchor" href="#8-dom-element">#</a></h2>
+<h3 id="dom-element-is-a-special-object" tabindex="-1">DOM Element is a special object <a class="header-anchor" href="#dom-element-is-a-special-object">#</a></h3>
+<pre class="language-javascript" tabindex="0"><code class="language-javascript"><span class="token keyword">var</span> a <span class="token operator">=</span> document<span class="token punctuation">.</span><span class="token function">createElement</span><span class="token punctuation">(</span><span class="token string">"div"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">typeof</span> a<span class="token punctuation">;</span> <span class="token comment">// "object"</span>
+<span class="token class-name">Object</span><span class="token punctuation">.</span>prototype<span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">.</span><span class="token function">call</span><span class="token punctuation">(</span>a<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// "[object HTMLDivElement]"</span>
+a<span class="token punctuation">.</span>tagName<span class="token punctuation">;</span> <span class="token comment">// "DIV"</span></code></pre>
+<ul>
+<li>Cannot call some built-in methods such as <code>toString()</code></li>
+<li>Cannot be overwritten / override some properties such as <code>this</code></li>
+</ul>
+<h3 id="dom-element-will-produce-global-variable" tabindex="-1">DOM Element will produce global variable <a class="header-anchor" href="#dom-element-will-produce-global-variable">#</a></h3>
+<p>be careful for duplicate naming.</p>
+<pre class="language-html" tabindex="0"><code class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>foo<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span></code></pre>
+<pre class="language-javascript" tabindex="0"><code class="language-javascript">console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>foo<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// HTML Element</span></code></pre>
+<h2 id="9-using-await-inside-setinterval-is-pointless" tabindex="-1">9. using <code>await</code> inside <code>setInterval</code> is pointless <a class="header-anchor" href="#9-using-await-inside-setinterval-is-pointless">#</a></h2>
+<ul>
+<li>since interval won't wait for <code>await</code></li>
+</ul>
+<pre class="language-javascript" tabindex="0"><code class="language-javascript"><span class="token keyword">async</span> <span class="token keyword">function</span> <span class="token function">getData</span> <span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+  <span class="token keyword">return</span> <span class="token function">fetch</span><span class="token punctuation">(</span><span class="token string">"url..."</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">const</span> timer <span class="token operator">=</span> <span class="token function">setInterval</span><span class="token punctuation">(</span>
+  <span class="token keyword">await</span> <span class="token function">getData</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">,</span><span class="token number">1000</span><span class="token punctuation">)</span></code></pre>
+<p>above code can change into</p>
+<pre class="language-javascript" tabindex="0"><code class="language-javascript"><span class="token keyword">async</span> <span class="token keyword">function</span> <span class="token function">getData</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">return</span> <span class="token function">fetch</span><span class="token punctuation">(</span><span class="token string">"https://google.com"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">async</span> <span class="token keyword">function</span> <span class="token function">sleep</span><span class="token punctuation">(</span><span class="token parameter">ms</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">return</span> <span class="token keyword">await</span> <span class="token keyword">new</span> <span class="token class-name">Promise</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter">resolve</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token function">setTimeout</span><span class="token punctuation">(</span>resolve<span class="token punctuation">,</span> ms<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">function</span> <span class="token function">periodicGetData</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">Promise</span><span class="token punctuation">(</span><span class="token keyword">async</span> <span class="token punctuation">(</span><span class="token parameter">resolve<span class="token punctuation">,</span> reject</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>some_condition<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token function">resolve</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">const</span> res <span class="token operator">=</span> <span class="token keyword">await</span> <span class="token function">getData</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>res <span class="token keyword">instanceof</span> <span class="token class-name">Error</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token function">reject</span><span class="token punctuation">(</span>res<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">"res"</span><span class="token punctuation">,</span> res<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">await</span> <span class="token function">sleep</span><span class="token punctuation">(</span><span class="token number">1000</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> <span class="token function">periodicGetData</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span class="token function">periodicGetData</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
+<hr>
+<h2 id="reference" tabindex="-1">Reference <a class="header-anchor" href="#reference">#</a></h2>
+<hr class="footnotes-sep">
+<section class="footnotes">
+<ol class="footnotes-list">
+<li id="fn1" class="footnote-item"><p><a href="https://v8.dev/docs/stack-trace-api">V8: Stack Trace API</a> <a href="#fnref1" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn2" class="footnote-item"><p><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error/stack">MDN: Error.prototype.stack</a> <a href="#fnref2" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn3" class="footnote-item"><p><a href="https://developer.mozilla.org/en-US/docs/Web/API/Console/log#logging_objects">MDN: Logging objects</a> <a href="#fnref3" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn4" class="footnote-item"><p><a href="https://github.com/getify/You-Dont-Know-JS">You Don't Know JS</a> <a href="#fnref4" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn5" class="footnote-item"><p><a href="https://www.stefanjudis.com/today-i-learned/property-order-is-predictable-in-javascript-objects-since-es2015/">Property order is predictable in JavaScript objects since ES2015</a> <a href="#fnref5" class="footnote-backref">↩︎</a></p>
+</li>
+</ol>
+</section>
+
+</article>
+<ul class="links-nextprev"><li>Next: <a href="/blog/distributed-system-index/">Distributed System Index</a></li>
+</ul>
+
+		</main>
+
+		<footer></footer>
+
+		<!-- Current page: /blog/js-dev-notes/ -->
+	</body>
+</html>
