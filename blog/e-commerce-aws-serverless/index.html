@@ -512,7 +512,7 @@ blockquote p {
 <aside style="margin-top:20px;">
   <h3> Table Of Contents </h3>
   <div class="toc" >
-        <ol><li><a href="#website">Website</a></li><li><a href="#features">Features</a></li><li><a href="#tech-stack">Tech Stack</a></li><li><a href="#design-choice">Design Choice</a></li><li><a href="#architecture">Architecture</a></li><li><a href="#user-story">User Story</a></li><li><a href="#aws-sam-template">AWS SAM Template</a></li></ol>
+        <ol><li><a href="#website">Website</a></li><li><a href="#features">Features</a></li><li><a href="#tech-stack">Tech Stack</a></li><li><a href="#design-choice">Design Choice</a></li><li><a href="#architecture">Architecture</a></li><li><a href="#user-story">User Story</a></li></ol>
       </div>
   <hr>
 </aside>
@@ -548,11 +548,7 @@ blockquote p {
 <h3 id="deployment" tabindex="-1">Deployment <a class="header-anchor" href="#deployment">#</a></h3>
 <ul>
 <li>Environment: <code>staging</code>/ <code>production</code></li>
-<li>Tool: <a href="https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html">AWS Serverless Application Model (AWS SAM)</a> for fully automated deployment.
-<ul>
-<li>template is shown in <a href="#aws-sam-template">AWS SAM Template</a> section.</li>
-</ul>
-</li>
+<li>Tool: <a href="https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html">AWS Serverless Application Model (AWS SAM)</a> for fully automated deployment.</li>
 </ul>
 <h2 id="design-choice" tabindex="-1">Design Choice <a class="header-anchor" href="#design-choice">#</a></h2>
 <ol>
@@ -593,187 +589,6 @@ blockquote p {
 </ol>
 <h3 id="flow-diagram" tabindex="-1">Flow Diagram <a class="header-anchor" href="#flow-diagram">#</a></h3>
 <pre class="mermaid">sequenceDiagram&#10;    participant FE&#10;    participant BE&#10;    participant DB&#10;    participant S3&#10;    participant PaymentGateway&#10;    FE-&gt;&gt;+S3: [1] GET site status and products&#10;    S3--&gt;&gt;-FE: site status&#10;    alt Site Not available&#10;        Note Over FE: user flow END&#10;    else Site Available&#10;        Note Over FE: user browse products, fill in order form.&#10;        FE-&gt;&gt;+BE: [2] POST /order&#10;        BE-&gt;&gt;+DB: Save Order&#10;        alt Payment Method: [Pay on arrive]&#10;            BE--&gt;&gt;FE: Order ID&#10;            FE--&gt;&gt;+BE: [6] GET /order&#10;            BE--&gt;&gt;-FE: Order Result (shipment scheduled)&#10;            Note Over FE: [Pay on arrive] END&#10;        else Payment Method: [Online Payment (ECPay)]&#10;            BE--&gt;&gt;-FE: Redirection&#10;            Note Over FE: [4] redirect to payment gateway&#10;            alt Ecpay [Credit Card]&#10;                FE-&gt;&gt;PaymentGateway: User Payment&#10;                PaymentGateway-&gt;&gt;+BE: [5] Notify Order Payed&#10;                BE--&gt;&gt;DB: Update Order to Payed&#10;                BE--&gt;&gt;-PaymentGateway: OK&#10;            else Ecpay [ATM transfer] (part 1)&#10;                rect rgb(191, 223, 255)&#10;                    PaymentGateway--&gt;&gt;FE: Display ATM payment Info&#10;                    Note Over FE: continue at Ecpay [ATM transfer] (part 2)&#10;                end&#10;            end&#10;            PaymentGateway--&gt;&gt;FE: redirect result page&#10;            Note Over FE: User redirected to show result page (with orderId)&#10;            FE-&gt;&gt;+BE: [6] GET /order&#10;            BE--&gt;&gt;-FE: Order&#10;            alt Ecpay [Credit Card]&#10;                Note Over FE: Display payment result&#10;            else Ecpay [ATM transfer] (part 1)&#10;                Note Over FE: Wait for ATM payment&#10;            end&#10;            Note Over FE: user flow END&#10;        end&#10;&#10;        Note Over FE, PaymentGateway: ASYNC&#10;&#10;        alt Ecpay [ATM transfer] (part 2)&#10;            rect rgb(191, 223, 255)&#10;                Note Over PaymentGateway: User Payed&#10;                PaymentGateway-&gt;&gt;+BE: Order Payed&#10;                BE--&gt;&gt;DB: Update Order Payed&#10;                BE--&gt;&gt;-PaymentGateway: OK&#10;            end&#10;            Note Over FE: Ecpay [ATM transfer] END&#10;        end&#10;    end&#10;</pre>
-<h2 id="aws-sam-template" tabindex="-1"><a href="https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html">AWS SAM</a> Template <a class="header-anchor" href="#aws-sam-template">#</a></h2>
-<pre class="language-yaml" tabindex="0"><code class="language-yaml"><span class="token key atrule">AWSTemplateFormatVersion</span><span class="token punctuation">:</span> <span class="token string">"2010-09-09"</span>
-<span class="token key atrule">Transform</span><span class="token punctuation">:</span> AWS<span class="token punctuation">:</span><span class="token punctuation">:</span>Serverless<span class="token punctuation">-</span><span class="token datetime number">2016-10-31</span>
-
-<span class="token key atrule">Parameters</span><span class="token punctuation">:</span>
-  <span class="token comment"># environment</span>
-  <span class="token key atrule">Env</span><span class="token punctuation">:</span>
-    <span class="token key atrule">Type</span><span class="token punctuation">:</span> String
-    <span class="token key atrule">Default</span><span class="token punctuation">:</span> prod
-    <span class="token key atrule">AllowedValues</span><span class="token punctuation">:</span>
-      <span class="token punctuation">-</span> prod
-      <span class="token punctuation">-</span> stag
-    <span class="token key atrule">Description</span><span class="token punctuation">:</span> env
-  <span class="token comment"># API Gateway ID</span>
-  <span class="token key atrule">ApiID</span><span class="token punctuation">:</span>
-    <span class="token key atrule">Type</span><span class="token punctuation">:</span> String
-    <span class="token key atrule">Description</span><span class="token punctuation">:</span> API ID
-
-<span class="token key atrule">Globals</span><span class="token punctuation">:</span>
-  <span class="token key atrule">Function</span><span class="token punctuation">:</span>
-    <span class="token key atrule">MemorySize</span><span class="token punctuation">:</span> <span class="token number">128</span>
-    <span class="token key atrule">Architectures</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"arm64"</span><span class="token punctuation">]</span>
-    <span class="token key atrule">Handler</span><span class="token punctuation">:</span> bootstrap
-    <span class="token key atrule">Runtime</span><span class="token punctuation">:</span> provided.al2
-    <span class="token key atrule">Timeout</span><span class="token punctuation">:</span> <span class="token number">5</span>
-    <span class="token key atrule">Tracing</span><span class="token punctuation">:</span> Active
-    <span class="token key atrule">Environment</span><span class="token punctuation">:</span>
-      <span class="token key atrule">Variables</span><span class="token punctuation">:</span>
-        <span class="token key atrule">ENV</span><span class="token punctuation">:</span> <span class="token tag">!Ref</span> Env
-        <span class="token key atrule">TABLE_ORDER</span><span class="token punctuation">:</span> <span class="token tag">!Join</span> <span class="token punctuation">[</span> <span class="token string">'-'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span> avocadotaiwan<span class="token punctuation">-</span>order<span class="token punctuation">,</span> <span class="token tag">!Ref</span> Env<span class="token punctuation">]</span> <span class="token punctuation">]</span>
-        <span class="token key atrule">API_ENDPOINT</span><span class="token punctuation">:</span> <span class="token tag">!Join</span> <span class="token punctuation">[</span> <span class="token string">''</span><span class="token punctuation">,</span> <span class="token punctuation">[</span> https<span class="token punctuation">:</span>//<span class="token punctuation">,</span> <span class="token tag">!Ref</span> ApiID<span class="token punctuation">,</span> .execute<span class="token punctuation">-</span>api. <span class="token punctuation">,</span> <span class="token tag">!Ref</span> <span class="token string">"AWS::Region"</span><span class="token punctuation">,</span> .amazonaws.com<span class="token punctuation">]</span> <span class="token punctuation">]</span> <span class="token comment"># edit 2nd parameter</span>
-        <span class="token key atrule">LOG_DYNAMODB_REQ</span><span class="token punctuation">:</span> <span class="token boolean important">false</span>
-        <span class="token key atrule">S3URL</span><span class="token punctuation">:</span> &lt;bucket<span class="token punctuation">-</span>name<span class="token punctuation">></span>.s3.amazonaws.com
-
-<span class="token key atrule">Resources</span><span class="token punctuation">:</span>
-  <span class="token key atrule">Api</span><span class="token punctuation">:</span>
-    <span class="token comment"># API Gateway</span>
-    <span class="token comment"># https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-httpapi.html</span>
-    <span class="token key atrule">Type</span><span class="token punctuation">:</span> AWS<span class="token punctuation">:</span><span class="token punctuation">:</span>Serverless<span class="token punctuation">:</span><span class="token punctuation">:</span>HttpApi
-    <span class="token key atrule">Properties</span><span class="token punctuation">:</span>
-      <span class="token key atrule">CorsConfiguration</span><span class="token punctuation">:</span>
-        <span class="token key atrule">AllowOrigins</span><span class="token punctuation">:</span>
-          <span class="token punctuation">-</span> <span class="token string">"*"</span>
-        <span class="token key atrule">AllowMethods</span><span class="token punctuation">:</span> 
-          <span class="token punctuation">-</span> GET
-          <span class="token punctuation">-</span> POST
-          <span class="token punctuation">-</span> OPTIONS
-        <span class="token key atrule">AllowHeaders</span><span class="token punctuation">:</span>
-          <span class="token punctuation">-</span> Content<span class="token punctuation">-</span>Type
-          <span class="token punctuation">-</span> Accept
-          <span class="token punctuation">-</span> Access<span class="token punctuation">-</span>Control<span class="token punctuation">-</span>Allow<span class="token punctuation">-</span>Headers
-          <span class="token punctuation">-</span> Access<span class="token punctuation">-</span>Control<span class="token punctuation">-</span>Request<span class="token punctuation">-</span>Method
-          <span class="token punctuation">-</span> Access<span class="token punctuation">-</span>Control<span class="token punctuation">-</span>Request<span class="token punctuation">-</span>Headers
-          <span class="token punctuation">-</span> Authorization
-  
-  <span class="token comment"># Lambda ping handler</span>
-  <span class="token key atrule">RootFunction</span><span class="token punctuation">:</span>
-    <span class="token key atrule">Type</span><span class="token punctuation">:</span> AWS<span class="token punctuation">:</span><span class="token punctuation">:</span>Serverless<span class="token punctuation">:</span><span class="token punctuation">:</span>Function
-    <span class="token key atrule">Properties</span><span class="token punctuation">:</span>
-      <span class="token key atrule">CodeUri</span><span class="token punctuation">:</span> functions/root/
-      <span class="token key atrule">Events</span><span class="token punctuation">:</span>
-        <span class="token key atrule">Api</span><span class="token punctuation">:</span>
-          <span class="token key atrule">Type</span><span class="token punctuation">:</span> HttpApi
-          <span class="token key atrule">Properties</span><span class="token punctuation">:</span>
-            <span class="token key atrule">Path</span><span class="token punctuation">:</span> /
-            <span class="token key atrule">Method</span><span class="token punctuation">:</span> GET
-            <span class="token key atrule">ApiId</span><span class="token punctuation">:</span> <span class="token tag">!Ref</span> Api            
-    <span class="token key atrule">Metadata</span><span class="token punctuation">:</span>
-      <span class="token key atrule">BuildMethod</span><span class="token punctuation">:</span> makefile
-
-  <span class="token comment"># Lambda get order handler</span>
-  <span class="token key atrule">GetOrderFunction</span><span class="token punctuation">:</span>
-    <span class="token key atrule">Type</span><span class="token punctuation">:</span> AWS<span class="token punctuation">:</span><span class="token punctuation">:</span>Serverless<span class="token punctuation">:</span><span class="token punctuation">:</span>Function
-    <span class="token key atrule">Properties</span><span class="token punctuation">:</span>
-      <span class="token key atrule">CodeUri</span><span class="token punctuation">:</span> functions/get<span class="token punctuation">-</span>order/
-      <span class="token key atrule">Events</span><span class="token punctuation">:</span>
-        <span class="token key atrule">Api</span><span class="token punctuation">:</span>
-          <span class="token key atrule">Type</span><span class="token punctuation">:</span> HttpApi
-          <span class="token key atrule">Properties</span><span class="token punctuation">:</span>
-            <span class="token key atrule">Path</span><span class="token punctuation">:</span> /order
-            <span class="token key atrule">Method</span><span class="token punctuation">:</span> GET
-            <span class="token key atrule">ApiId</span><span class="token punctuation">:</span> <span class="token tag">!Ref</span> Api
-      <span class="token key atrule">Policies</span><span class="token punctuation">:</span>
-        <span class="token punctuation">-</span> <span class="token key atrule">Version</span><span class="token punctuation">:</span> <span class="token string">"2012-10-17"</span>
-          <span class="token key atrule">Statement</span><span class="token punctuation">:</span>
-            <span class="token punctuation">-</span> <span class="token key atrule">Effect</span><span class="token punctuation">:</span> Allow
-              <span class="token key atrule">Action</span><span class="token punctuation">:</span> dynamodb<span class="token punctuation">:</span>GetItem
-              <span class="token key atrule">Resource</span><span class="token punctuation">:</span> <span class="token tag">!GetAtt</span> OrdersTable.Arn
-            <span class="token punctuation">-</span> <span class="token key atrule">Effect</span><span class="token punctuation">:</span> Allow
-              <span class="token key atrule">Action</span><span class="token punctuation">:</span> dynamodb<span class="token punctuation">:</span>Scan
-              <span class="token key atrule">Resource</span><span class="token punctuation">:</span> <span class="token tag">!GetAtt</span> OrdersTable.Arn
-            <span class="token punctuation">-</span> <span class="token key atrule">Effect</span><span class="token punctuation">:</span> Allow
-              <span class="token key atrule">Action</span><span class="token punctuation">:</span> dynamodb<span class="token punctuation">:</span>Query
-              <span class="token key atrule">Resource</span><span class="token punctuation">:</span> 
-                <span class="token punctuation">-</span> <span class="token tag">!GetAtt</span> OrdersTable.Arn
-                <span class="token punctuation">-</span> <span class="token tag">!Join</span> <span class="token punctuation">[</span> <span class="token string">''</span><span class="token punctuation">,</span> <span class="token punctuation">[</span> <span class="token tag">!GetAtt</span> OrdersTable.Arn<span class="token punctuation">,</span> /index/*<span class="token punctuation">]</span> <span class="token punctuation">]</span> <span class="token comment"># index</span>
-    <span class="token key atrule">Metadata</span><span class="token punctuation">:</span>
-      <span class="token key atrule">BuildMethod</span><span class="token punctuation">:</span> makefile
-
-  <span class="token comment"># post order handler</span>
-  <span class="token key atrule">PostOrderFunction</span><span class="token punctuation">:</span>
-    <span class="token key atrule">Type</span><span class="token punctuation">:</span> AWS<span class="token punctuation">:</span><span class="token punctuation">:</span>Serverless<span class="token punctuation">:</span><span class="token punctuation">:</span>Function
-    <span class="token key atrule">Properties</span><span class="token punctuation">:</span>
-      <span class="token key atrule">CodeUri</span><span class="token punctuation">:</span> functions/post<span class="token punctuation">-</span>order/
-      <span class="token key atrule">Events</span><span class="token punctuation">:</span>
-        <span class="token key atrule">Api</span><span class="token punctuation">:</span>
-          <span class="token key atrule">Type</span><span class="token punctuation">:</span> HttpApi
-          <span class="token key atrule">Properties</span><span class="token punctuation">:</span>
-            <span class="token key atrule">Path</span><span class="token punctuation">:</span> /order
-            <span class="token key atrule">Method</span><span class="token punctuation">:</span> POST
-            <span class="token key atrule">ApiId</span><span class="token punctuation">:</span> <span class="token tag">!Ref</span> Api            
-      <span class="token key atrule">Policies</span><span class="token punctuation">:</span>
-        <span class="token punctuation">-</span> <span class="token key atrule">Version</span><span class="token punctuation">:</span> <span class="token string">"2012-10-17"</span>
-          <span class="token key atrule">Statement</span><span class="token punctuation">:</span>
-            <span class="token punctuation">-</span> <span class="token key atrule">Effect</span><span class="token punctuation">:</span> Allow
-              <span class="token key atrule">Action</span><span class="token punctuation">:</span> dynamodb<span class="token punctuation">:</span>PutItem
-              <span class="token key atrule">Resource</span><span class="token punctuation">:</span> <span class="token tag">!GetAtt</span> OrdersTable.Arn
-    <span class="token key atrule">Metadata</span><span class="token punctuation">:</span>
-      <span class="token key atrule">BuildMethod</span><span class="token punctuation">:</span> makefile
-
-  <span class="token comment"># payment callback handler</span>
-  <span class="token key atrule">EcpayFunction</span><span class="token punctuation">:</span>
-    <span class="token key atrule">Type</span><span class="token punctuation">:</span> AWS<span class="token punctuation">:</span><span class="token punctuation">:</span>Serverless<span class="token punctuation">:</span><span class="token punctuation">:</span>Function
-    <span class="token key atrule">Properties</span><span class="token punctuation">:</span>
-      <span class="token key atrule">CodeUri</span><span class="token punctuation">:</span> functions/ecpay<span class="token punctuation">-</span>order/
-      <span class="token key atrule">Events</span><span class="token punctuation">:</span>
-        <span class="token key atrule">Api</span><span class="token punctuation">:</span>
-          <span class="token key atrule">Type</span><span class="token punctuation">:</span> HttpApi
-          <span class="token key atrule">Properties</span><span class="token punctuation">:</span>
-            <span class="token key atrule">Path</span><span class="token punctuation">:</span> /ecpay
-            <span class="token key atrule">Method</span><span class="token punctuation">:</span> POST
-            <span class="token key atrule">ApiId</span><span class="token punctuation">:</span> <span class="token tag">!Ref</span> Api            
-      <span class="token key atrule">Policies</span><span class="token punctuation">:</span>
-        <span class="token punctuation">-</span> <span class="token key atrule">Version</span><span class="token punctuation">:</span> <span class="token string">"2012-10-17"</span>
-          <span class="token key atrule">Statement</span><span class="token punctuation">:</span>
-            <span class="token punctuation">-</span> <span class="token key atrule">Effect</span><span class="token punctuation">:</span> Allow
-              <span class="token key atrule">Action</span><span class="token punctuation">:</span> dynamodb<span class="token punctuation">:</span>UpdateItem
-              <span class="token key atrule">Resource</span><span class="token punctuation">:</span> <span class="token tag">!GetAtt</span> OrdersTable.Arn
-    <span class="token key atrule">Metadata</span><span class="token punctuation">:</span>
-      <span class="token key atrule">BuildMethod</span><span class="token punctuation">:</span> makefile      
-
-  <span class="token key atrule">OrdersTable</span><span class="token punctuation">:</span>
-    <span class="token key atrule">Type</span><span class="token punctuation">:</span> AWS<span class="token punctuation">:</span><span class="token punctuation">:</span>DynamoDB<span class="token punctuation">:</span><span class="token punctuation">:</span>Table
-    <span class="token key atrule">Properties</span><span class="token punctuation">:</span>
-      <span class="token key atrule">TableName</span><span class="token punctuation">:</span> <span class="token tag">!Join</span> <span class="token punctuation">[</span> <span class="token string">'-'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span> avocadotaiwan<span class="token punctuation">-</span>order<span class="token punctuation">,</span> <span class="token tag">!Ref</span> Env<span class="token punctuation">]</span> <span class="token punctuation">]</span>
-      <span class="token key atrule">AttributeDefinitions</span><span class="token punctuation">:</span>
-        <span class="token punctuation">-</span> <span class="token key atrule">AttributeName</span><span class="token punctuation">:</span> ordertype
-          <span class="token key atrule">AttributeType</span><span class="token punctuation">:</span> S
-        <span class="token punctuation">-</span> <span class="token key atrule">AttributeName</span><span class="token punctuation">:</span> idsk
-          <span class="token key atrule">AttributeType</span><span class="token punctuation">:</span> N
-        <span class="token punctuation">-</span> <span class="token key atrule">AttributeName</span><span class="token punctuation">:</span> phone
-          <span class="token key atrule">AttributeType</span><span class="token punctuation">:</span> S
-      <span class="token key atrule">KeySchema</span><span class="token punctuation">:</span>
-        <span class="token comment"># the partition key</span>
-        <span class="token comment"># https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/bp-partition-key-design.html</span>
-        <span class="token punctuation">-</span> <span class="token key atrule">AttributeName</span><span class="token punctuation">:</span> ordertype
-          <span class="token key atrule">KeyType</span><span class="token punctuation">:</span> HASH
-        <span class="token comment"># the sort key, essentially a timestamp</span>
-        <span class="token punctuation">-</span> <span class="token key atrule">AttributeName</span><span class="token punctuation">:</span> idsk
-          <span class="token key atrule">KeyType</span><span class="token punctuation">:</span> RANGE          
-      <span class="token key atrule">BillingMode</span><span class="token punctuation">:</span> PAY_PER_REQUEST
-      <span class="token key atrule">LocalSecondaryIndexes</span><span class="token punctuation">:</span>
-        <span class="token comment"># local secondary index</span>
-        <span class="token comment"># user can query order by phone number</span>
-        <span class="token punctuation">-</span> <span class="token key atrule">IndexName</span><span class="token punctuation">:</span> lsi<span class="token punctuation">-</span>phone
-          <span class="token key atrule">KeySchema</span><span class="token punctuation">:</span>
-            <span class="token punctuation">-</span> <span class="token key atrule">AttributeName</span><span class="token punctuation">:</span> ordertype
-              <span class="token key atrule">KeyType</span><span class="token punctuation">:</span> HASH
-            <span class="token punctuation">-</span> <span class="token key atrule">AttributeName</span><span class="token punctuation">:</span> phone
-              <span class="token key atrule">KeyType</span><span class="token punctuation">:</span> RANGE
-          <span class="token key atrule">Projection</span><span class="token punctuation">:</span>
-            <span class="token key atrule">ProjectionType</span><span class="token punctuation">:</span> ALL
-
-<span class="token key atrule">Outputs</span><span class="token punctuation">:</span>
-  <span class="token key atrule">ApiUrl</span><span class="token punctuation">:</span>
-    <span class="token key atrule">Description</span><span class="token punctuation">:</span> <span class="token string">"API Gateway endpoint URL"</span>
-    <span class="token key atrule">Value</span><span class="token punctuation">:</span> <span class="token tag">!Sub</span> <span class="token string">"https://${Api}.execute-api.${AWS::Region}.amazonaws.com/"</span>
-  <span class="token key atrule">ApiId</span><span class="token punctuation">:</span>
-    <span class="token key atrule">Description</span><span class="token punctuation">:</span> Api id of HttpApi
-    <span class="token key atrule">Value</span><span class="token punctuation">:</span>
-      <span class="token key atrule">Ref</span><span class="token punctuation">:</span> Api</code></pre>
 
 </article>
 <ul class="links-nextprev"><li>Previous: <a href="/blog/protect_replay_attack/">Protecting Replay Attack</a></li>
