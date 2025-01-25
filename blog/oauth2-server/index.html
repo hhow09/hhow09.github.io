@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>OAuth server for mobile applications</title>
+		<title>Authorization server for mobile applications</title>
 		<meta name="description" content="implementation details of OAuth server for mobile applications">
 		<meta name="google-site-verification" content="pV0LpMzGqiF5LrOEOtxdTzsIjD0Q6Zd3yXLXJstHuuQ" />
 		<link rel="alternate" href="/feed/feed.xml" type="application/atom+xml" title="hhow09&#39;s Blog">
@@ -501,7 +501,7 @@ blockquote p {
 
 		<main id="skip">
 			
-<h1>OAuth server for mobile applications</h1>
+<h1>Authorization server for mobile applications</h1>
 
 <ul class="post-metadata">
 	<li><time datetime="2023-12-30">30 December 2023</time></li>
@@ -512,23 +512,28 @@ blockquote p {
 <aside style="margin-top:20px;">
   <h3> Table Of Contents </h3>
   <div class="toc" >
-        <ol><li><a href="#requirement">Requirement</a></li><li><a href="#related-rfcs">Related RFCs</a></li><li><a href="#terms">Terms</a></li><li><a href="#login-flow">Login Flow</a></li><li><a href="#refresh-token-rotation">Refresh Token Rotation</a></li><li><a href="#tricky-parts">Tricky Parts</a></li><li><a href="#reference-1">Reference</a></li></ol>
+        <ol><li><a href="#goal">Goal</a></li><li><a href="#requirement">Requirement</a></li><li><a href="#related-rfcs">Related RFCs</a></li><li><a href="#terms">Terms</a></li><li><a href="#design-choices">Design choices</a></li><li><a href="#login-flow">Login Flow</a></li><li><a href="#refresh-token-rotation">Refresh Token Rotation</a></li><li><a href="#tricky-parts">Tricky Parts</a></li><li><a href="#reference">Reference</a></li></ol>
       </div>
   <hr>
 </aside>
 <article>
-  <p>Some notes after working on Auhtorization server at work.</p>
+  <p>Notes of working on Authorization server for mobile applications.</p>
+<h2 id="goal" tabindex="-1">Goal <a class="header-anchor" href="#goal">#</a></h2>
+<ul>
+<li>Manage user registration and authentication for mobile applications.</li>
+<li>Reduce the development time for application teams.</li>
+</ul>
 <h2 id="requirement" tabindex="-1">Requirement <a class="header-anchor" href="#requirement">#</a></h2>
 <ul>
-<li>support authentication and authorization for application servers.</li>
-<li>Support different authorization methods for an account (e.g. google, apple and others... ).
+<li>Any legitimate user from supported 3rd Identity Provider (IDP) (e.g. Google, Apple) can register/login to application.</li>
+<li>Authorization server should manage the user registration and authentication for multiple applications.</li>
+<li>Authorization server should provide a unified authentication process <strong>for application servers</strong> given different 3rd party identity providers (e.g. google, apple and others... ).
 <ul>
-<li>goal: login process for applications are unified <strong>as if interacting with a single authorization server</strong>.</li>
+<li>Authorization server should works as a <strong>single identity provider</strong> for application servers.</li>
 </ul>
 </li>
-<li>Manage user account and sessions for application servers.</li>
-<li>Support refresh token rotation.</li>
-<li>Should follow <a href="https://datatracker.ietf.org/doc/html/rfc6749">OAuth 2.0 Authorization Framework</a></li>
+<li>Authorization server should provide backoffice interface for managing user account and sessions.</li>
+<li>Authorization server should support <strong>refresh token rotation</strong>.</li>
 </ul>
 <h2 id="related-rfcs" tabindex="-1">Related RFCs <a class="header-anchor" href="#related-rfcs">#</a></h2>
 <ul>
@@ -551,14 +556,26 @@ blockquote p {
 </blockquote>
 <ul>
 <li><a href="https://developers.google.com/identity/openid-connect/openid-connect">Google supports open ID Connect</a></li>
+<li><a href="https://developer.android.com/identity/sign-in/credential-manager-siwg#instantiate-google">Android: Sign-in with Google</a></li>
 <li><a href="https://openid.net/apple-successfully-implements-openid-connect-with-sign-in-with-apple/">Apple Successfully Implements OpenID Connect with Sign In with Apple</a></li>
 </ul>
-<h2 id="login-flow" tabindex="-1">Login Flow <a class="header-anchor" href="#login-flow">#</a></h2>
-<h3 id="reference" tabindex="-1">Reference <a class="header-anchor" href="#reference">#</a></h3>
+<h2 id="design-choices" tabindex="-1">Design choices <a class="header-anchor" href="#design-choices">#</a></h2>
+<h3 id="how-to-identify-the-user" tabindex="-1">How to identify the user ? <a class="header-anchor" href="#how-to-identify-the-user">#</a></h3>
 <ul>
-<li>Login flow mainly follows <a href="https://datatracker.ietf.org/doc/html/rfc6749#section-4.4">OAuth2.0: Client Credentials Grant</a></li>
-<li>3rd Party Authentication flow follows <a href="https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest">OpenID Connect: 3.1.2.1.  Authentication Request</a></li>
+<li>The application need to validate the user's legitimacy on 3rd party identity provider.</li>
+<li>The application does NOT need to access the resource from user.</li>
+<li>Given the requirements, <strong>ID Token</strong> is the best choice for the application to identify the user.
+<ul>
+<li>safer than access token.</li>
 </ul>
+</li>
+</ul>
+<h3 id="login-flow-design" tabindex="-1">Login flow design <a class="header-anchor" href="#login-flow-design">#</a></h3>
+<ul>
+<li>Mobile client can use SDK e.g. <a href="https://developer.android.com/identity/sign-in/credential-manager-siwg#instantiate-google">Android: Sign-in with Google</a> obtain <code>id_token</code> from IDP.</li>
+<li>After obtaining <code>id_token</code>, the mobile client can follow <a href="https://datatracker.ietf.org/doc/html/rfc6749#section-4.4">OAuth2.0: Client Credentials Grant</a> to request the access of to its own application server (resource server).</li>
+</ul>
+<h2 id="login-flow" tabindex="-1">Login Flow <a class="header-anchor" href="#login-flow">#</a></h2>
 <h3 id="participants" tabindex="-1">Participants <a class="header-anchor" href="#participants">#</a></h3>
 <ul>
 <li>
@@ -640,7 +657,7 @@ Authorization servers that still require a statically included shared secret for
 <blockquote>
 <p>For mobile apps, there is more hope. Apple has an API known as “App Attestation”, and Google has a similar API called “Google Play Integrity”. Both APIs work similarly, with a few technical differences. At a high level, both of them involve the application making a request to the operating system to sign some data. Then the app includes that signed string in the call it makes to the developer’s API. The API can validate the signature against the public key from Apple and Google to determine its confidence level that the API request is made from a real version of the mobile app.</p>
 </blockquote>
-<h2 id="reference-1" tabindex="-1">Reference <a class="header-anchor" href="#reference-1">#</a></h2>
+<h2 id="reference" tabindex="-1">Reference <a class="header-anchor" href="#reference">#</a></h2>
 <hr class="footnotes-sep">
 <section class="footnotes">
 <ol class="footnotes-list">

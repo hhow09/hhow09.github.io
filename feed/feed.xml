@@ -799,22 +799,27 @@ end
 	</entry>
 	
 	<entry>
-		<title>OAuth server for mobile applications</title>
+		<title>Authorization server for mobile applications</title>
 		<link href="https://hhow09.github.io/blog/oauth2-server/"/>
 		<updated>2023-12-30T00:00:00Z</updated>
 		<id>https://hhow09.github.io/blog/oauth2-server/</id>
-		<content type="html">&lt;p&gt;Some notes after working on Auhtorization server at work.&lt;/p&gt;
+		<content type="html">&lt;p&gt;Notes of working on Authorization server for mobile applications.&lt;/p&gt;
+&lt;h2 id=&quot;goal&quot; tabindex=&quot;-1&quot;&gt;Goal &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/oauth2-server/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Manage user registration and authentication for mobile applications.&lt;/li&gt;
+&lt;li&gt;Reduce the development time for application teams.&lt;/li&gt;
+&lt;/ul&gt;
 &lt;h2 id=&quot;requirement&quot; tabindex=&quot;-1&quot;&gt;Requirement &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/oauth2-server/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;ul&gt;
-&lt;li&gt;support authentication and authorization for application servers.&lt;/li&gt;
-&lt;li&gt;Support different authorization methods for an account (e.g. google, apple and others... ).
+&lt;li&gt;Any legitimate user from supported 3rd Identity Provider (IDP) (e.g. Google, Apple) can register/login to application.&lt;/li&gt;
+&lt;li&gt;Authorization server should manage the user registration and authentication for multiple applications.&lt;/li&gt;
+&lt;li&gt;Authorization server should provide a unified authentication process &lt;strong&gt;for application servers&lt;/strong&gt; given different 3rd party identity providers (e.g. google, apple and others... ).
 &lt;ul&gt;
-&lt;li&gt;goal: login process for applications are unified &lt;strong&gt;as if interacting with a single authorization server&lt;/strong&gt;.&lt;/li&gt;
+&lt;li&gt;Authorization server should works as a &lt;strong&gt;single identity provider&lt;/strong&gt; for application servers.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
-&lt;li&gt;Manage user account and sessions for application servers.&lt;/li&gt;
-&lt;li&gt;Support refresh token rotation.&lt;/li&gt;
-&lt;li&gt;Should follow &lt;a href=&quot;https://datatracker.ietf.org/doc/html/rfc6749&quot;&gt;OAuth 2.0 Authorization Framework&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Authorization server should provide backoffice interface for managing user account and sessions.&lt;/li&gt;
+&lt;li&gt;Authorization server should support &lt;strong&gt;refresh token rotation&lt;/strong&gt;.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h2 id=&quot;related-rfcs&quot; tabindex=&quot;-1&quot;&gt;Related RFCs &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/oauth2-server/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;ul&gt;
@@ -837,14 +842,26 @@ end
 &lt;/blockquote&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&quot;https://developers.google.com/identity/openid-connect/openid-connect&quot;&gt;Google supports open ID Connect&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://developer.android.com/identity/sign-in/credential-manager-siwg#instantiate-google&quot;&gt;Android: Sign-in with Google&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&quot;https://openid.net/apple-successfully-implements-openid-connect-with-sign-in-with-apple/&quot;&gt;Apple Successfully Implements OpenID Connect with Sign In with Apple&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h2 id=&quot;login-flow&quot; tabindex=&quot;-1&quot;&gt;Login Flow &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/oauth2-server/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
-&lt;h3 id=&quot;reference&quot; tabindex=&quot;-1&quot;&gt;Reference &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/oauth2-server/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;h2 id=&quot;design-choices&quot; tabindex=&quot;-1&quot;&gt;Design choices &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/oauth2-server/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;h3 id=&quot;how-to-identify-the-user&quot; tabindex=&quot;-1&quot;&gt;How to identify the user ? &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/oauth2-server/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
 &lt;ul&gt;
-&lt;li&gt;Login flow mainly follows &lt;a href=&quot;https://datatracker.ietf.org/doc/html/rfc6749#section-4.4&quot;&gt;OAuth2.0: Client Credentials Grant&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;3rd Party Authentication flow follows &lt;a href=&quot;https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest&quot;&gt;OpenID Connect: 3.1.2.1.  Authentication Request&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;The application need to validate the user&#39;s legitimacy on 3rd party identity provider.&lt;/li&gt;
+&lt;li&gt;The application does NOT need to access the resource from user.&lt;/li&gt;
+&lt;li&gt;Given the requirements, &lt;strong&gt;ID Token&lt;/strong&gt; is the best choice for the application to identify the user.
+&lt;ul&gt;
+&lt;li&gt;safer than access token.&lt;/li&gt;
 &lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&quot;login-flow-design&quot; tabindex=&quot;-1&quot;&gt;Login flow design &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/oauth2-server/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Mobile client can use SDK e.g. &lt;a href=&quot;https://developer.android.com/identity/sign-in/credential-manager-siwg#instantiate-google&quot;&gt;Android: Sign-in with Google&lt;/a&gt; obtain &lt;code&gt;id_token&lt;/code&gt; from IDP.&lt;/li&gt;
+&lt;li&gt;After obtaining &lt;code&gt;id_token&lt;/code&gt;, the mobile client can follow &lt;a href=&quot;https://datatracker.ietf.org/doc/html/rfc6749#section-4.4&quot;&gt;OAuth2.0: Client Credentials Grant&lt;/a&gt; to request the access of to its own application server (resource server).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;login-flow&quot; tabindex=&quot;-1&quot;&gt;Login Flow &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/oauth2-server/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;h3 id=&quot;participants&quot; tabindex=&quot;-1&quot;&gt;Participants &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/oauth2-server/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
 &lt;ul&gt;
 &lt;li&gt;
@@ -926,7 +943,7 @@ Authorization servers that still require a statically included shared secret for
 &lt;blockquote&gt;
 &lt;p&gt;For mobile apps, there is more hope. Apple has an API known as “App Attestation”, and Google has a similar API called “Google Play Integrity”. Both APIs work similarly, with a few technical differences. At a high level, both of them involve the application making a request to the operating system to sign some data. Then the app includes that signed string in the call it makes to the developer’s API. The API can validate the signature against the public key from Apple and Google to determine its confidence level that the API request is made from a real version of the mobile app.&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h2 id=&quot;reference-1&quot; tabindex=&quot;-1&quot;&gt;Reference &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/oauth2-server/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;reference&quot; tabindex=&quot;-1&quot;&gt;Reference &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/oauth2-server/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;hr class=&quot;footnotes-sep&quot;&gt;
 &lt;section class=&quot;footnotes&quot;&gt;
 &lt;ol class=&quot;footnotes-list&quot;&gt;
