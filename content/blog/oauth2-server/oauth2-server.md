@@ -1,5 +1,5 @@
 ---
-title: OAuth server for mobile applications
+title: Authorization server for mobile applications
 description: implementation details of OAuth server for mobile applications 
 date: 2023-12-30
 tags:
@@ -8,15 +8,19 @@ tags:
 layout: layouts/post.njk
 ---
 
-Some notes after working on Auhtorization server at work.
+Notes of working on Authorization server for mobile applications.
+
+## Goal
+- Manage user registration and authentication for mobile applications.
+- Reduce the development time for application teams.
 
 ## Requirement
-- support authentication and authorization for application servers.
-- Support different authorization methods for an account (e.g. google, apple and others... ).
-    - goal: login process for applications are unified **as if interacting with a single authorization server**.
-- Manage user account and sessions for application servers.
-- Support refresh token rotation.
-- Should follow [OAuth 2.0 Authorization Framework](https://datatracker.ietf.org/doc/html/rfc6749)
+- Any legitimate user from supported 3rd Identity Provider (IDP) (e.g. Google, Apple) can register/login to application.
+- Authorization server should manage the user registration and authentication for multiple applications.
+- Authorization server should provide a unified authentication process **for application servers** given different 3rd party identity providers (e.g. google, apple and others... ).
+    - Authorization server should works as a **single identity provider** for application servers.
+- Authorization server should provide backoffice interface for managing user account and sessions.
+- Authorization server should support **refresh token rotation**.
 
 ## Related RFCs
 - [RFC 6749 OAuth 2.0 Authorization Framework](https://datatracker.ietf.org/doc/html/rfc6749)
@@ -27,8 +31,6 @@ Some notes after working on Auhtorization server at work.
 ### Client [^1]
 >  An application making protected resource requests on behalf of the resource owner and with its authorization.  The term "client" does not imply any particular implementation characteristics (e.g., whether the application executes on a server, a desktop, or other devices).
 
-
-
 #### native application client [^2]
 > A native application is a public client installed and executed on the device used by the resource owner.  Protocol data and credentials are accessible to the resource owner.  It is assumed that any client authentication credentials included in the application can be extracted.  On the other hand, dynamically issued credentials such as access tokens or refresh tokens can receive an acceptable level of protection.  At a minimum, these credentials are protected from hostile servers with which the application may interact.  On some platforms, these credentials might be protected from other applications residing on the same device.
 
@@ -37,13 +39,21 @@ Some notes after working on Auhtorization server at work.
 > The ID Token is a security token that contains Claims about the Authentication of an End-User by an Authorization Server when using a Client, and potentially other requested Claims. The ID Token is represented as a [JSON Web Token (JWT)](https://openid.net/specs/openid-connect-core-1_0.html#JWT) [JWT].
 
 - [Google supports open ID Connect](https://developers.google.com/identity/openid-connect/openid-connect)
+- [Android: Sign-in with Google](https://developer.android.com/identity/sign-in/credential-manager-siwg#instantiate-google)
 - [Apple Successfully Implements OpenID Connect with Sign In with Apple](https://openid.net/apple-successfully-implements-openid-connect-with-sign-in-with-apple/)
 
-## Login Flow
-### Reference
-- Login flow mainly follows [OAuth2.0: Client Credentials Grant](https://datatracker.ietf.org/doc/html/rfc6749#section-4.4)
-- 3rd Party Authentication flow follows [OpenID Connect: 3.1.2.1.  Authentication Request](https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest)
+## Design choices
+### How to identify the user ?
+- The application need to validate the user's legitimacy on 3rd party identity provider.
+- The application does NOT need to access the resource from user.
+- Given the requirements, **ID Token** is the best choice for the application to identify the user.
+    - safer than access token.
 
+### Login flow design
+- Mobile client can use SDK e.g. [Android: Sign-in with Google](https://developer.android.com/identity/sign-in/credential-manager-siwg#instantiate-google) obtain `id_token` from IDP.
+- After obtaining `id_token`, the mobile client can follow [OAuth2.0: Client Credentials Grant](https://datatracker.ietf.org/doc/html/rfc6749#section-4.4) to request the access of to its own application server (resource server).
+
+## Login Flow
 ### Participants
 - Mobile App (client)
 
