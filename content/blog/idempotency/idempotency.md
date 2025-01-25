@@ -24,8 +24,10 @@ In event stream processing, idempotence refers to the ability of a system to pro
 
 ## Why we need idempotency in distributed system ?
 ### Requests retry is inevitable.
-#### Failures Happen [^1]
-> Many kinds of failures become apparent as requests taking longer than usual, and potentially never completing. When a client is waiting longer than usual for a request to complete, it also holds on to the resources it was using for that request for a longer time. When a number of requests hold on to resources for a long time, the server can run out of those resources. These resources can include memory, threads, connections, ephemeral ports, or anything else that is limited.
+#### Failures Happen
+>  Clients send requests to servers but might not get a response. It's impossible for clients to know if the response was lost or the server crashed before processing the request. To make sure its request is processed, the client has to resend the request. [^14]
+
+> Many kinds of failures become apparent as requests taking longer than usual, and potentially never completing. When a client is waiting longer than usual for a request to complete, it also holds on to the resources it was using for that request for a longer time. When a number of requests hold on to resources for a long time, the server can run out of those resources. These resources can include memory, threads, connections, ephemeral ports, or anything else that is limited. [^1]
 
 With idempotency, retry will just produce same side effect. 
 
@@ -206,3 +208,4 @@ TLDR:
 [^11]: [My Thoughts on Idempotency](https://andrewjdawson2016.medium.com/my-thoughts-on-idempotency-9a2f40a01a7e)
 [^12]: [Idempotent Processing with Kafka](https://nejckorasa.github.io/posts/idempotent-kafka-procesing/#understanding-the-intricacies-of-exactly-once-semantics-in-kafka)
 [^13]: [Viktor Klang's Twitter](https://twitter.com/viktorklang/status/789036133434978304)
+[^14]: [Martin Fowler: Idempotent Receiver](https://martinfowler.com/articles/patterns-of-distributed-systems/idempotent-receiver.html)
