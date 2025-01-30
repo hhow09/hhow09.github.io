@@ -38,6 +38,11 @@
 &lt;li&gt;AWS &lt;a href=&quot;https://aws.amazon.com/api-gateway/&quot;&gt;API Gateway&lt;/a&gt; for exposing Lambda as REST API.&lt;/li&gt;
 &lt;li&gt;AWS &lt;a href=&quot;https://aws.amazon.com/pm/dynamodb/&quot;&gt;DynamoDB&lt;/a&gt; as main database.&lt;/li&gt;
 &lt;li&gt;AWS &lt;a href=&quot;https://aws.amazon.com/s3/&quot;&gt;S3&lt;/a&gt; for website status and static contents&lt;/li&gt;
+&lt;li&gt;AWS &lt;a href=&quot;https://aws.amazon.com/cloudwatch/&quot;&gt;Cloudwatch&lt;/a&gt; for logging and monitoring.
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-logs-loggroup.html#cfn-logs-loggroup-retentionindays&quot;&gt;set log retention policy&lt;/a&gt; properly.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
 &lt;li&gt;&lt;a href=&quot;https://corp.ecpay.com.tw/ecpay_en/&quot;&gt;ECPay&lt;/a&gt; for payment integration supporting credit card and ATM transfer.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h3 id=&quot;frontend&quot; tabindex=&quot;-1&quot;&gt;Frontend &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/e-commerce-aws-serverless/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
