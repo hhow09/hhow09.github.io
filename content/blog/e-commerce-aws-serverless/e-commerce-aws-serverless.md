@@ -29,6 +29,8 @@ An overview of the e-commerce website with AWS Serverless stack developed by me.
 - AWS [API Gateway](https://aws.amazon.com/api-gateway/) for exposing Lambda as REST API.
 - AWS [DynamoDB](https://aws.amazon.com/pm/dynamodb/) as main database.
 - AWS [S3](https://aws.amazon.com/s3/) for website status and static contents
+- AWS [Cloudwatch](https://aws.amazon.com/cloudwatch/) for logging and monitoring.
+  - [set log retention policy](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-logs-loggroup.html#cfn-logs-loggroup-retentionindays) properly.
 - [ECPay](https://corp.ecpay.com.tw/ecpay_en/) for payment integration supporting credit card and ATM transfer.
 
 ### Frontend
