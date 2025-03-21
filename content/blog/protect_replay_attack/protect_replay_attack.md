@@ -6,11 +6,10 @@ tags:
   - web security
 layout: layouts/post.njk
 ---
-## Requirement
-- public facing API with public client (e.g. mobile app, web app)
-- bot intercepted the requests and replaying them
+## Replay Attack
+> An attack in which the Attacker is able to replay previously captured messages (between a legitimate Claimant and a Verifier) to masquerade as that Claimant to the Verifier or vice versa.
 
-## Approaches
+## Protection Approaches
 1. IP rate limiting (extra cost)
     - [Google Cloud Armor](https://cloud.google.com/armor/docs/rate-limiting-overview)
 1. Enterprise solution (extra cost)
@@ -19,8 +18,14 @@ layout: layouts/post.njk
 1. ~~API key~~ (not safe for public client)
 1. nonce (with authentication)
 
-## Simple solution without extra cost: Nonce
+## Simple solution without extra cost: Cryptographic nonce
+> Nonce in cryptography means “number once,” and this arbitrary number is only used one time in a cryptographic communication. 
+
 > The nonce helps to prove that the message received was sent by the intended sender and was not intercepted and resent by a bad actor.
+
+{% image "./Nonce-cnonce-uml.png", "Nonce Auth" %}
+
+Typical client-server communication during a nonce-based authentication process including both a server nonce and a client nonce.
 
 ### How to choose a nonce 
 1. Timestamp
