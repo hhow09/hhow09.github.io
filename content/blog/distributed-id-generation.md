@@ -1,0 +1,141 @@
+---
+title: Distributed ID Generation Solutions
+description: Distributed ID Generation
+date: 2023-05-02
+tags:
+  - distributed system
+layout: layouts/post.njk
+---
+Using auto-increment primary keys from traditional databases as ID for distributed systems can be inefficient and vulnerable to being predicted and analyzed.
+
+Nowadays, distributed systems require unique global identifiers; it is an essential task in distributed computing with growing internet usage.
+
+## Requirement
+### Functional Requirement
+- id should be globally unique
+- low latency
+- each node can generate id independently 
+
+### Nice to have features
+- monotonicity (sortable by time)
+- unpredictable
+- high availability. Since an ID generator is a mission-critical system, it must be highly available.
+
+## Popular Solutions
+1. UUID V4
+2. Nano ID
+3. ULID
+4. KSUID
+5. Mongdb objectID
+6. Snowflake ID
+
+## Overview
+Designing a distributed ID generation scheme can be divided into two steps
+
+1. Generate the binary ID, usually selected from pseudo-random numbers, time, and node ID.
+2. Convert the binary ID into a human-readable and easily transmittable string text.
+
+## Binary ID Generation
+
+### 1. PRNG (pseudo random number generator)
+1. UUID v4 (128 bit)
+2. Nano ID (no standard length)
+
+|     | random number (bits)  | total (bits) |
+|:-------:|---------------|-------------|
+| UUID v4 | 122           | 128         |
+| Nano ID | 126           | 126         |
+
+#### UUID [[2]](#reference)
+> UUIDv4 consists of 128 bits, which are typically represented as 32 hexadecimal characters in the following format: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx, where the digit "4" in the third group signifies the version (i.e., UUIDv4) and the digit "y" in the fourth group specifies the variant.
+
+#### Pros
+- Generating UUID is simple. No coordination between servers is needed so there will not be any synchronization issues.
+- The system is easy to scale because each web server is responsible for generating IDs they consume. ID generator can easily scale with web servers.
+
+#### Cons
+- IDs are 128 bits long, but our requirement is 64 bits.
+- IDs do not go up with time.
+- IDs could be non-numeric.
+
+##### Chance of duplicate ID
+> With the sheer number of possible combinations (2^128), it would be almost impossible to generate a duplicate unless you are generating trillions of IDs every second, for many years.
+
+#### Nano ID [[3]](#reference)
+> A tiny, secure, URL-friendly, unique string ID generator.
+Small. 130 bytes (minified and gzipped). No dependencies. Size Limit controls the size.
+Safe. It uses hardware random generator. Can be used in clusters.
+Short IDs. It uses a larger alphabet than UUID (A-Za-z0-9_-). So ID size was reduced from 36 to 21 symbols.
+Portable. Nano ID was ported to 20 programming languages.
+
+
+
+### 2. Timestamp + PRNG
+
+|       | timestamp (bits) | random number (bits) | total (bits) |
+|:-----:|------------------|----------------------|--------------|
+| ULID  | 48               | 80                   | 128          |
+| KSUID | 32               | 128                  | 160          |
+
+#### ULID [[4]](#reference)
+- 128-bit compatibility with UUID
+- Lexicographically sortable!
+    - timestamp: UNIX-time in milliseconds
+- No special characters (URL safe)
+- Monotonic sort order (correctly detects and handles the same millisecond)
+
+
+#### KSUID [[4]](#reference)
+> There are numerous methods for generating unique identifiers, so why KSUID?
+> 1. Naturally ordered by generation time
+> 2. Collision-free, coordination-free, dependency-free
+> 3. Highly portable representations
+
+
+### 3. Timestamp + Node ID + Monotonic Counter
+
+|                  | timestamp (bits) | Node Id (bits) | Process Id (bits) | Counter (bits) | total (bits) |
+|:----------------:|------------------|----------------|-------------------|----------------|--------------|
+| Snowflake ID     | 41               | 10             |  -                | 12             | 64           |
+| MongoDB ObjectID | 32               | 24             | 16                | 24             | 96           |
+
+- id is unique across different node and process
+- counter ensure the uniqueness on same process of same node 
+
+#### Security Concern
+- since the structure of id, the entropy of id is quite small, which means [easy to predict](https://github.com/andresriancho/mongo-objectid-predict).
+- It is dangerous through [IDOR](https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/05-Authorization_Testing/04-Testing_for_Insecure_Direct_Object_References)
+
+#### Snowflake ID [[6]](#reference)
+
+- timestamp: Epoch in milliseconds precision
+  - That gives us **69** years with respect to a **custom epoch**.
+- Node ID: 10 bits, this gives us 1024 nodes/machines.
+- Local counter: 12 bits, The counter’s max value would be 4095.
+
+#### MongoDB ObjectID [[7]](#reference)
+- The object ID is generated by the MongoDB driver instead of the database.
+
+- The 12-byte ObjectId consists of:
+  - A 4-byte timestamp, representing the ObjectId's creation, measured in seconds since the Unix epoch.
+  - A 5-byte random value generated once per process. This random value is unique to the machine and process.
+  - A 3-byte incrementing counter, initialized to a random value.
+
+## Types of data source
+### Pseudo random number
+#### Packages
+- [crypto/rand](https://pkg.go.dev/crypto/rand) 
+- [math/rand](https://pkg.go.dev/math/rand)
+
+#### Considerations
+- collisoin: longer bits gives lower chance of collision
+- unpredictability: use `crypto/rand` to lower unpredictability
+
+## Reference
+1. [6 个流行的分布式 ID 方案之间的对决](https://catcat.cc/post/2020-09-19/)
+2. [UUID](https://datatracker.ietf.org/doc/html/rfc4122)
+3. [Nano ID](https://github.com/ai/nanoid)
+4. [ULID](https://github.com/ulid/spec)
+5. [KSUID](https://github.com/segmentio/ksuid)
+6. [Snowflake ID](https://github.com/bwmarrin/snowflake)
+7. [MongoDB ObjectID](https://www.mongodb.com/docs/manual/reference/method/ObjectId/)
