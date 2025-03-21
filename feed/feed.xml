@@ -286,12 +286,11 @@
 		<link href="https://hhow09.github.io/blog/protect_replay_attack/"/>
 		<updated>2024-12-22T00:00:00Z</updated>
 		<id>https://hhow09.github.io/blog/protect_replay_attack/</id>
-		<content type="html">&lt;h2 id=&quot;requirement&quot; tabindex=&quot;-1&quot;&gt;Requirement &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/protect_replay_attack/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
-&lt;ul&gt;
-&lt;li&gt;public facing API with public client (e.g. mobile app, web app)&lt;/li&gt;
-&lt;li&gt;bot intercepted the requests and replaying them&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id=&quot;approaches&quot; tabindex=&quot;-1&quot;&gt;Approaches &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/protect_replay_attack/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+		<content type="html">&lt;h2 id=&quot;replay-attack&quot; tabindex=&quot;-1&quot;&gt;Replay Attack &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/protect_replay_attack/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;An attack in which the Attacker is able to replay previously captured messages (between a legitimate Claimant and a Verifier) to masquerade as that Claimant to the Verifier or vice versa.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;protection-approaches&quot; tabindex=&quot;-1&quot;&gt;Protection Approaches &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/protect_replay_attack/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;ol&gt;
 &lt;li&gt;IP rate limiting (extra cost)
 &lt;ul&gt;
@@ -307,10 +306,15 @@
 &lt;li&gt;&lt;s&gt;API key&lt;/s&gt; (not safe for public client)&lt;/li&gt;
 &lt;li&gt;nonce (with authentication)&lt;/li&gt;
 &lt;/ol&gt;
-&lt;h2 id=&quot;simple-solution-without-extra-cost-nonce&quot; tabindex=&quot;-1&quot;&gt;Simple solution without extra cost: Nonce &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/protect_replay_attack/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;simple-solution-without-extra-cost-cryptographic-nonce&quot; tabindex=&quot;-1&quot;&gt;Simple solution without extra cost: Cryptographic nonce &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/protect_replay_attack/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Nonce in cryptography means “number once,” and this arbitrary number is only used one time in a cryptographic communication.&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;blockquote&gt;
 &lt;p&gt;The nonce helps to prove that the message received was sent by the intended sender and was not intercepted and resent by a bad actor.&lt;/p&gt;
 &lt;/blockquote&gt;
+&lt;p&gt;&lt;picture&gt;&lt;source type=&quot;image/avif&quot; srcset=&quot;https://hhow09.github.io/img/YcZx0b7Rdw-345.avif 345w&quot;&gt;&lt;source type=&quot;image/webp&quot; srcset=&quot;https://hhow09.github.io/img/YcZx0b7Rdw-345.webp 345w&quot;&gt;&lt;img alt=&quot;Nonce Auth&quot; loading=&quot;lazy&quot; decoding=&quot;async&quot; src=&quot;https://hhow09.github.io/img/YcZx0b7Rdw-345.png&quot; width=&quot;345&quot; height=&quot;331&quot;&gt;&lt;/picture&gt;&lt;/p&gt;
+&lt;p&gt;Typical client-server communication during a nonce-based authentication process including both a server nonce and a client nonce.&lt;/p&gt;
 &lt;h3 id=&quot;how-to-choose-a-nonce&quot; tabindex=&quot;-1&quot;&gt;How to choose a nonce &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/protect_replay_attack/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
 &lt;ol&gt;
 &lt;li&gt;
