@@ -3,8 +3,8 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>JavaScript Development Notes</title>
-		<meta name="description" content="JavaScript Development Notes">
+		<title>JavaScript/TypeScript Development Notes</title>
+		<meta name="description" content="JavaScript/TypeScript Development Notes">
 		<meta name="google-site-verification" content="pV0LpMzGqiF5LrOEOtxdTzsIjD0Q6Zd3yXLXJstHuuQ" />
 		<link rel="alternate" href="/feed/feed.xml" type="application/atom+xml" title="hhow09&#39;s Blog">
 		<link rel="alternate" href="/feed/feed.json" type="application/json" title="hhow09&#39;s Blog">
@@ -501,23 +501,24 @@ blockquote p {
 
 		<main id="skip">
 			
-<h1>JavaScript Development Notes</h1>
+<h1>JavaScript/TypeScript Development Notes</h1>
 
 <ul class="post-metadata">
 	<li><time datetime="2022-06-19">19 June 2022</time></li>
-	<li><a href="/tags/javascript/" class="post-tag">javascript</a></li>
+	<li><a href="/tags/javascript/" class="post-tag">javascript</a>, </li>
+	<li><a href="/tags/typescript/" class="post-tag">typescript</a></li>
 </ul>
 
 <aside style="margin-top:20px;">
   <h3> Table Of Contents </h3>
   <div class="toc" >
-        <ol><li><a href="#1-trace-call-stack">1. Trace Call Stack [1] [2]</a></li><li><a href="#2-console-log-an-object-is-pass-by-reference">2. console.log an Object is pass by reference [3]</a></li><li><a href="#3-initializing-2d-array-with-array-fill">3. Initializing 2D array with Array.fill</a></li><li><a href="#4-deep-copy-v-s-shallow-copy">4. Deep Copy v.s. Shallow Copy</a></li><li><a href="#5-manipulate-with-floating-point-number">5. Manipulate with floating-point number [4]</a></li><li><a href="#6-key-order-of-object-keys-obj">6. Key order of Object.keys(obj)? [5]</a></li><li><a href="#7-remove-duplicate-element-in-array">7. Remove Duplicate Element in Array</a></li><li><a href="#8-dom-element">8.DOM Element</a></li><li><a href="#9-using-await-inside-setinterval-is-pointless">9. using await inside setInterval is pointless</a></li><li><a href="#reference">Reference</a></li></ol>
+        <ol><li><a href="#trace-call-stack">Trace Call Stack [1] [2]</a></li><li><a href="#console-log-an-object-is-pass-by-reference">console.log an Object is pass by reference [3]</a></li><li><a href="#deep-copy-v-s-shallow-copy">Deep Copy v.s. Shallow Copy</a></li><li><a href="#initializing-2d-array-with-array-fill">Initializing 2D array with Array.fill</a></li><li><a href="#manipulate-with-floating-point-number">Manipulate with floating-point number [4]</a></li><li><a href="#fetching-query-param">Fetching - Query Param</a></li><li><a href="#key-order-of-object-keys-obj">Key order of Object.keys(obj)? [5]</a></li><li><a href="#remove-duplicate-element-in-array">Remove Duplicate Element in Array</a></li><li><a href="#dom-element">DOM Element</a></li><li><a href="#using-await-inside-setinterval-is-pointless">using await inside setInterval is pointless</a></li><li><a href="#reference">Reference</a></li></ol>
       </div>
   <hr>
 </aside>
 <article>
-  <p>Some gotchas I met in JS development.</p>
-<h2 id="1-trace-call-stack" tabindex="-1">1. Trace Call Stack <sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup> <sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup> <a class="header-anchor" href="#1-trace-call-stack">#</a></h2>
+  <p>Some notes and gotchas I met in JS/TS development.</p>
+<h2 id="trace-call-stack" tabindex="-1">Trace Call Stack <sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup> <sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup> <a class="header-anchor" href="#trace-call-stack">#</a></h2>
 <pre class="language-javascript" tabindex="0"><code class="language-javascript"><span class="token keyword">function</span> <span class="token function">foo</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token function">bar</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token punctuation">}</span>
@@ -532,7 +533,7 @@ blockquote p {
 
 <span class="token function">foo</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
 <hr>
-<h2 id="2-console-log-an-object-is-pass-by-reference" tabindex="-1">2. <code>console.log</code> an Object is pass by reference <sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup> <a class="header-anchor" href="#2-console-log-an-object-is-pass-by-reference">#</a></h2>
+<h2 id="console-log-an-object-is-pass-by-reference" tabindex="-1"><code>console.log</code> an Object is pass by reference <sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup> <a class="header-anchor" href="#console-log-an-object-is-pass-by-reference">#</a></h2>
 <ul>
 <li>object is pass by reference</li>
 <li>object may have changed when log shows</li>
@@ -541,9 +542,30 @@ blockquote p {
 <ul>
 <li>Don't use <code>console.log(obj)</code>, use <code>console.log(JSON.parse(JSON.stringify(obj)))</code> instead.</li>
 <li>This way you are sure you are seeing the value of obj at the moment you log it. Otherwise, many browsers provide a live view that constantly updates as values change. This may not be what you want.</li>
+<li>Or just use <a href="https://code.visualstudio.com/docs/debugtest/debugging">Debugger</a></li>
 </ul>
 <hr>
-<h2 id="3-initializing-2d-array-with-array-fill" tabindex="-1">3. Initializing 2D array with <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/fill">Array.fill</a> <a class="header-anchor" href="#3-initializing-2d-array-with-array-fill">#</a></h2>
+<h2 id="deep-copy-v-s-shallow-copy" tabindex="-1">Deep Copy v.s. Shallow Copy <a class="header-anchor" href="#deep-copy-v-s-shallow-copy">#</a></h2>
+<h4 id="shallow-copy" tabindex="-1">Shallow Copy <a class="header-anchor" href="#shallow-copy">#</a></h4>
+<ol>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice">Array.prototype.slice()</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign">Object.assign({}, obj)</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax">Spread Syntax: A2 = {...A1}</a></li>
+</ol>
+<h4 id="deep-copy" tabindex="-1">Deep Copy <a class="header-anchor" href="#deep-copy">#</a></h4>
+<ol>
+<li>
+<p><code>JSON.parse(JSON.stringify(object))</code>.</p>
+<ul>
+<li>If you do not use <code>circular reference</code>, <code>Dates</code>, <code>functions</code>, <code>undefined</code>, <code>Infinity</code>, <code>RegExps</code>, <code>Maps</code>, <code>Sets</code>, <code>Blobs</code>, <code>FileLists</code>, <code>ImageDatas</code>, <code>sparse Arrays</code>, <code>Typed Arrays</code> or other complex types within your object, it is a very simple one liner to deep clone an object.</li>
+</ul>
+</li>
+<li>
+<p>with library: <a href="https://lodash.com/docs#cloneDeep">lodash - cloneDeep</a></p>
+</li>
+</ol>
+<hr>
+<h2 id="initializing-2d-array-with-array-fill" tabindex="-1">Initializing 2D array with <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/fill">Array.fill</a> <a class="header-anchor" href="#initializing-2d-array-with-array-fill">#</a></h2>
 <ul>
 <li>if the filled value is Object, Array or function (pass by reference), they will reference to the same object.</li>
 </ul>
@@ -569,28 +591,7 @@ console<span class="token punctuation">.</span><span class="token function">log<
 <span class="token comment">//  [ 1, 1, 1, 1 ]</span>
 <span class="token comment">//]</span></code></pre>
 <hr>
-<h2 id="4-deep-copy-v-s-shallow-copy" tabindex="-1">4. Deep Copy v.s. Shallow Copy <a class="header-anchor" href="#4-deep-copy-v-s-shallow-copy">#</a></h2>
-<h4 id="shallow-copy" tabindex="-1">Shallow Copy <a class="header-anchor" href="#shallow-copy">#</a></h4>
-<ol>
-<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice">Array.prototype.slice()</a></li>
-<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign">Object.assign({}, obj)</a></li>
-<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax">Spread Syntax: A2 = {...A1}</a></li>
-</ol>
-<h4 id="deep-copy" tabindex="-1">Deep Copy <a class="header-anchor" href="#deep-copy">#</a></h4>
-<ol>
-<li>
-<p><code>JSON.parse(JSON.stringify(object))</code>.</p>
-<ul>
-<li>If you do not use <code>circular reference</code>, <code>Dates</code>, <code>functions</code>, <code>undefined</code>, <code>Infinity</code>, <code>RegExps</code>, <code>Maps</code>, <code>Sets</code>, <code>Blobs</code>, <code>FileLists</code>, <code>ImageDatas</code>, <code>sparse Arrays</code>, <code>Typed Arrays</code> or other complex types within your object, it is a very simple one liner to deep clone an object.</li>
-</ul>
-</li>
-<li>
-<p>with library: <a href="https://lodash.com/docs#cloneDeep">lodash - cloneDeep</a></p>
-</li>
-</ol>
-<hr>
-<h2 id="5-manipulate-with-floating-point-number" tabindex="-1">5. Manipulate with floating-point number <sup class="footnote-ref"><a href="#fn4" id="fnref4">[4]</a></sup> <a class="header-anchor" href="#5-manipulate-with-floating-point-number">#</a></h2>
-<p>JavaScript has a single and unpredictable number type, 64-bit floating point.</p>
+<h2 id="manipulate-with-floating-point-number" tabindex="-1">Manipulate with floating-point number <sup class="footnote-ref"><a href="#fn4" id="fnref4">[4]</a></sup> <a class="header-anchor" href="#manipulate-with-floating-point-number">#</a></h2>
 <pre class="language-javascript" tabindex="0"><code class="language-javascript"><span class="token number">0.1</span> <span class="token operator">+</span> <span class="token number">0.2</span> <span class="token operator">===</span> <span class="token number">0.3</span><span class="token punctuation">;</span> <span class="token comment">// false</span>
 
 <span class="token keyword">function</span> <span class="token function">numbersCloseEnoughToEqual</span><span class="token punctuation">(</span><span class="token parameter">n1<span class="token punctuation">,</span> n2</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
@@ -598,8 +599,22 @@ console<span class="token punctuation">.</span><span class="token function">log<
 <span class="token punctuation">}</span>
 
 <span class="token function">numbersCloseEnoughToEqual</span><span class="token punctuation">(</span><span class="token number">0.1</span> <span class="token operator">+</span> <span class="token number">0.2</span><span class="token punctuation">,</span> <span class="token number">0.3</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
+<ul>
+<li>Don't calculate by yourself. rely on a library like <a href="https://mikemcl.github.io/decimal.js/">decimal.js</a> or <a href="https://github.com/MikeMcl/big.js#readme">big.js</a></li>
+</ul>
 <hr>
-<h2 id="6-key-order-of-object-keys-obj" tabindex="-1">6. Key order of <code>Object.keys(obj)</code>? <sup class="footnote-ref"><a href="#fn5" id="fnref5">[5]</a></sup> <a class="header-anchor" href="#6-key-order-of-object-keys-obj">#</a></h2>
+<h2 id="fetching-query-param" tabindex="-1">Fetching - Query Param <a class="header-anchor" href="#fetching-query-param">#</a></h2>
+<ul>
+<li>Don't use string literal to build query param.
+<ul>
+<li>Otherwise empty space or <code>%00</code> (turn into null) in param will definitely backfire you.</li>
+</ul>
+</li>
+<li>Use <a href="https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams/URLSearchParams">URLSearchParams</a> to build query param.</li>
+<li>Use library like <a href="https://www.npmjs.com/package/qs">qs</a> to build complex/nested query params.</li>
+</ul>
+<hr>
+<h2 id="key-order-of-object-keys-obj" tabindex="-1">Key order of <code>Object.keys(obj)</code>? <sup class="footnote-ref"><a href="#fn5" id="fnref5">[5]</a></sup> <a class="header-anchor" href="#key-order-of-object-keys-obj">#</a></h2>
 <h4 id="es5" tabindex="-1">ES5 <a class="header-anchor" href="#es5">#</a></h4>
 <ul>
 <li>depend on browser</li>
@@ -650,12 +665,12 @@ obj<span class="token punctuation">[</span><span class="token string">"veryLast"
 console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>Reflect<span class="token punctuation">.</span><span class="token function">ownKeys</span><span class="token punctuation">(</span>obj<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token comment">// [ "0", "1", "2", "foo", "01", "veryLast", Symbol(first), Symbol(last) ]</span></code></pre>
 <hr>
-<h2 id="7-remove-duplicate-element-in-array" tabindex="-1">7. Remove Duplicate Element in Array <a class="header-anchor" href="#7-remove-duplicate-element-in-array">#</a></h2>
+<h2 id="remove-duplicate-element-in-array" tabindex="-1">Remove Duplicate Element in Array <a class="header-anchor" href="#remove-duplicate-element-in-array">#</a></h2>
 <pre class="language-javascript" tabindex="0"><code class="language-javascript"><span class="token keyword">const</span> chars <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token string">"A"</span><span class="token punctuation">,</span> <span class="token string">"B"</span><span class="token punctuation">,</span> <span class="token string">"A"</span><span class="token punctuation">,</span> <span class="token string">"C"</span><span class="token punctuation">,</span> <span class="token string">"B"</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
 
 <span class="token keyword">const</span> uniqueChars <span class="token operator">=</span> chars<span class="token punctuation">.</span><span class="token function">filter</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter">c<span class="token punctuation">,</span> index</span><span class="token punctuation">)</span> <span class="token operator">=></span> chars<span class="token punctuation">.</span><span class="token function">indexOf</span><span class="token punctuation">(</span>c<span class="token punctuation">)</span> <span class="token operator">===</span> index<span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token comment">//[ 'A', 'B', 'C' ]</span></code></pre>
-<h2 id="8-dom-element" tabindex="-1">8.DOM Element <a class="header-anchor" href="#8-dom-element">#</a></h2>
+<h2 id="dom-element" tabindex="-1">DOM Element <a class="header-anchor" href="#dom-element">#</a></h2>
 <h3 id="dom-element-is-a-special-object" tabindex="-1">DOM Element is a special object <a class="header-anchor" href="#dom-element-is-a-special-object">#</a></h3>
 <pre class="language-javascript" tabindex="0"><code class="language-javascript"><span class="token keyword">var</span> a <span class="token operator">=</span> document<span class="token punctuation">.</span><span class="token function">createElement</span><span class="token punctuation">(</span><span class="token string">"div"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token keyword">typeof</span> a<span class="token punctuation">;</span> <span class="token comment">// "object"</span>
@@ -669,7 +684,7 @@ a<span class="token punctuation">.</span>tagName<span class="token punctuation">
 <p>be careful for duplicate naming.</p>
 <pre class="language-html" tabindex="0"><code class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>foo<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span></code></pre>
 <pre class="language-javascript" tabindex="0"><code class="language-javascript">console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>foo<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// HTML Element</span></code></pre>
-<h2 id="9-using-await-inside-setinterval-is-pointless" tabindex="-1">9. using <code>await</code> inside <code>setInterval</code> is pointless <a class="header-anchor" href="#9-using-await-inside-setinterval-is-pointless">#</a></h2>
+<h2 id="using-await-inside-setinterval-is-pointless" tabindex="-1">using <code>await</code> inside <code>setInterval</code> is pointless <a class="header-anchor" href="#using-await-inside-setinterval-is-pointless">#</a></h2>
 <ul>
 <li>since interval won't wait for <code>await</code></li>
 </ul>

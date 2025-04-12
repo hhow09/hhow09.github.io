@@ -1875,12 +1875,12 @@ Portable. Nano ID was ported to 20 programming languages.&lt;/p&gt;
 	</entry>
 	
 	<entry>
-		<title>JavaScript Development Notes</title>
+		<title>JavaScript/TypeScript Development Notes</title>
 		<link href="https://hhow09.github.io/blog/js-dev-notes/"/>
 		<updated>2022-06-19T00:00:00Z</updated>
 		<id>https://hhow09.github.io/blog/js-dev-notes/</id>
-		<content type="html">&lt;p&gt;Some gotchas I met in JS development.&lt;/p&gt;
-&lt;h2 id=&quot;1-trace-call-stack&quot; tabindex=&quot;-1&quot;&gt;1. Trace Call Stack &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/js-dev-notes/&quot; id=&quot;fnref1&quot;&gt;[1]&lt;/a&gt;&lt;/sup&gt; &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/js-dev-notes/&quot; id=&quot;fnref2&quot;&gt;[2]&lt;/a&gt;&lt;/sup&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/js-dev-notes/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+		<content type="html">&lt;p&gt;Some notes and gotchas I met in JS/TS development.&lt;/p&gt;
+&lt;h2 id=&quot;trace-call-stack&quot; tabindex=&quot;-1&quot;&gt;Trace Call Stack &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/js-dev-notes/&quot; id=&quot;fnref1&quot;&gt;[1]&lt;/a&gt;&lt;/sup&gt; &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/js-dev-notes/&quot; id=&quot;fnref2&quot;&gt;[2]&lt;/a&gt;&lt;/sup&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/js-dev-notes/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;pre class=&quot;language-javascript&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-javascript&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
   &lt;span class=&quot;token function&quot;&gt;bar&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
 &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
@@ -1895,7 +1895,7 @@ Portable. Nano ID was ported to 20 programming languages.&lt;/p&gt;
 
 &lt;span class=&quot;token function&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;hr&gt;
-&lt;h2 id=&quot;2-console-log-an-object-is-pass-by-reference&quot; tabindex=&quot;-1&quot;&gt;2. &lt;code&gt;console.log&lt;/code&gt; an Object is pass by reference &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/js-dev-notes/&quot; id=&quot;fnref3&quot;&gt;[3]&lt;/a&gt;&lt;/sup&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/js-dev-notes/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;console-log-an-object-is-pass-by-reference&quot; tabindex=&quot;-1&quot;&gt;&lt;code&gt;console.log&lt;/code&gt; an Object is pass by reference &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/js-dev-notes/&quot; id=&quot;fnref3&quot;&gt;[3]&lt;/a&gt;&lt;/sup&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/js-dev-notes/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;object is pass by reference&lt;/li&gt;
 &lt;li&gt;object may have changed when log shows&lt;/li&gt;
@@ -1904,9 +1904,30 @@ Portable. Nano ID was ported to 20 programming languages.&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Don&#39;t use &lt;code&gt;console.log(obj)&lt;/code&gt;, use &lt;code&gt;console.log(JSON.parse(JSON.stringify(obj)))&lt;/code&gt; instead.&lt;/li&gt;
 &lt;li&gt;This way you are sure you are seeing the value of obj at the moment you log it. Otherwise, many browsers provide a live view that constantly updates as values change. This may not be what you want.&lt;/li&gt;
+&lt;li&gt;Or just use &lt;a href=&quot;https://code.visualstudio.com/docs/debugtest/debugging&quot;&gt;Debugger&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;hr&gt;
-&lt;h2 id=&quot;3-initializing-2d-array-with-array-fill&quot; tabindex=&quot;-1&quot;&gt;3. Initializing 2D array with &lt;a href=&quot;https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/fill&quot;&gt;Array.fill&lt;/a&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/js-dev-notes/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;deep-copy-v-s-shallow-copy&quot; tabindex=&quot;-1&quot;&gt;Deep Copy v.s. Shallow Copy &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/js-dev-notes/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;h4 id=&quot;shallow-copy&quot; tabindex=&quot;-1&quot;&gt;Shallow Copy &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/js-dev-notes/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href=&quot;https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice&quot;&gt;Array.prototype.slice()&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign&quot;&gt;Object.assign({}, obj)&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax&quot;&gt;Spread Syntax: A2 = {...A1}&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h4 id=&quot;deep-copy&quot; tabindex=&quot;-1&quot;&gt;Deep Copy &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/js-dev-notes/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;JSON.parse(JSON.stringify(object))&lt;/code&gt;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;If you do not use &lt;code&gt;circular reference&lt;/code&gt;, &lt;code&gt;Dates&lt;/code&gt;, &lt;code&gt;functions&lt;/code&gt;, &lt;code&gt;undefined&lt;/code&gt;, &lt;code&gt;Infinity&lt;/code&gt;, &lt;code&gt;RegExps&lt;/code&gt;, &lt;code&gt;Maps&lt;/code&gt;, &lt;code&gt;Sets&lt;/code&gt;, &lt;code&gt;Blobs&lt;/code&gt;, &lt;code&gt;FileLists&lt;/code&gt;, &lt;code&gt;ImageDatas&lt;/code&gt;, &lt;code&gt;sparse Arrays&lt;/code&gt;, &lt;code&gt;Typed Arrays&lt;/code&gt; or other complex types within your object, it is a very simple one liner to deep clone an object.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;with library: &lt;a href=&quot;https://lodash.com/docs#cloneDeep&quot;&gt;lodash - cloneDeep&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h2 id=&quot;initializing-2d-array-with-array-fill&quot; tabindex=&quot;-1&quot;&gt;Initializing 2D array with &lt;a href=&quot;https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/fill&quot;&gt;Array.fill&lt;/a&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/js-dev-notes/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;if the filled value is Object, Array or function (pass by reference), they will reference to the same object.&lt;/li&gt;
 &lt;/ul&gt;
@@ -1932,28 +1953,7 @@ console&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span cl
 &lt;span class=&quot;token comment&quot;&gt;//  [ 1, 1, 1, 1 ]&lt;/span&gt;
 &lt;span class=&quot;token comment&quot;&gt;//]&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;hr&gt;
-&lt;h2 id=&quot;4-deep-copy-v-s-shallow-copy&quot; tabindex=&quot;-1&quot;&gt;4. Deep Copy v.s. Shallow Copy &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/js-dev-notes/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
-&lt;h4 id=&quot;shallow-copy&quot; tabindex=&quot;-1&quot;&gt;Shallow Copy &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/js-dev-notes/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
-&lt;ol&gt;
-&lt;li&gt;&lt;a href=&quot;https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice&quot;&gt;Array.prototype.slice()&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign&quot;&gt;Object.assign({}, obj)&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax&quot;&gt;Spread Syntax: A2 = {...A1}&lt;/a&gt;&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h4 id=&quot;deep-copy&quot; tabindex=&quot;-1&quot;&gt;Deep Copy &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/js-dev-notes/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
-&lt;ol&gt;
-&lt;li&gt;
-&lt;p&gt;&lt;code&gt;JSON.parse(JSON.stringify(object))&lt;/code&gt;.&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;If you do not use &lt;code&gt;circular reference&lt;/code&gt;, &lt;code&gt;Dates&lt;/code&gt;, &lt;code&gt;functions&lt;/code&gt;, &lt;code&gt;undefined&lt;/code&gt;, &lt;code&gt;Infinity&lt;/code&gt;, &lt;code&gt;RegExps&lt;/code&gt;, &lt;code&gt;Maps&lt;/code&gt;, &lt;code&gt;Sets&lt;/code&gt;, &lt;code&gt;Blobs&lt;/code&gt;, &lt;code&gt;FileLists&lt;/code&gt;, &lt;code&gt;ImageDatas&lt;/code&gt;, &lt;code&gt;sparse Arrays&lt;/code&gt;, &lt;code&gt;Typed Arrays&lt;/code&gt; or other complex types within your object, it is a very simple one liner to deep clone an object.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;with library: &lt;a href=&quot;https://lodash.com/docs#cloneDeep&quot;&gt;lodash - cloneDeep&lt;/a&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ol&gt;
-&lt;hr&gt;
-&lt;h2 id=&quot;5-manipulate-with-floating-point-number&quot; tabindex=&quot;-1&quot;&gt;5. Manipulate with floating-point number &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/js-dev-notes/&quot; id=&quot;fnref4&quot;&gt;[4]&lt;/a&gt;&lt;/sup&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/js-dev-notes/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
-&lt;p&gt;JavaScript has a single and unpredictable number type, 64-bit floating point.&lt;/p&gt;
+&lt;h2 id=&quot;manipulate-with-floating-point-number&quot; tabindex=&quot;-1&quot;&gt;Manipulate with floating-point number &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/js-dev-notes/&quot; id=&quot;fnref4&quot;&gt;[4]&lt;/a&gt;&lt;/sup&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/js-dev-notes/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;pre class=&quot;language-javascript&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-javascript&quot;&gt;&lt;span class=&quot;token number&quot;&gt;0.1&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;0.2&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;===&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;0.3&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;token comment&quot;&gt;// false&lt;/span&gt;
 
 &lt;span class=&quot;token keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;numbersCloseEnoughToEqual&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token parameter&quot;&gt;n1&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; n2&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
@@ -1961,8 +1961,22 @@ console&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span cl
 &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
 
 &lt;span class=&quot;token function&quot;&gt;numbersCloseEnoughToEqual&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token number&quot;&gt;0.1&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;0.2&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;0.3&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;Don&#39;t calculate by yourself. rely on a library like &lt;a href=&quot;https://mikemcl.github.io/decimal.js/&quot;&gt;decimal.js&lt;/a&gt; or &lt;a href=&quot;https://github.com/MikeMcl/big.js#readme&quot;&gt;big.js&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
 &lt;hr&gt;
-&lt;h2 id=&quot;6-key-order-of-object-keys-obj&quot; tabindex=&quot;-1&quot;&gt;6. Key order of &lt;code&gt;Object.keys(obj)&lt;/code&gt;? &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/js-dev-notes/&quot; id=&quot;fnref5&quot;&gt;[5]&lt;/a&gt;&lt;/sup&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/js-dev-notes/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;fetching-query-param&quot; tabindex=&quot;-1&quot;&gt;Fetching - Query Param &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/js-dev-notes/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Don&#39;t use string literal to build query param.
+&lt;ul&gt;
+&lt;li&gt;Otherwise empty space or &lt;code&gt;%00&lt;/code&gt; (turn into null) in param will definitely backfire you.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Use &lt;a href=&quot;https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams/URLSearchParams&quot;&gt;URLSearchParams&lt;/a&gt; to build query param.&lt;/li&gt;
+&lt;li&gt;Use library like &lt;a href=&quot;https://www.npmjs.com/package/qs&quot;&gt;qs&lt;/a&gt; to build complex/nested query params.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h2 id=&quot;key-order-of-object-keys-obj&quot; tabindex=&quot;-1&quot;&gt;Key order of &lt;code&gt;Object.keys(obj)&lt;/code&gt;? &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/js-dev-notes/&quot; id=&quot;fnref5&quot;&gt;[5]&lt;/a&gt;&lt;/sup&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/js-dev-notes/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;h4 id=&quot;es5&quot; tabindex=&quot;-1&quot;&gt;ES5 &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/js-dev-notes/&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
 &lt;ul&gt;
 &lt;li&gt;depend on browser&lt;/li&gt;
@@ -2013,12 +2027,12 @@ obj&lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=
 console&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;Reflect&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;ownKeys&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;obj&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
 &lt;span class=&quot;token comment&quot;&gt;// [ &quot;0&quot;, &quot;1&quot;, &quot;2&quot;, &quot;foo&quot;, &quot;01&quot;, &quot;veryLast&quot;, Symbol(first), Symbol(last) ]&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;hr&gt;
-&lt;h2 id=&quot;7-remove-duplicate-element-in-array&quot; tabindex=&quot;-1&quot;&gt;7. Remove Duplicate Element in Array &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/js-dev-notes/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;remove-duplicate-element-in-array&quot; tabindex=&quot;-1&quot;&gt;Remove Duplicate Element in Array &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/js-dev-notes/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;pre class=&quot;language-javascript&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-javascript&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;const&lt;/span&gt; chars &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;A&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;B&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;A&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;C&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;B&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
 
 &lt;span class=&quot;token keyword&quot;&gt;const&lt;/span&gt; uniqueChars &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; chars&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;filter&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token parameter&quot;&gt;c&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; index&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;=&gt;&lt;/span&gt; chars&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;indexOf&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;c&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;===&lt;/span&gt; index&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
 &lt;span class=&quot;token comment&quot;&gt;//[ &#39;A&#39;, &#39;B&#39;, &#39;C&#39; ]&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
-&lt;h2 id=&quot;8-dom-element&quot; tabindex=&quot;-1&quot;&gt;8.DOM Element &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/js-dev-notes/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;dom-element&quot; tabindex=&quot;-1&quot;&gt;DOM Element &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/js-dev-notes/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;h3 id=&quot;dom-element-is-a-special-object&quot; tabindex=&quot;-1&quot;&gt;DOM Element is a special object &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/js-dev-notes/&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
 &lt;pre class=&quot;language-javascript&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-javascript&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;var&lt;/span&gt; a &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; document&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;createElement&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;div&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt;
 &lt;span class=&quot;token keyword&quot;&gt;typeof&lt;/span&gt; a&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;token comment&quot;&gt;// &quot;object&quot;&lt;/span&gt;
@@ -2032,7 +2046,7 @@ a&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;tagName&lt;span c
 &lt;p&gt;be careful for duplicate naming.&lt;/p&gt;
 &lt;pre class=&quot;language-html&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-html&quot;&gt;&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;&amp;lt;&lt;/span&gt;div&lt;/span&gt; &lt;span class=&quot;token attr-name&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;token attr-value&quot;&gt;&lt;span class=&quot;token punctuation attr-equals&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&quot;&lt;/span&gt;foo&lt;span class=&quot;token punctuation&quot;&gt;&quot;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token tag&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;&amp;lt;/&lt;/span&gt;div&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class=&quot;language-javascript&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-javascript&quot;&gt;console&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;foo&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;token comment&quot;&gt;// HTML Element&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
-&lt;h2 id=&quot;9-using-await-inside-setinterval-is-pointless&quot; tabindex=&quot;-1&quot;&gt;9. using &lt;code&gt;await&lt;/code&gt; inside &lt;code&gt;setInterval&lt;/code&gt; is pointless &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/js-dev-notes/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;using-await-inside-setinterval-is-pointless&quot; tabindex=&quot;-1&quot;&gt;using &lt;code&gt;await&lt;/code&gt; inside &lt;code&gt;setInterval&lt;/code&gt; is pointless &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/js-dev-notes/&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;since interval won&#39;t wait for &lt;code&gt;await&lt;/code&gt;&lt;/li&gt;
 &lt;/ul&gt;
