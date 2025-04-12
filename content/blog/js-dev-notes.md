@@ -1,14 +1,15 @@
 ---
-title: JavaScript Development Notes
-description: JavaScript Development Notes
+title: JavaScript/TypeScript Development Notes
+description: JavaScript/TypeScript Development Notes
 date: 2022-06-19
 tags:
   - javascript
+  - typescript
 layout: layouts/post.njk
 ---
-Some gotchas I met in JS development.
+Some notes and gotchas I met in JS/TS development.
 
-## 1. Trace Call Stack [^trace_v8] [^trace_mdn]
+## Trace Call Stack [^trace_v8] [^trace_mdn]
 
 ```javascript
 function foo() {
@@ -28,7 +29,7 @@ foo();
 
 ---
 
-## 2. `console.log` an Object is pass by reference [^console_log_obj]
+## `console.log` an Object is pass by reference [^console_log_obj]
 
 - object is pass by reference
 - object may have changed when log shows
@@ -36,10 +37,28 @@ foo();
 ### Solution
 - Don't use `console.log(obj)`, use `console.log(JSON.parse(JSON.stringify(obj)))` instead.
 - This way you are sure you are seeing the value of obj at the moment you log it. Otherwise, many browsers provide a live view that constantly updates as values change. This may not be what you want.
+- Or just use [Debugger](https://code.visualstudio.com/docs/debugtest/debugging)
 
 ---
 
-## 3. Initializing 2D array with [Array.fill](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/fill)
+## Deep Copy v.s. Shallow Copy
+
+#### Shallow Copy
+
+1. [Array.prototype.slice()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice)
+2. [Object.assign({}, obj)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign)
+3. [Spread Syntax: A2 = {...A1}](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax)
+
+#### Deep Copy
+
+1. `JSON.parse(JSON.stringify(object))`. 
+    - If you do not use `circular reference`, `Dates`, `functions`, `undefined`, `Infinity`, `RegExps`, `Maps`, `Sets`, `Blobs`, `FileLists`, `ImageDatas`, `sparse Arrays`, `Typed Arrays` or other complex types within your object, it is a very simple one liner to deep clone an object.
+
+2. with library: [lodash - cloneDeep](https://lodash.com/docs#cloneDeep)
+
+---
+
+## Initializing 2D array with [Array.fill](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/fill)
 
 - if the filled value is Object, Array or function (pass by reference), they will reference to the same object.
 
@@ -69,27 +88,7 @@ console.log(list2);
 
 ---
 
-## 4. Deep Copy v.s. Shallow Copy
-
-#### Shallow Copy
-
-1. [Array.prototype.slice()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice)
-2. [Object.assign({}, obj)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign)
-3. [Spread Syntax: A2 = {...A1}](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax)
-
-#### Deep Copy
-
-1. `JSON.parse(JSON.stringify(object))`. 
-    - If you do not use `circular reference`, `Dates`, `functions`, `undefined`, `Infinity`, `RegExps`, `Maps`, `Sets`, `Blobs`, `FileLists`, `ImageDatas`, `sparse Arrays`, `Typed Arrays` or other complex types within your object, it is a very simple one liner to deep clone an object.
-
-2. with library: [lodash - cloneDeep](https://lodash.com/docs#cloneDeep)
-
----
-
-## 5. Manipulate with floating-point number [^you_dont_know_js]
-
-JavaScript has a single and unpredictable number type, 64-bit floating point.
-
+## Manipulate with floating-point number [^you_dont_know_js]
 ```javascript
 0.1 + 0.2 === 0.3; // false
 
@@ -100,9 +99,19 @@ function numbersCloseEnoughToEqual(n1, n2) {
 numbersCloseEnoughToEqual(0.1 + 0.2, 0.3);
 ```
 
+- Don't calculate by yourself. rely on a library like [decimal.js](https://mikemcl.github.io/decimal.js/) or [big.js](https://github.com/MikeMcl/big.js#readme)
+
 ---
 
-## 6. Key order of `Object.keys(obj)`? [^property_order_es2015]
+## Fetching - Query Param
+- Don't use string literal to build query param.
+  - Otherwise empty space or `%00` (turn into null) in param will definitely backfire you.
+- Use [URLSearchParams](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams/URLSearchParams) to build query param.
+- Use library like [qs](https://www.npmjs.com/package/qs) to build complex/nested query params.
+
+---
+
+## Key order of `Object.keys(obj)`? [^property_order_es2015]
 
 #### ES5
 
@@ -146,7 +155,7 @@ console.log(Reflect.ownKeys(obj));
 
 ---
 
-## 7. Remove Duplicate Element in Array
+## Remove Duplicate Element in Array
 
 ```javascript
 const chars = ["A", "B", "A", "C", "B"];
@@ -155,7 +164,7 @@ const uniqueChars = chars.filter((c, index) => chars.indexOf(c) === index);
 //[ 'A', 'B', 'C' ]
 ```
 
-## 8.DOM Element
+## DOM Element
 
 ### DOM Element is a special object
 
@@ -181,7 +190,7 @@ be careful for duplicate naming.
 console.log(foo); // HTML Element
 ```
 
-## 9. using `await` inside `setInterval` is pointless
+## using `await` inside `setInterval` is pointless
 
 - since interval won't wait for `await`
 
