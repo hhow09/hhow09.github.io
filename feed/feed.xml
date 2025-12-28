@@ -12,6 +12,66 @@
 	</author>
 	
 	<entry>
+		<title>Handle Implicit Requirements</title>
+		<link href="https://hhow09.github.io/blog/implicit-requirements/"/>
+		<updated>2025-12-28T00:00:00Z</updated>
+		<id>https://hhow09.github.io/blog/implicit-requirements/</id>
+		<content type="html">&lt;h2 id=&quot;introduction&quot; tabindex=&quot;-1&quot;&gt;Introduction &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/implicit-requirements/#introduction&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;How to spot the implicit requirements that product team might have overlooked ?&lt;/p&gt;
+&lt;p&gt;Implicit requirements are the ones that &lt;strong&gt;nobody wrote down&lt;/strong&gt; during design phase. It hurts the development by unexpected bugs and rework and eventually delays the release.&lt;/p&gt;
+&lt;h2 id=&quot;benefits-of-handling-it-early&quot; tabindex=&quot;-1&quot;&gt;Benefits of handling it early &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/implicit-requirements/#benefits-of-handling-it-early&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Identifying implicit requirements helps to properly manage the deadline and improve the quality of the product.&lt;/li&gt;
+&lt;li&gt;Addressing implicit requirements early can help prevent costly rework later.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Here&#39;s some examples I encountered:&lt;/p&gt;
+&lt;h2 id=&quot;side-effect-on-other-entities&quot; tabindex=&quot;-1&quot;&gt;Side effect on other entities &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/implicit-requirements/#side-effect-on-other-entities&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Example: Users can delete their account.
+&lt;ul&gt;
+&lt;li&gt;What happens to their &lt;strong&gt;Orders&lt;/strong&gt; placed?&lt;/li&gt;
+&lt;li&gt;What happens to their &lt;strong&gt;Comments&lt;/strong&gt; on shared documents?&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;uniqueness-constraints&quot; tabindex=&quot;-1&quot;&gt;Uniqueness Constraints &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/implicit-requirements/#uniqueness-constraints&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Which fields should be unique, and at what scope?&lt;/li&gt;
+&lt;li&gt;Should we auto-generate human-friendly unique ID for users ? If so, how to handle the uniqueness constraint ?&lt;/li&gt;
+&lt;li&gt;What about soft-deleted records?
+&lt;ul&gt;
+&lt;li&gt;note: &lt;strong&gt;partial index on only active records&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;permission-gaps&quot; tabindex=&quot;-1&quot;&gt;Permission Gaps &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/implicit-requirements/#permission-gaps&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;User has permission for Entity A but needs to display data from Entity B they can&#39;t access.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Example: Sales Representative can view and create &lt;strong&gt;orders&lt;/strong&gt; but &lt;strong&gt;cannot access invoice details&lt;/strong&gt;. However, in order page we need to display the &lt;strong&gt;invoice&lt;/strong&gt; details.
+&lt;ul&gt;
+&lt;li&gt;Question to clarify: Should we define fields in &lt;strong&gt;invoice&lt;/strong&gt; that are public ?&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Example: In UI user is displayed as a name with a link. However for users who cannot access &lt;strong&gt;User&lt;/strong&gt; detail page, it will go to 404 page.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;realtime-update&quot; tabindex=&quot;-1&quot;&gt;Realtime update &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/implicit-requirements/#realtime-update&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Especially in financial SaaS, there are requirements that multiple users viewing the same data need to see updates without refreshing.&lt;/li&gt;
+&lt;li&gt;Change in settings/permissions (which are usually cached), should we reissue access token or clearup cache in order to reflect the change ?&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;searchable-fields&quot; tabindex=&quot;-1&quot;&gt;Searchable fields &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/implicit-requirements/#searchable-fields&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Searching for related field would affect data modeling e.g..&lt;/li&gt;
+&lt;li&gt;Example: Search order by customer name → it might need to join/denormalize and create index on customer name.
+&lt;ul&gt;
+&lt;li&gt;Ask product about sorting, filtering, and full-text search needs.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+</content>
+	</entry>
+	
+	<entry>
 		<title>Talking about code quality</title>
 		<link href="https://hhow09.github.io/blog/code-quality/"/>
 		<updated>2025-12-28T00:00:00Z</updated>
