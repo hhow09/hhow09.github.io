@@ -4,7 +4,7 @@
 	<subtitle>sofware engineering stuff</subtitle>
 	<link href="https://hhow09.github.io/feed/feed.xml" rel="self"/>
 	<link href="https://hhow09.github.io/"/>
-	<updated>2025-12-28T00:00:00Z</updated>
+	<updated>2025-12-29T00:00:00Z</updated>
 	<id>https://hhow09.github.io/</id>
 	<author>
 		<name>HH</name>
@@ -12,69 +12,9 @@
 	</author>
 	
 	<entry>
-		<title>Handle Implicit Requirements</title>
-		<link href="https://hhow09.github.io/blog/implicit-requirements/"/>
-		<updated>2025-12-28T00:00:00Z</updated>
-		<id>https://hhow09.github.io/blog/implicit-requirements/</id>
-		<content type="html">&lt;h2 id=&quot;introduction&quot; tabindex=&quot;-1&quot;&gt;Introduction &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/implicit-requirements/#introduction&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
-&lt;p&gt;How to spot the implicit requirements that product team might have overlooked ?&lt;/p&gt;
-&lt;p&gt;Implicit requirements are the ones that &lt;strong&gt;nobody wrote down&lt;/strong&gt; during design phase. It hurts the development by unexpected bugs and rework and eventually delays the release.&lt;/p&gt;
-&lt;h2 id=&quot;benefits-of-handling-it-early&quot; tabindex=&quot;-1&quot;&gt;Benefits of handling it early &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/implicit-requirements/#benefits-of-handling-it-early&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
-&lt;ul&gt;
-&lt;li&gt;Identifying implicit requirements helps to properly manage the deadline and improve the quality of the product.&lt;/li&gt;
-&lt;li&gt;Addressing implicit requirements early can help prevent costly rework later.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;Here&#39;s some examples I encountered:&lt;/p&gt;
-&lt;h2 id=&quot;side-effect-on-other-entities&quot; tabindex=&quot;-1&quot;&gt;Side effect on other entities &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/implicit-requirements/#side-effect-on-other-entities&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
-&lt;ul&gt;
-&lt;li&gt;Example: Users can delete their account.
-&lt;ul&gt;
-&lt;li&gt;What happens to their &lt;strong&gt;Orders&lt;/strong&gt; placed?&lt;/li&gt;
-&lt;li&gt;What happens to their &lt;strong&gt;Comments&lt;/strong&gt; on shared documents?&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id=&quot;uniqueness-constraints&quot; tabindex=&quot;-1&quot;&gt;Uniqueness Constraints &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/implicit-requirements/#uniqueness-constraints&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
-&lt;ul&gt;
-&lt;li&gt;Which fields should be unique, and at what scope?&lt;/li&gt;
-&lt;li&gt;Should we auto-generate human-friendly unique ID for users ? If so, how to handle the uniqueness constraint ?&lt;/li&gt;
-&lt;li&gt;What about soft-deleted records?
-&lt;ul&gt;
-&lt;li&gt;note: &lt;strong&gt;partial index on only active records&lt;/strong&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id=&quot;permission-gaps&quot; tabindex=&quot;-1&quot;&gt;Permission Gaps &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/implicit-requirements/#permission-gaps&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
-&lt;p&gt;User has permission for Entity A but needs to display data from Entity B they can&#39;t access.&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;Example: Sales Representative can view and create &lt;strong&gt;orders&lt;/strong&gt; but &lt;strong&gt;cannot access invoice details&lt;/strong&gt;. However, in order page we need to display the &lt;strong&gt;invoice&lt;/strong&gt; details.
-&lt;ul&gt;
-&lt;li&gt;Question to clarify: Should we define fields in &lt;strong&gt;invoice&lt;/strong&gt; that are public ?&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;Example: In UI user is displayed as a name with a link. However for users who cannot access &lt;strong&gt;User&lt;/strong&gt; detail page, it will go to 404 page.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id=&quot;realtime-update&quot; tabindex=&quot;-1&quot;&gt;Realtime update &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/implicit-requirements/#realtime-update&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
-&lt;ul&gt;
-&lt;li&gt;Especially in financial SaaS, there are requirements that multiple users viewing the same data need to see updates without refreshing.&lt;/li&gt;
-&lt;li&gt;Change in settings/permissions (which are usually cached), should we reissue access token or clearup cache in order to reflect the change ?&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id=&quot;searchable-fields&quot; tabindex=&quot;-1&quot;&gt;Searchable fields &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/implicit-requirements/#searchable-fields&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
-&lt;ul&gt;
-&lt;li&gt;Searching for related field would affect data modeling e.g..&lt;/li&gt;
-&lt;li&gt;Example: Search order by customer name → it might need to join/denormalize and create index on customer name.
-&lt;ul&gt;
-&lt;li&gt;Ask product about sorting, filtering, and full-text search needs.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-</content>
-	</entry>
-	
-	<entry>
 		<title>Talking about code quality</title>
 		<link href="https://hhow09.github.io/blog/code-quality/"/>
-		<updated>2025-12-28T00:00:00Z</updated>
+		<updated>2025-12-29T00:00:00Z</updated>
 		<id>https://hhow09.github.io/blog/code-quality/</id>
 		<content type="html">&lt;h2 id=&quot;what-is-code-quality&quot; tabindex=&quot;-1&quot;&gt;What is code quality? &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/code-quality/#what-is-code-quality&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;p&gt;Definitions of code quality is pretty subjective and different from company to company. Developers also have different opinions on what is good code.&lt;/p&gt;
@@ -83,32 +23,31 @@
 &lt;li&gt;correct: free of bugs and errors&lt;/li&gt;
 &lt;li&gt;readable: clean and understandable&lt;/li&gt;
 &lt;li&gt;reusable: modular and adaptable&lt;/li&gt;
-&lt;li&gt;maintainable: easy to refactor and extend&lt;/li&gt;
+&lt;li&gt;maintainable: easy to &lt;a href=&quot;https://refactoring.guru/refactoring&quot;&gt;refactor&lt;/a&gt; and extend&lt;/li&gt;
 &lt;li&gt;efficient: optimal performance&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h2 id=&quot;why-is-code-quality-important&quot; tabindex=&quot;-1&quot;&gt;Why is code quality important ? &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/code-quality/#why-is-code-quality-important&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;Reduces bugs and errors → faster, more stable releases&lt;/li&gt;
-&lt;li&gt;Efficient code scales better → improved UX, lower costs&lt;/li&gt;
-&lt;li&gt;Helps developers understand, review, and build upon their own code → faster iterations&lt;/li&gt;
-&lt;li&gt;Enables team collaboration and knowledge sharing&lt;/li&gt;
+&lt;li&gt;Efficient code scales better → improved UX, reduce compute costs&lt;/li&gt;
+&lt;li&gt;Helps developers understand, review, collaborate and build upon their own code → faster iterations&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h2 id=&quot;how-to-measure-code-quality&quot; tabindex=&quot;-1&quot;&gt;How to measure code quality? &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/code-quality/#how-to-measure-code-quality&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;p&gt;Quantifying code quality is challenging, but these metrics provide useful signals:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;strong&gt;Test coverage&lt;/strong&gt;
 &lt;ul&gt;
-&lt;li&gt;Integrate coverage reports with your platform: &lt;a href=&quot;https://docs.gitlab.com/ci/testing/code_coverage/&quot;&gt;GitLab Code Coverage&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Also integrate coverage reports with your platform, e.g. &lt;a href=&quot;https://docs.gitlab.com/ci/testing/code_coverage/&quot;&gt;GitLab Code Coverage&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;Production bug count&lt;/strong&gt;
 &lt;ul&gt;
-&lt;li&gt;Track with error monitoring tools like &lt;a href=&quot;https://docs.sentry.io/product/&quot;&gt;Sentry&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;E.g. &lt;a href=&quot;https://docs.sentry.io/product/&quot;&gt;Sentry&lt;/a&gt; (Error monitoring tool)&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;&lt;a href=&quot;https://linearb.io/blog/what-is-code-churn&quot;&gt;Code churn&lt;/a&gt;&lt;/strong&gt;: frequency of edits to the same code—high churn often indicates implementation struggles&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/Cyclomatic_complexity&quot;&gt;Cyclomatic complexity&lt;/a&gt;&lt;/strong&gt;: measures code path complexity&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Refactoring confidence&lt;/strong&gt;: how comfortable the team feels changing code or upgrading dependencies&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Confidence in &lt;a href=&quot;https://refactoring.guru/refactoring&quot;&gt;refactoring&lt;/a&gt;&lt;/strong&gt;: how comfortable the team feels changing code or upgrading dependencies&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h2 id=&quot;how-to-maintain-code-quality&quot; tabindex=&quot;-1&quot;&gt;How to maintain code quality? &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/code-quality/#how-to-maintain-code-quality&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;h3 id=&quot;correctness&quot; tabindex=&quot;-1&quot;&gt;Correctness &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/code-quality/#correctness&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
@@ -118,7 +57,7 @@
 &lt;/ul&gt;
 &lt;h4 id=&quot;in-practice&quot; tabindex=&quot;-1&quot;&gt;In practice &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/code-quality/#in-practice&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
 &lt;ul&gt;
-&lt;li&gt;Enable &lt;strong&gt;type checking&lt;/strong&gt; for dynamically-typed languages to catch type errors at compile time.&lt;/li&gt;
+&lt;li&gt;Enforce &lt;strong&gt;type checking&lt;/strong&gt; for dynamically-typed languages to catch type errors at compile time.&lt;/li&gt;
 &lt;li&gt;Setup &lt;strong&gt;unit tests&lt;/strong&gt; and &lt;strong&gt;integration tests&lt;/strong&gt; in CI to catch bugs and errors early.
 &lt;ul&gt;
 &lt;li&gt;Take &lt;a href=&quot;https://en.wikipedia.org/wiki/Test-driven_development&quot;&gt;Test-driven development (TDD)&lt;/a&gt; as a guide.&lt;/li&gt;
@@ -176,18 +115,14 @@
 &lt;li&gt;&amp;quot;Module should be deep.&amp;quot;  - &lt;a href=&quot;https://www.amazon.de/Philosophy-Software-Design-John-Ousterhout/dp/1732102201&quot;&gt;A Philosophy of Software Design&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
-&lt;li&gt;Proper &lt;strong&gt;management of dependencies&lt;/strong&gt; ensures that external libraries or components can be updated or replaced without major disruptions.
-&lt;ul&gt;
-&lt;li&gt;e.g. dependency injection, version control, and modular design.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
+&lt;li&gt;Proper &lt;strong&gt;management of dependencies&lt;/strong&gt; ensures that external libraries or components can be updated or replaced without major disruptions. E.g. dependency injection, version control, and modular design.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h3 id=&quot;efficiency&quot; tabindex=&quot;-1&quot;&gt;Efficiency &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/code-quality/#efficiency&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
 &lt;p&gt;Efficiency can be defined as, using the resources optimally where resources could be memory, CPU, time, files, connections, databases etc.&lt;/p&gt;
 &lt;h4 id=&quot;in-practice-4&quot; tabindex=&quot;-1&quot;&gt;In practice &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/code-quality/#in-practice-4&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
 &lt;ul&gt;
 &lt;li&gt;write efficient code, understand and minimize time and space complexity of the code.&lt;/li&gt;
-&lt;li&gt;Measure before optimizing: Don&#39;t optimize performance before you measure it: e.g.
+&lt;li&gt;Measure before optimizing: Don&#39;t optimize performance before you measure it. E.g.
 &lt;ul&gt;
 &lt;li&gt;End-to-end: &lt;a href=&quot;https://docs.sentry.io/product/sentry-basics/performance-monitoring/&quot;&gt;Sentry - Performance Monitoring&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;Database: &lt;a href=&quot;https://www.mongodb.com/docs/atlas/monitor-cluster-metrics/&quot;&gt;Mongo Atlas Monitoring&lt;/a&gt;&lt;/li&gt;
@@ -195,12 +130,76 @@
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
+&lt;h2 id=&quot;further-reading&quot; tabindex=&quot;-1&quot;&gt;Further Reading &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/code-quality/#further-reading&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://lethain.com/quality/&quot;&gt;How to create software quality.&lt;/a&gt; by Will Larson discusses software quality in a broader sense.&lt;/li&gt;
+&lt;/ul&gt;
 &lt;h2 id=&quot;references&quot; tabindex=&quot;-1&quot;&gt;References &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/code-quality/#references&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&quot;https://aws.amazon.com/what-is/code-quality/&quot;&gt;AWS:What is code quality?&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&quot;https://microsoft.github.io/code-with-engineering-playbook/non-functional-requirements/maintainability/&quot;&gt;Microsoft: Engineering Fundamentals Playbook: Maintainability&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&quot;https://www.amazon.de/Pragmatic-Programmer-Journeyman-Master/dp/020161622X&quot;&gt;The Pragmatic Programmer&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&quot;https://de.wikipedia.org/wiki/Clean_Code&quot;&gt;Clean Code&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</content>
+	</entry>
+	
+	<entry>
+		<title>Handle Implicit Requirements</title>
+		<link href="https://hhow09.github.io/blog/implicit-requirements/"/>
+		<updated>2025-12-28T00:00:00Z</updated>
+		<id>https://hhow09.github.io/blog/implicit-requirements/</id>
+		<content type="html">&lt;h2 id=&quot;introduction&quot; tabindex=&quot;-1&quot;&gt;Introduction &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/implicit-requirements/#introduction&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;How to spot the implicit requirements that product team might have overlooked ?&lt;/p&gt;
+&lt;p&gt;Implicit requirements are the ones that &lt;strong&gt;nobody wrote down&lt;/strong&gt; during design phase. It hurts the development by unexpected bugs and rework and eventually delays the release.&lt;/p&gt;
+&lt;h2 id=&quot;benefits-of-handling-it-early&quot; tabindex=&quot;-1&quot;&gt;Benefits of handling it early &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/implicit-requirements/#benefits-of-handling-it-early&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Identifying implicit requirements helps to properly manage the deadline and improve the quality of the product.&lt;/li&gt;
+&lt;li&gt;Addressing implicit requirements early can help prevent costly rework later.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Here&#39;s some examples I encountered:&lt;/p&gt;
+&lt;h2 id=&quot;side-effect-on-other-entities&quot; tabindex=&quot;-1&quot;&gt;Side effect on other entities &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/implicit-requirements/#side-effect-on-other-entities&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Example: Users can delete their account.
+&lt;ul&gt;
+&lt;li&gt;What happens to their &lt;strong&gt;Orders&lt;/strong&gt; placed?&lt;/li&gt;
+&lt;li&gt;What happens to their &lt;strong&gt;Comments&lt;/strong&gt; on shared documents?&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;uniqueness-constraints&quot; tabindex=&quot;-1&quot;&gt;Uniqueness Constraints &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/implicit-requirements/#uniqueness-constraints&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Which fields should be unique, and at what scope?&lt;/li&gt;
+&lt;li&gt;Should we auto-generate human-friendly unique ID for users ? If so, how to handle the uniqueness constraint ?&lt;/li&gt;
+&lt;li&gt;What about soft-deleted records?
+&lt;ul&gt;
+&lt;li&gt;note: &lt;strong&gt;partial index on only active records&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;permission-gaps&quot; tabindex=&quot;-1&quot;&gt;Permission Gaps &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/implicit-requirements/#permission-gaps&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;User has permission for Entity A but needs to display data from Entity B they can&#39;t access.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Example: Sales Representative can view and create &lt;strong&gt;orders&lt;/strong&gt; but &lt;strong&gt;cannot access invoice details&lt;/strong&gt;. However, in order page we need to display the &lt;strong&gt;invoice&lt;/strong&gt; details.
+&lt;ul&gt;
+&lt;li&gt;Question to clarify: Should we define fields in &lt;strong&gt;invoice&lt;/strong&gt; that are public ?&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Example: In UI user is displayed as a name with a link. However for users who cannot access &lt;strong&gt;User&lt;/strong&gt; detail page, it will go to 404 page.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;realtime-update&quot; tabindex=&quot;-1&quot;&gt;Realtime update &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/implicit-requirements/#realtime-update&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Especially in financial SaaS, there are requirements that multiple users viewing the same data need to see updates without refreshing.&lt;/li&gt;
+&lt;li&gt;Change in settings/permissions (which are usually cached), should we reissue access token or clearup cache in order to reflect the change ?&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;searchable-fields&quot; tabindex=&quot;-1&quot;&gt;Searchable fields &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/implicit-requirements/#searchable-fields&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Searching for related field would affect data modeling e.g..&lt;/li&gt;
+&lt;li&gt;Example: Search order by customer name → it might need to join/denormalize and create index on customer name.
+&lt;ul&gt;
+&lt;li&gt;Ask product about sorting, filtering, and full-text search needs.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
 &lt;/ul&gt;
 </content>
 	</entry>
