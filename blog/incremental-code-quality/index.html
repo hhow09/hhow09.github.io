@@ -1,0 +1,639 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Incremental Type Safety: Adopting Strict Mode in Large Projects</title>
+		<meta name="description" content="How to adopt strict mode in large projects incrementally">
+		<meta name="google-site-verification" content="pV0LpMzGqiF5LrOEOtxdTzsIjD0Q6Zd3yXLXJstHuuQ" />
+		<link rel="alternate" href="/feed/feed.xml" type="application/atom+xml" title="hhow09&#39;s Blog">
+		<link rel="alternate" href="/feed/feed.json" type="application/json" title="hhow09&#39;s Blog">
+		
+		<style>/**
+ * okaidia theme for JavaScript, CSS and HTML
+ * Loosely based on Monokai textmate theme by http://www.monokai.nl/
+ * @author ocodia
+ */
+
+code[class*="language-"],
+pre[class*="language-"] {
+	color: #f8f8f2;
+	background: none;
+	text-shadow: 0 1px rgba(0, 0, 0, 0.3);
+	font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+	font-size: 1em;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+	word-break: normal;
+	word-wrap: normal;
+	line-height: 1.5;
+
+	-moz-tab-size: 4;
+	-o-tab-size: 4;
+	tab-size: 4;
+
+	-webkit-hyphens: none;
+	-moz-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+	padding: 1em;
+	margin: .5em 0;
+	overflow: auto;
+	border-radius: 0.3em;
+}
+
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+	background: #272822;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+	padding: .1em;
+	border-radius: .3em;
+	white-space: normal;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+	color: #8292a2;
+}
+
+.token.punctuation {
+	color: #f8f8f2;
+}
+
+.token.namespace {
+	opacity: .7;
+}
+
+.token.property,
+.token.tag,
+.token.constant,
+.token.symbol,
+.token.deleted {
+	color: #f92672;
+}
+
+.token.boolean,
+.token.number {
+	color: #ae81ff;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+	color: #a6e22e;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string,
+.token.variable {
+	color: #f8f8f2;
+}
+
+.token.atrule,
+.token.attr-value,
+.token.function,
+.token.class-name {
+	color: #e6db74;
+}
+
+.token.keyword {
+	color: #66d9ef;
+}
+
+.token.regex,
+.token.important {
+	color: #fd971f;
+}
+
+.token.important,
+.token.bold {
+	font-weight: bold;
+}
+.token.italic {
+	font-style: italic;
+}
+
+.token.entity {
+	cursor: help;
+}
+/*
+ * New diff- syntax
+ */
+
+pre[class*="language-diff-"] {
+	--eleventy-code-padding: 1.25em;
+	padding-left: var(--eleventy-code-padding);
+	padding-right: var(--eleventy-code-padding);
+}
+.token.deleted {
+	background-color: hsl(0, 51%, 37%);
+	color: inherit;
+}
+.token.inserted {
+	background-color: hsl(126, 31%, 39%);
+	color: inherit;
+}
+
+/* Make the + and - characters unselectable for copy/paste */
+.token.prefix.unchanged,
+.token.prefix.inserted,
+.token.prefix.deleted {
+	-webkit-user-select: none;
+	user-select: none;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+.token.prefix.inserted,
+.token.prefix.deleted {
+	width: var(--eleventy-code-padding);
+	background-color: rgba(0,0,0,.2);
+}
+
+/* Optional: full-width background color */
+.token.inserted:not(.prefix),
+.token.deleted:not(.prefix) {
+	display: block;
+	margin-left: calc(-1 * var(--eleventy-code-padding));
+	margin-right: calc(-1 * var(--eleventy-code-padding));
+	text-decoration: none; /* override del, ins, mark defaults */
+	color: inherit; /* override del, ins, mark defaults */
+}
+.mermaid {
+    background: transparent;
+}
+* { box-sizing: border-box; }
+/* Defaults */
+:root {
+	--font-family: -apple-system, system-ui, sans-serif;
+	--font-family-monospace: Consolas, Menlo, Monaco, Andale Mono WT, Andale Mono, Lucida Console, Lucida Sans Typewriter, DejaVu Sans Mono, Bitstream Vera Sans Mono, Liberation Mono, Nimbus Mono L, Courier New, Courier, monospace;
+}
+
+/* Theme colors */
+:root {
+	--color-gray-20: #e0e0e0;
+	--color-gray-50: #C0C0C0;
+	--color-gray-90: #333;
+
+	--background-color: #fff;
+
+	--text-color: var(--color-gray-90);
+	--text-color-link: #082840;
+	--text-color-link-active: #5f2b48;
+	--text-color-link-visited: #17050F;
+
+	--syntax-tab-size: 2;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--color-gray-20: #e0e0e0;
+		--color-gray-50: #C0C0C0;
+		--color-gray-90: #dad8d8;
+
+		/* --text-color is assigned to --color-gray-_ above */
+		--text-color-link: #1493fb;
+		--text-color-link-active: #6969f7;
+		--text-color-link-visited: #a6a6f8;
+
+		--background-color: #15202b;
+	}
+}
+
+
+/* Global stylesheet */
+* {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	padding: 0;
+	margin: 0 auto;
+	font-family: var(--font-family);
+	color: var(--text-color);
+	background-color: var(--background-color);
+}
+html {
+	overflow-y: scroll;
+}
+body {
+	max-width: 40em;
+}
+
+/* https://www.a11yproject.com/posts/how-to-hide-content/ */
+.visually-hidden {
+	clip: rect(0 0 0 0);
+	clip-path: inset(50%);
+	height: 1px;
+	overflow: hidden;
+	position: absolute;
+	white-space: nowrap;
+	width: 1px;
+}
+
+p:last-child {
+	margin-bottom: 0;
+}
+p {
+	line-height: 1.5;
+}
+
+li {
+	line-height: 1.5;
+}
+
+a[href] {
+	color: var(--text-color-link);
+}
+a[href]:visited {
+	color: var(--text-color-link-visited);
+}
+a[href]:hover,
+a[href]:active {
+	color: var(--text-color-link-active);
+}
+
+main {
+	padding: 1rem;
+}
+main :first-child {
+	margin-top: 0;
+}
+
+header {
+	border-bottom: 1px dashed var(--color-gray-20);
+}
+header:after {
+	content: "";
+	display: table;
+	clear: both;
+}
+
+.links-nextprev {
+	list-style: none;
+	border-top: 1px dashed var(--color-gray-20);
+	padding: 1em 0;
+}
+table, table td, table th {
+	border: 1px solid;
+	border-collapse: collapse;
+}
+
+table {
+	margin: 1em 0;
+}
+table td,
+table th {
+	padding-right: 1em;
+}
+
+pre,
+code {
+	font-family: var(--font-family-monospace);
+	background: rgba(175,184,193,0.2);
+	padding: 0em .1em;
+}
+pre:not([class*="language-"]) {
+	margin: .5em 0;
+	line-height: 1.375; /* 22px /16 */
+	-moz-tab-size: var(--syntax-tab-size);
+	-o-tab-size: var(--syntax-tab-size);
+	tab-size: var(--syntax-tab-size);
+	-webkit-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+	direction: ltr;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+	word-break: normal;
+}
+
+
+/* Header */
+header {
+	display: flex;
+	gap: 1em .5em;
+	flex-wrap: wrap;
+	align-items: center;
+	padding: 1em;
+}
+.home-link {
+	font-size: 1em; /* 16px /16 */
+	font-weight: 700;
+	margin-right: 2em;
+}
+.home-link:link:not(:hover) {
+	text-decoration: none;
+}
+
+/* Nav */
+.nav {
+	display: flex;
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}
+.nav-item {
+	display: inline-block;
+	margin-right: 1em;
+}
+.nav-item a[href]:not(:hover) {
+	text-decoration: none;
+}
+.nav a[href][aria-current="page"] {
+	text-decoration: underline;
+}
+
+/* Posts list */
+.postlist {
+	list-style: none;
+	padding: 0;
+	padding-left: 1.5rem;
+}
+.postlist-item {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	counter-increment: start-from -1;
+	margin-bottom: 1em;
+}
+.postlist-item:before {
+	display: inline-block;
+	pointer-events: none;
+	content: "" counter(start-from, decimal-leading-zero) ". ";
+	line-height: 100%;
+	text-align: right;
+	margin-left: -1.5rem;
+}
+.postlist-date,
+.postlist-item:before {
+	font-size: 0.8125em; /* 13px /16 */
+	color: var(--color-gray-90);
+}
+.postlist-date {
+	word-spacing: -0.5px;
+}
+.postlist-link {
+	font-size: 1.1875em; /* 19px /16 */
+	font-weight: 700;
+	flex-basis: calc(100% - 1.5rem);
+	padding-left: .25em;
+	padding-right: .5em;
+	text-underline-position: from-font;
+	text-underline-offset: 0;
+	text-decoration-thickness: 1px;
+}
+.postlist-item-active .postlist-link {
+	font-weight: bold;
+}
+
+/* Tags */
+.post-tag {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	text-transform: capitalize;
+	font-style: italic;
+}
+.postlist-item > .post-tag {
+	align-self: center;
+}
+
+/* Tags list */
+.post-metadata {
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: .5em;
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+.post-metadata time {
+	margin-right: 1em;
+}
+
+/* Direct Links / Markdown Headers */
+.header-anchor {
+	text-decoration: none;
+	font-style: normal;
+	font-size: 1em;
+	margin-left: .1em;
+}
+a[href].header-anchor,
+a[href].header-anchor:visited {
+	color: transparent;
+}
+a[href].header-anchor:focus,
+a[href].header-anchor:hover {
+	text-decoration: underline;
+}
+a[href].header-anchor:focus,
+:hover > a[href].header-anchor {
+	color: #aaa;
+}
+
+h2 + .header-anchor {
+	font-size: 1.5em;
+}
+
+img {
+	max-width: 100%;
+}
+img[width] {
+	width: auto; /* Defer to max-width */
+}
+img[width][height] {
+	height: auto; /* Preserve aspect ratio */
+}
+
+blockquote {
+	background:		#f9f9f9;
+	border-left:	10px solid #ccc;
+	margin:			1.5em 10px;
+	padding:		.5em 10px;
+	quotes:			"\201C""\201D""\2018""\2019"; 
+}
+
+blockquote p {
+	display:		inline;
+}
+
+.toc{
+	margin-top: 20px !important;
+}</style>
+		<script type="module" async>import mermaid from "https://unpkg.com/mermaid@10/dist/mermaid.esm.min.mjs";document.addEventListener('DOMContentLoaded', mermaid.initialize({startOnLoad:true}));</script>		
+	</head>
+	<body>
+		<a href="#skip" class="visually-hidden">Skip to main content</a>
+
+		<header>
+			<a href="/" class="home-link">hhow09&#39;s Blog</a>
+			<nav>
+				<h2 class="visually-hidden">Top level navigation menu</h2>
+				<ul class="nav">
+					<li class="nav-item"><a href="/">Home</a></li>
+					<li class="nav-item"><a href="/blog/">Archive</a></li>
+					<li class="nav-item"><a href="/about/">About Me</a></li>
+					<li class="nav-item"><a href="/rss/">Feeds</a></li>
+				</ul>
+			</nav>
+		</header>
+
+		<main id="skip">
+			
+<h1>Incremental Type Safety: Adopting Strict Mode in Large Projects</h1>
+
+<ul class="post-metadata">
+	<li><time datetime="2026-02-01">01 February 2026</time></li>
+	<li><a href="/tags/typescript/" class="post-tag">typescript</a>, </li>
+	<li><a href="/tags/programming/" class="post-tag">programming</a></li>
+</ul>
+
+<aside style="margin-top:20px;">
+  <h3> Table Of Contents </h3>
+  <div class="toc" >
+        <ol><li><a href="#why-is-type-safety-important">Why is type safety important?</a></li><li><a href="#the-strategy-incremental-adoption">The Strategy: Incremental adoption</a></li><li><a href="#fixing-frontend">Fixing Frontend</a></li><li><a href="#fixing-backend">Fixing Backend</a></li><li><a href="#alternatives">Alternatives</a></li></ol>
+      </div>
+  <hr>
+</aside>
+<article>
+  <p>In my <a href="/blog/code-quality/">previous post</a>, I discussed how type checking serves as a primary tool to catch errors at compile time.</p>
+<p>This post explores how I helped my team to ensure type safety <strong>incrementally</strong> in a large project without disrupting feature development.</p>
+<h2 id="why-is-type-safety-important" tabindex="-1">Why is type safety important? <a class="header-anchor" href="#why-is-type-safety-important">#</a></h2>
+<ul>
+<li><strong>Confidence in change</strong>: When you change code or upgrade dependencies, the compiler will catch missing type errors.</li>
+<li><strong>Prevent unexpected runtime errors</strong>: It prevents an entire class of runtime logic errors by ensuring data structures are handled predictably.</li>
+</ul>
+<p>However, for a legacy codebase, enabling type checking with <code>tsc</code> often results in thousands of errors. Fixing them all at once is rarely feasible without disrupting feature development. Yet fixing them without actually enabling type checking cannot prevent new type errors from being introduced.</p>
+<h2 id="the-strategy-incremental-adoption" tabindex="-1">The Strategy: Incremental adoption <a class="header-anchor" href="#the-strategy-incremental-adoption">#</a></h2>
+<p>For most teams, spending an entire sprint fixing type errors is not practical.</p>
+<p>The goal is to move towards a strict type checking environment without a &quot;big bang&quot; refactor. I followed two principles:</p>
+<ol>
+<li><strong>New code must be strict</strong>: Stop the broken window.</li>
+<li><strong>Existing code is fixed as it's touched</strong>: Refactor legacy files during feature updates.</li>
+</ol>
+<h2 id="fixing-frontend" tabindex="-1">Fixing Frontend <a class="header-anchor" href="#fixing-frontend">#</a></h2>
+<p>Our project uses webpack as the bundler. With <a href="https://github.com/TypeStrong/fork-ts-checker-webpack-plugin">fork-ts-checker-webpack-plugin</a>, we can run type checking within the webpack build process (<code>npm run build</code>).</p>
+<h3 id="1-progressive-allowlist" tabindex="-1">1. Progressive allowlist <a class="header-anchor" href="#1-progressive-allowlist">#</a></h3>
+<p>Start with an allowlist of files that are already fixed.</p>
+<pre class="language-js" tabindex="0"><code class="language-js"><span class="token keyword">new</span> <span class="token class-name">ForkTsCheckerWebpackPlugin</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+    <span class="token literal-property property">files</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">"src/path/to/safe/file.ts"</span> <span class="token punctuation">,</span> <span class="token string">"src/path/to/safe-folder/**/*.ts"</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">,</span></code></pre>
+<p>At this point, the listed files are ensured to be type safe.</p>
+<h3 id="2-track-known-errors" tabindex="-1">2. Track <strong>known errors</strong> <a class="header-anchor" href="#2-track-known-errors">#</a></h3>
+<p>At a certain point, most files are already fixed. We can then include all files in the checker and track known errors to catch remaining type errors through issue filtering.</p>
+<pre class="language-js" tabindex="0"><code class="language-js"><span class="token keyword">const</span> knowTSErrors <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">"./knowTSErrors.json"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">/// ...</span>
+<span class="token keyword">new</span> <span class="token class-name">ForkTsCheckerWebpackPlugin</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+    <span class="token literal-property property">files</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">"src/**/*.ts"</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token literal-property property">issue</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+        <span class="token function-variable function">exclude</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">issue</span><span class="token punctuation">)</span> <span class="token operator">=></span>
+            knowTSErrors<span class="token punctuation">.</span><span class="token function">some</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter">item</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+                <span class="token keyword">const</span> codeMatches <span class="token operator">=</span> issue<span class="token punctuation">.</span>code <span class="token operator">===</span> item<span class="token punctuation">.</span>code
+                <span class="token keyword">const</span> fileMatches <span class="token operator">=</span> issue<span class="token punctuation">.</span>file<span class="token punctuation">.</span><span class="token function">includes</span><span class="token punctuation">(</span>item<span class="token punctuation">.</span>file<span class="token punctuation">)</span>
+                <span class="token keyword">const</span> severityMatches <span class="token operator">=</span> issue<span class="token punctuation">.</span>severity <span class="token operator">===</span> item<span class="token punctuation">.</span>severity
+                <span class="token keyword">return</span> codeMatches <span class="token operator">&amp;&amp;</span> fileMatches <span class="token operator">&amp;&amp;</span> severityMatches
+            <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">,</span></code></pre>
+<p><code>knowTSErrors.json</code>.</p>
+<pre class="language-json" tabindex="0"><code class="language-json"><span class="token punctuation">[</span>
+    <span class="token punctuation">{</span>
+        <span class="token property">"code"</span><span class="token operator">:</span> <span class="token string">"TS2339"</span><span class="token punctuation">,</span>
+        <span class="token property">"severity"</span><span class="token operator">:</span> <span class="token string">"error"</span><span class="token punctuation">,</span>
+        <span class="token property">"file"</span><span class="token operator">:</span> <span class="token string">"src/path/to/error/file.ts"</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">{</span>
+        <span class="token property">"code"</span><span class="token operator">:</span> <span class="token string">"TS2564"</span><span class="token punctuation">,</span>
+        <span class="token property">"severity"</span><span class="token operator">:</span> <span class="token string">"error"</span><span class="token punctuation">,</span>
+        <span class="token property">"file"</span><span class="token operator">:</span> <span class="token string">"src/path/to/error/file.ts"</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span></code></pre>
+<p>At this point, the entire project except the listed files is ensured to be type safe.</p>
+<p>The rest is fixing the remaining type errors.</p>
+<h2 id="fixing-backend" tabindex="-1">Fixing Backend <a class="header-anchor" href="#fixing-backend">#</a></h2>
+<p><a href="https://github.com/allegro/typescript-strict-plugin/tree/master">typescript-strict-plugin</a> was created mainly for existing projects that want to incorporate typescript strict mode, but project is so big that refactoring everything would take ages.</p>
+<pre class="language-json" tabindex="0"><code class="language-json"><span class="token punctuation">{</span>
+  <span class="token property">"compilerOptions"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    ...
+    <span class="token property">"strict"</span><span class="token operator">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+    <span class="token property">"plugins"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+      <span class="token punctuation">{</span>
+        <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"typescript-strict-plugin"</span><span class="token punctuation">,</span>
+        <span class="token property">"paths"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+          <span class="token string">"./src"</span><span class="token punctuation">,</span>
+          <span class="token string">"/absolute/path/to/source/"</span>
+        <span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token property">"exclude"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+          <span class="token string">"./src/tests"</span><span class="token punctuation">,</span>
+          <span class="token string">"./src/fileToExclude.ts"</span>
+        <span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token property">"excludePattern"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+          <span class="token string">"**/*.spec.ts"</span>
+        <span class="token punctuation">]</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">]</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+<p>Just like the frontend strategy, start with an <strong>allowlist</strong> in the <code>paths</code> option.</p>
+<p>Then add an exclude file list in the <code>exclude</code> or <code>excludePattern</code> option.</p>
+<h2 id="alternatives" tabindex="-1">Alternatives <a class="header-anchor" href="#alternatives">#</a></h2>
+<h3 id="inside-figma-a-case-study-on-strict-null-checks" tabindex="-1"><a href="https://www.figma.com/blog/inside-figma-a-case-study-on-strict-null-checks/">Inside Figma: a case study on strict null checks</a> <a class="header-anchor" href="#inside-figma-a-case-study-on-strict-null-checks">#</a></h3>
+<p>This article shows how Figma adopted strict mode incrementally. They use standard <code>tsc</code> to run type checking. Since &quot;compiling a TypeScript file requires compiling all its dependencies (imports)&quot;, <strong>they need to fix files in a specific order: from the leaves of the dependency tree</strong>. This requires additional work and is not practical to fix alongside feature development.</p>
+<h3 id="output-parsing" tabindex="-1">Output parsing <a class="header-anchor" href="#output-parsing">#</a></h3>
+<p>With <a href="https://github.com/Aiven-Open/tsc-output-parser">tsc-output-parser</a>, <code>tsc --strict --noEmit | tsc-output-parser</code> can parse the output of <code>tsc</code> to extract type errors.</p>
+<p>This approach enables type checking with <code>tsc</code> while maintaining a <code>knownErrors.json</code> to track and incrementally fix known errors.</p>
+<pre class="language-ts" tabindex="0"><code class="language-ts"><span class="token comment">// typecheck.js</span>
+<span class="token keyword">const</span> knownErrors <span class="token operator">=</span> <span class="token constant">JSON</span><span class="token punctuation">.</span><span class="token function">parse</span><span class="token punctuation">(</span>fs<span class="token punctuation">.</span><span class="token function">readFileSync</span><span class="token punctuation">(</span>path<span class="token punctuation">.</span><span class="token function">join</span><span class="token punctuation">(</span>__dirname<span class="token punctuation">,</span> <span class="token string">"knownErrors.json"</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token string">"utf8"</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+<span class="token keyword">let</span> hasErrors <span class="token operator">=</span> <span class="token boolean">false</span>
+<span class="token keyword">try</span> <span class="token punctuation">{</span>
+    <span class="token function">execSync</span><span class="token punctuation">(</span><span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">tsc --strict --noEmit</span><span class="token template-punctuation string">`</span></span><span class="token punctuation">,</span> <span class="token punctuation">{</span> stdio<span class="token operator">:</span> <span class="token string">"pipe"</span> <span class="token punctuation">}</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span>error<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> output <span class="token operator">=</span> error<span class="token punctuation">.</span>stdout<span class="token operator">?.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">||</span> error<span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token keyword">const</span> parsedOutput <span class="token operator">=</span> <span class="token function">parse</span><span class="token punctuation">(</span>output<span class="token punctuation">)</span>
+    <span class="token keyword">const</span> remainingErrors <span class="token operator">=</span> parsedOutput<span class="token punctuation">.</span><span class="token function">filter</span><span class="token punctuation">(</span><span class="token punctuation">(</span>item<span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+        <span class="token comment">// filter out the known errors</span>
+        <span class="token keyword">return</span> <span class="token operator">!</span>knownErrors<span class="token punctuation">.</span><span class="token function">some</span><span class="token punctuation">(</span><span class="token punctuation">(</span>knownError<span class="token punctuation">)</span> <span class="token operator">=></span> knownError<span class="token punctuation">.</span>file <span class="token operator">===</span> item<span class="token punctuation">.</span>value<span class="token punctuation">.</span>path<span class="token punctuation">.</span>value <span class="token operator">&amp;&amp;</span> knownError<span class="token punctuation">.</span>code <span class="token operator">===</span> item<span class="token punctuation">.</span>value<span class="token punctuation">.</span>tsError<span class="token punctuation">.</span>value<span class="token punctuation">.</span>errorString<span class="token punctuation">)</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>remainingErrors<span class="token punctuation">.</span>length <span class="token operator">></span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">Error</span><span class="token punctuation">(</span><span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">Type errors found!</span><span class="token template-punctuation string">`</span></span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+process<span class="token punctuation">.</span><span class="token function">exit</span><span class="token punctuation">(</span>hasErrors <span class="token operator">?</span> <span class="token number">1</span> <span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">)</span></code></pre>
+<h3 id="stricter-typescript-compilation-with-betterer" tabindex="-1"><a href="https://dev.to/phenomnominal/stricter-typescript-compilation-with-betterer-dp7">Stricter TypeScript compilation with Betterer</a> <a class="header-anchor" href="#stricter-typescript-compilation-with-betterer">#</a></h3>
+<p>Betterer is a test runner that helps make incremental improvements to your code! It is based upon Jest's snapshot testing, but with a twist...</p>
+
+</article>
+<ul class="links-nextprev"><li>Previous: <a href="/blog/code-quality/">Talking about code quality</a></li>
+</ul>
+
+		</main>
+
+		<footer></footer>
+
+		<!-- Current page: /blog/incremental-code-quality/ -->
+	</body>
+</html>
