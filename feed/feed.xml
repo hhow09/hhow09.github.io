@@ -31,7 +31,15 @@
 &lt;li&gt;&lt;strong&gt;New code must be strict&lt;/strong&gt;: Stop the broken window.&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;Existing code is fixed as it&#39;s touched&lt;/strong&gt;: Refactor legacy files during feature updates.&lt;/li&gt;
 &lt;/ol&gt;
-&lt;h2 id=&quot;fixing-frontend&quot; tabindex=&quot;-1&quot;&gt;Fixing Frontend &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/incremental-code-quality/#fixing-frontend&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;initiatives-in-typescript-repo&quot; tabindex=&quot;-1&quot;&gt;Initiatives in typescript repo &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/incremental-code-quality/#initiatives-in-typescript-repo&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;I started my survey with the following issues in typescript repo:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/microsoft/TypeScript/issues/8405&quot;&gt;Issue: Support overriding type-checking compile flags on a per file basis&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/microsoft/TypeScript/issues/28306&quot;&gt;Issue: Strict type-checking on a per-file basis &amp;quot;@ts-strict&amp;quot;&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;They are either not adopted or still open.&lt;/p&gt;
+&lt;p&gt;After turning to other open source tools, I found the following the cleanest to use.&lt;/p&gt;
+&lt;h2 id=&quot;fixing-frontend-project&quot; tabindex=&quot;-1&quot;&gt;Fixing frontend project &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/incremental-code-quality/#fixing-frontend-project&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;p&gt;Our project uses webpack as the bundler. With &lt;a href=&quot;https://github.com/TypeStrong/fork-ts-checker-webpack-plugin&quot;&gt;fork-ts-checker-webpack-plugin&lt;/a&gt;, we can run type checking within the webpack build process (&lt;code&gt;npm run build&lt;/code&gt;).&lt;/p&gt;
 &lt;h3 id=&quot;1-progressive-allowlist&quot; tabindex=&quot;-1&quot;&gt;1. Progressive allowlist &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/incremental-code-quality/#1-progressive-allowlist&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
 &lt;p&gt;Start with an allowlist of files that are already fixed.&lt;/p&gt;
@@ -70,7 +78,7 @@
 &lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;At this point, the entire project except the listed files is ensured to be type safe.&lt;/p&gt;
 &lt;p&gt;The rest is fixing the remaining type errors.&lt;/p&gt;
-&lt;h2 id=&quot;fixing-backend&quot; tabindex=&quot;-1&quot;&gt;Fixing Backend &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/incremental-code-quality/#fixing-backend&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;fixing-general-node-js-projects&quot; tabindex=&quot;-1&quot;&gt;Fixing general Node.js projects &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/incremental-code-quality/#fixing-general-node-js-projects&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;p&gt;&lt;a href=&quot;https://github.com/allegro/typescript-strict-plugin/tree/master&quot;&gt;typescript-strict-plugin&lt;/a&gt; was created mainly for existing projects that want to incorporate typescript strict mode, but project is so big that refactoring everything would take ages.&lt;/p&gt;
 &lt;pre class=&quot;language-json&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-json&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
   &lt;span class=&quot;token property&quot;&gt;&quot;compilerOptions&quot;&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
