@@ -173,6 +173,10 @@ process&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span cl
 &lt;li&gt;&lt;strong&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/Cyclomatic_complexity&quot;&gt;Cyclomatic complexity&lt;/a&gt;&lt;/strong&gt;: measures code path complexity&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;Confidence in &lt;a href=&quot;https://refactoring.guru/refactoring&quot;&gt;refactoring&lt;/a&gt;&lt;/strong&gt;: how comfortable the team feels changing code or upgrading dependencies&lt;/li&gt;
 &lt;/ul&gt;
+&lt;h3 id=&quot;further-reading&quot; tabindex=&quot;-1&quot;&gt;Further Reading &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/code-quality/#further-reading&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://axify.io/blog/software-quality-metrics&quot;&gt;Software Quality Metrics&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
 &lt;h2 id=&quot;how-to-maintain-code-quality&quot; tabindex=&quot;-1&quot;&gt;How to maintain code quality? &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/code-quality/#how-to-maintain-code-quality&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;h3 id=&quot;correctness&quot; tabindex=&quot;-1&quot;&gt;Correctness &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/code-quality/#correctness&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
 &lt;ul&gt;
@@ -239,7 +243,19 @@ process&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span cl
 &lt;li&gt;&amp;quot;Module should be deep.&amp;quot;  - &lt;a href=&quot;https://www.amazon.de/Philosophy-Software-Design-John-Ousterhout/dp/1732102201&quot;&gt;A Philosophy of Software Design&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
-&lt;li&gt;Proper &lt;strong&gt;management of dependencies&lt;/strong&gt; ensures that external libraries or components can be updated or replaced without major disruptions. E.g. dependency injection, version control, and modular design.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Management of dependencies&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Prevent Circular dependency&lt;/strong&gt; as much as possible
+&lt;ul&gt;
+&lt;li&gt;Golang &lt;a href=&quot;https://go.dev/ref/spec#Import_declarations&quot;&gt;prevents circular dependency by design&lt;/a&gt;: &amp;quot;It is illegal for a package to import itself, directly or indirectly&amp;quot;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.packtpub.com/en-us/product/nodejs-design-patterns-9781839214110&quot;&gt;Node.js Design Patterns&lt;/a&gt; Chapter 2 The Module System has a good explanation on module loading and circular dependency.&lt;/li&gt;
+&lt;li&gt;Use &lt;a href=&quot;https://github.com/import-js/eslint-plugin-import/blob/main/docs/rules/no-cycle.md&quot;&gt;eslint-plugin-import/no-cycle&lt;/a&gt; to catch circular dependency.&lt;/li&gt;
+&lt;li&gt;Use &lt;a href=&quot;https://github.com/sverweij/dependency-cruiser&quot;&gt;dependency-cruiser&lt;/a&gt; to validate/visualize dependencies and define fine-grained dependency rules.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Proper scope of external dependency&lt;/strong&gt; into separate modules, e.g. database layer, network layer (http). In this way, change scope of library update could be clearly scoped&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h3 id=&quot;efficiency&quot; tabindex=&quot;-1&quot;&gt;Efficiency &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/code-quality/#efficiency&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
 &lt;p&gt;Efficiency can be defined as, using the resources optimally where resources could be memory, CPU, time, files, connections, databases etc.&lt;/p&gt;
@@ -254,7 +270,7 @@ process&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span cl
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
-&lt;h2 id=&quot;further-reading&quot; tabindex=&quot;-1&quot;&gt;Further Reading &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/code-quality/#further-reading&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;further-reading-1&quot; tabindex=&quot;-1&quot;&gt;Further Reading &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/code-quality/#further-reading-1&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&quot;https://lethain.com/quality/&quot;&gt;How to create software quality.&lt;/a&gt; by Will Larson discusses software quality in a broader sense.&lt;/li&gt;
 &lt;/ul&gt;
