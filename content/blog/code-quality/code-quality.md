@@ -35,6 +35,9 @@ Quantifying code quality is challenging, but these metrics provide useful signal
 - **[Cyclomatic complexity](https://en.wikipedia.org/wiki/Cyclomatic_complexity)**: measures code path complexity
 - **Confidence in [refactoring](https://refactoring.guru/refactoring)**: how comfortable the team feels changing code or upgrading dependencies
 
+### Further Reading
+- [Software Quality Metrics](https://axify.io/blog/software-quality-metrics)
+
 
 ## How to maintain code quality?
 ### Correctness
@@ -85,7 +88,13 @@ Maintainability is about how easy it is to refactor and extend the code.
 - [SOLID](https://en.wikipedia.org/wiki/SOLID) principles
 - The software is divided into discrete, independent modules or components, each with a clear and specific functionality.
     - "Module should be deep."  - [A Philosophy of Software Design](https://www.amazon.de/Philosophy-Software-Design-John-Ousterhout/dp/1732102201)
-- Proper **management of dependencies** ensures that external libraries or components can be updated or replaced without major disruptions. E.g. dependency injection, version control, and modular design.
+- **Management of dependencies** 
+    - **Prevent Circular dependency** as much as possible
+        - Golang [prevents circular dependency by design](https://go.dev/ref/spec#Import_declarations): "It is illegal for a package to import itself, directly or indirectly"
+        - [Node.js Design Patterns](https://www.packtpub.com/en-us/product/nodejs-design-patterns-9781839214110) Chapter 2 The Module System has a good explanation on module loading and circular dependency.
+        - Use [eslint-plugin-import/no-cycle](https://github.com/import-js/eslint-plugin-import/blob/main/docs/rules/no-cycle.md) to catch circular dependency.
+        - Use [dependency-cruiser](https://github.com/sverweij/dependency-cruiser) to validate/visualize dependencies and define fine-grained dependency rules.
+    - **Proper scope of external dependency** into separate modules, e.g. database layer, network layer (http). In this way, change scope of library update could be clearly scoped
 
 
 ### Efficiency
