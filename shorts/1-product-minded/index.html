@@ -3,13 +3,183 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>Tagged “product management”</title>
-		<meta name="description" content="sofware engineering stuff">
+		<title>Becoming a product minded engineer</title>
+		<meta name="description" content="Becoming a product minded engineer">
 		<meta name="google-site-verification" content="pV0LpMzGqiF5LrOEOtxdTzsIjD0Q6Zd3yXLXJstHuuQ">
 		<link rel="alternate" href="/feed/feed.xml" type="application/atom+xml" title="hhow09&#39;s Blog">
 		<link rel="alternate" href="/feed/feed.json" type="application/json" title="hhow09&#39;s Blog">
 		
-		<style>.postlist { counter-reset: start-from 2 }
+		<style>/**
+ * okaidia theme for JavaScript, CSS and HTML
+ * Loosely based on Monokai textmate theme by http://www.monokai.nl/
+ * @author ocodia
+ */
+
+code[class*="language-"],
+pre[class*="language-"] {
+	color: #f8f8f2;
+	background: none;
+	text-shadow: 0 1px rgba(0, 0, 0, 0.3);
+	font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+	font-size: 1em;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+	word-break: normal;
+	word-wrap: normal;
+	line-height: 1.5;
+
+	-moz-tab-size: 4;
+	-o-tab-size: 4;
+	tab-size: 4;
+
+	-webkit-hyphens: none;
+	-moz-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+	padding: 1em;
+	margin: .5em 0;
+	overflow: auto;
+	border-radius: 0.3em;
+}
+
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+	background: #272822;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+	padding: .1em;
+	border-radius: .3em;
+	white-space: normal;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+	color: #8292a2;
+}
+
+.token.punctuation {
+	color: #f8f8f2;
+}
+
+.token.namespace {
+	opacity: .7;
+}
+
+.token.property,
+.token.tag,
+.token.constant,
+.token.symbol,
+.token.deleted {
+	color: #f92672;
+}
+
+.token.boolean,
+.token.number {
+	color: #ae81ff;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+	color: #a6e22e;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string,
+.token.variable {
+	color: #f8f8f2;
+}
+
+.token.atrule,
+.token.attr-value,
+.token.function,
+.token.class-name {
+	color: #e6db74;
+}
+
+.token.keyword {
+	color: #66d9ef;
+}
+
+.token.regex,
+.token.important {
+	color: #fd971f;
+}
+
+.token.important,
+.token.bold {
+	font-weight: bold;
+}
+.token.italic {
+	font-style: italic;
+}
+
+.token.entity {
+	cursor: help;
+}
+/*
+ * New diff- syntax
+ */
+
+pre[class*="language-diff-"] {
+	--eleventy-code-padding: 1.25em;
+	padding-left: var(--eleventy-code-padding);
+	padding-right: var(--eleventy-code-padding);
+}
+.token.deleted {
+	background-color: hsl(0, 51%, 37%);
+	color: inherit;
+}
+.token.inserted {
+	background-color: hsl(126, 31%, 39%);
+	color: inherit;
+}
+
+/* Make the + and - characters unselectable for copy/paste */
+.token.prefix.unchanged,
+.token.prefix.inserted,
+.token.prefix.deleted {
+	-webkit-user-select: none;
+	user-select: none;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+.token.prefix.inserted,
+.token.prefix.deleted {
+	width: var(--eleventy-code-padding);
+	background-color: rgba(0,0,0,.2);
+}
+
+/* Optional: full-width background color */
+.token.inserted:not(.prefix),
+.token.deleted:not(.prefix) {
+	display: block;
+	margin-left: calc(-1 * var(--eleventy-code-padding));
+	margin-right: calc(-1 * var(--eleventy-code-padding));
+	text-decoration: none; /* override del, ins, mark defaults */
+	color: inherit; /* override del, ins, mark defaults */
+}
+.mermaid {
+    background: transparent;
+}
 * { box-sizing: border-box; }
 /* Defaults */
 :root {
@@ -331,27 +501,44 @@ blockquote p {
 		</header>
 
 		<main id="skip">
-			<h1>Tagged “product management”</h1>
+			
+<h1>Becoming a product minded engineer</h1>
 
+<ul class="post-metadata">
+	<li><time datetime="2026-02-08">08 February 2026</time></li>
+	<li><a href="/tags/shorts/" class="post-tag">shorts</a></li>
+</ul>
 
+<aside style="margin-top:20px;">
+</aside>
+<article>
+  <p>Recently I've been reading <a href="https://www.oreilly.com/library/view/the-product-minded-engineer/9781098173722/">The Product-Minded Engineer</a> by Drew Hoskins. Combining with <a href="https://blog.pragmaticengineer.com/the-product-minded-engineer/">Pragmatic Engineer - The Product-Minded Software Engineer</a> and real work experience, here are some reflections.</p>
+<h3 id="1-scenarios-and-user-stories" tabindex="-1">1. Scenarios and user stories <a class="header-anchor" href="#1-scenarios-and-user-stories">#</a></h3>
+<ul>
+<li>Ask &quot;why?&quot; to understand the root cause and user need.</li>
+<li>During Discover, it’s essential to explore various possible storylines. One of the most frequent uses I see for scenarios is to simulate how users will interact with the product you’re designing.</li>
+<li>Always making sure the expectation actually meets the user need.</li>
+</ul>
+<h3 id="2-offering-product-engineering-tradeoffs-upfront" tabindex="-1">2. Offering product/engineering tradeoffs upfront <a class="header-anchor" href="#2-offering-product-engineering-tradeoffs-upfront">#</a></h3>
+<ul>
+<li>informations worth to mention: effort estimation / user impact / potential risk / technical debt</li>
+<li>Real story: There was an overlook in authorization configuration of new feature. Some authorization cannot be configured in the UI. User reported this issue and we had to make a hotfix. I provided 3 solution: The dirty fix is quick but will introduce technical debt The proper fix would take longer, etc. In this way, PM and engineer can make an informed decision. Eventually we went with dirty fix due to time constraint. I also created a follow up ticket to fix it properly in next cycle.</li>
+</ul>
+<h3 id="3-quick-product-validation-cycles" tabindex="-1">3. Quick product validation cycles <a class="header-anchor" href="#3-quick-product-validation-cycles">#</a></h3>
+<ul>
+<li>A demo call with product to get early feedback. Especially UI features.</li>
+</ul>
+<h3 id="4-interest-in-the-business-domain" tabindex="-1">4. Interest in the business domain <a class="header-anchor" href="#4-interest-in-the-business-domain">#</a></h3>
+<ul>
+<li>Learn domain knowledge e.g. how banking, payment works behind the scene.</li>
+</ul>
 
-<ol reversed="" class="postlist">
-
-	<li class="postlist-item">
-		<a href="/blog/implicit-requirements/" class="postlist-link">Handle Implicit Requirements</a>
-		<time class="postlist-date" datetime="2025-12-28">December 2025</time>
-	</li>
-
-</ol>
-
-
-<p>See <a href="/tags/">all tags</a>.</p>
-
+</article>
 
 		</main>
 
 		<footer></footer>
 
-		<!-- Current page: /tags/product-management/ -->
+		<!-- Current page: /shorts/1-product-minded/ -->
 	</body>
 </html>
