@@ -10,7 +10,7 @@ layout: layouts/post.njk
 ## Introduction
 How to spot the implicit requirements that product team might have overlooked ?
 
-Implicit requirements are the ones that **nobody wrote down** during design phase. It hurts the development by unexpected bugs and rework and eventually delays the release.
+Implicit requirements are the ones that tend to be overlooked during design phase. Product expect it to work naturally while it's actually not. It hurts the development process by unexpected bugs and rework and eventually delays the release.
 
 ## Benefits of handling it early
 - Identifying implicit requirements helps to properly manage the deadline and improve the quality of the product.
@@ -35,11 +35,6 @@ User has permission for Entity A but needs to display data from Entity B they ca
 - Example: Sales Representative can view and create **orders** but **cannot access invoice details**. However, in order page we need to display the **invoice** details.
     - Question to clarify: Should we define fields in **invoice** that are public ?
 - Example: In UI user is displayed as a name with a link. However for users who cannot access **User** detail page, it will go to 404 page.
-
-
-## Realtime update
-- Especially in financial SaaS, there are requirements that multiple users viewing the same data need to see updates without refreshing.
-- Change in settings/permissions (which are usually cached), should we reissue access token or clearup cache in order to reflect the change ?
 
 ## Searchable fields
 - Searching for related field would affect data modeling e.g..
