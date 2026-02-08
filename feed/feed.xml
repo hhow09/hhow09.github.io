@@ -291,7 +291,7 @@ process&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span cl
 		<id>https://hhow09.github.io/blog/implicit-requirements/</id>
 		<content type="html">&lt;h2 id=&quot;introduction&quot; tabindex=&quot;-1&quot;&gt;Introduction &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/implicit-requirements/#introduction&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;p&gt;How to spot the implicit requirements that product team might have overlooked ?&lt;/p&gt;
-&lt;p&gt;Implicit requirements are the ones that &lt;strong&gt;nobody wrote down&lt;/strong&gt; during design phase. It hurts the development by unexpected bugs and rework and eventually delays the release.&lt;/p&gt;
+&lt;p&gt;Implicit requirements are the ones that tend to be overlooked during design phase. Product expect it to work naturally while it&#39;s actually not. It hurts the development process by unexpected bugs and rework and eventually delays the release.&lt;/p&gt;
 &lt;h2 id=&quot;benefits-of-handling-it-early&quot; tabindex=&quot;-1&quot;&gt;Benefits of handling it early &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/implicit-requirements/#benefits-of-handling-it-early&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;Identifying implicit requirements helps to properly manage the deadline and improve the quality of the product.&lt;/li&gt;
@@ -326,11 +326,6 @@ process&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span cl
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;li&gt;Example: In UI user is displayed as a name with a link. However for users who cannot access &lt;strong&gt;User&lt;/strong&gt; detail page, it will go to 404 page.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id=&quot;realtime-update&quot; tabindex=&quot;-1&quot;&gt;Realtime update &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/implicit-requirements/#realtime-update&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
-&lt;ul&gt;
-&lt;li&gt;Especially in financial SaaS, there are requirements that multiple users viewing the same data need to see updates without refreshing.&lt;/li&gt;
-&lt;li&gt;Change in settings/permissions (which are usually cached), should we reissue access token or clearup cache in order to reflect the change ?&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h2 id=&quot;searchable-fields&quot; tabindex=&quot;-1&quot;&gt;Searchable fields &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/implicit-requirements/#searchable-fields&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;ul&gt;
