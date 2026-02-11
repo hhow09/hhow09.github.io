@@ -15,10 +15,10 @@ layout: layouts/short.njk
 5. Label comment severity: e.g. nit, optional, fyi
 
 
-## Asking questions
+## In Slack
 1. When asking open questions / design decisions, create vote or clear options would get better response.
+2. When thread becomes long, summarize the conclusion and action items.
 
-(TBD...)
 
 ## Ref
 [^1]: [Google: How to write code review comments](https://google.github.io/eng-practices/review/reviewer/comments.html#summary)
