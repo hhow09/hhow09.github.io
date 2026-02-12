@@ -4,12 +4,65 @@
 	<subtitle>sofware engineering stuff</subtitle>
 	<link href="https://hhow09.github.io/feed/feed.xml" rel="self"/>
 	<link href="https://hhow09.github.io/"/>
-	<updated>2026-02-01T00:00:00Z</updated>
+	<updated>2026-02-12T00:00:00Z</updated>
 	<id>https://hhow09.github.io/</id>
 	<author>
 		<name>HH</name>
 		<email>hhow09@gmail.com</email>
 	</author>
+	
+	<entry>
+		<title>AI productivity boosts is real</title>
+		<link href="https://hhow09.github.io/blog/ai-productivity/"/>
+		<updated>2026-02-12T00:00:00Z</updated>
+		<id>https://hhow09.github.io/blog/ai-productivity/</id>
+		<content type="html">&lt;p&gt;I was a bit skeptical about AI coding assistant at first. But since Skills came out, I can really feel the power of agentic workflow.&lt;/p&gt;
+&lt;p&gt;I use Cursor but these features should also work in general agents e.g. Claude Code.&lt;/p&gt;
+&lt;p&gt;Here are the features I&#39;ve used&lt;/p&gt;
+&lt;h2 id=&quot;1-plan-mode&quot; tabindex=&quot;-1&quot;&gt;1. &lt;a href=&quot;https://cursor.com/docs/agent/modes#plan&quot;&gt;Plan Mode&lt;/a&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#1-plan-mode&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;Plan Mode is extremely useful to explore the complexities between different solutions before making any changes.&lt;/p&gt;
+&lt;p&gt;How I used that:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;Plan&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;Structure the problem first&lt;/li&gt;
+&lt;li&gt;Avoid touching code&lt;/li&gt;
+&lt;li&gt;Draw diagram to visualize the flow and architecture&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Execute first few steps for quick validation&lt;/strong&gt;: Execute the initial steps to validate the approach before committing to the full implementation.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;implementation&lt;/strong&gt;:  Update the plan accordingly every round based on the real AI + human implementation.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Futher usage&lt;/strong&gt;: keep the plan for futher use e.g. decision making reference, QA testing instructions, tech sharing materials, work log, etc.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&quot;2-agent-skills&quot; tabindex=&quot;-1&quot;&gt;2. &lt;a href=&quot;https://cursor.com/docs/context/skills&quot;&gt;Agent Skills&lt;/a&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#2-agent-skills&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;open standard for extending AI agents with specialized capabilities.&lt;/p&gt;
+&lt;h3 id=&quot;i-used&quot; tabindex=&quot;-1&quot;&gt;I used &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#i-used&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/vercel-labs/agent-skills/tree/main/skills/react-best-practices&quot;&gt;vercel-react-best-practices&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;perform code review&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;3-rules&quot; tabindex=&quot;-1&quot;&gt;3. &lt;a href=&quot;https://cursor.com/docs/context/rules&quot;&gt;Rules&lt;/a&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#3-rules&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;Project based rules to provide contex automatically in chat.&lt;/p&gt;
+&lt;p&gt;Use cases: general coding guidelines, code structure, testing style&lt;/p&gt;
+&lt;p&gt;examples: &lt;a href=&quot;https://github.com/PatrickJS/awesome-cursorrules/tree/main&quot;&gt;awesome-cursorrules&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&quot;4-normal-chat-others&quot; tabindex=&quot;-1&quot;&gt;4. Normal Chat / Others &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#4-normal-chat-others&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;code trace&lt;/li&gt;
+&lt;li&gt;debugging&lt;/li&gt;
+&lt;li&gt;writing tests&lt;/li&gt;
+&lt;li&gt;commit message generation&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;other-ideas-want-to-try&quot; tabindex=&quot;-1&quot;&gt;Other ideas want to try &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#other-ideas-want-to-try&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Code review in CI: &lt;a href=&quot;https://cursor.com/docs/cli/cookbook/code-review&quot;&gt;Code Review with Cursor CLI&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Analyze Chat history for personal Self-Insight.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;ref&quot; tabindex=&quot;-1&quot;&gt;Ref &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#ref&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://cursor.com/blog/agent-best-practices&quot;&gt;Cursor Agent Best Practices&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</content>
+	</entry>
 	
 	<entry>
 		<title>Incremental Type Safety: Adopting Strict Mode in Large Projects</title>
