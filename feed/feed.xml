@@ -34,6 +34,10 @@
 &lt;li&gt;&lt;strong&gt;implementation&lt;/strong&gt;:  Update the plan accordingly every round based on the real AI + human implementation.&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;Futher usage&lt;/strong&gt;: keep the plan for futher use e.g. decision making reference, QA testing instructions, tech sharing materials, work log, etc.&lt;/li&gt;
 &lt;/ol&gt;
+&lt;h3 id=&quot;todo&quot; tabindex=&quot;-1&quot;&gt;TODO &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#todo&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Use &lt;a href=&quot;https://github.com/OthmanAdi/planning-with-files/tree/master&quot;&gt;Planning with Files&lt;/a&gt; to consolidate template.&lt;/li&gt;
+&lt;/ul&gt;
 &lt;h2 id=&quot;2-agent-skills&quot; tabindex=&quot;-1&quot;&gt;2. &lt;a href=&quot;https://cursor.com/docs/context/skills&quot;&gt;Agent Skills&lt;/a&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#2-agent-skills&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;p&gt;open standard for extending AI agents with specialized capabilities.&lt;/p&gt;
 &lt;h3 id=&quot;i-used&quot; tabindex=&quot;-1&quot;&gt;I used &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#i-used&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
@@ -52,9 +56,10 @@
 &lt;li&gt;writing tests&lt;/li&gt;
 &lt;li&gt;commit message generation&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h2 id=&quot;other-ideas-want-to-try&quot; tabindex=&quot;-1&quot;&gt;Other ideas want to try &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#other-ideas-want-to-try&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;other-tools-to-try&quot; tabindex=&quot;-1&quot;&gt;Other tools to try &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#other-tools-to-try&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;Code review in CI: &lt;a href=&quot;https://cursor.com/docs/cli/cookbook/code-review&quot;&gt;Code Review with Cursor CLI&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Hooks: &lt;a href=&quot;https://cursor.com/docs/agent/hooks&quot;&gt;https://cursor.com/docs/agent/hooks&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;Analyze Chat history for personal Self-Insight.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h2 id=&quot;ref&quot; tabindex=&quot;-1&quot;&gt;Ref &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#ref&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
