@@ -32,12 +32,8 @@
 &lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;Execute first few steps for quick validation&lt;/strong&gt;: Execute the initial steps to validate the approach before committing to the full implementation.&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;Implementation&lt;/strong&gt;:  Update the plan accordingly every round based on the real AI + human implementation.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Futher usage&lt;/strong&gt;: keep the plan for futher use e.g. decision making reference, QA testing instructions, tech sharing materials, work log, etc.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Futher usage&lt;/strong&gt;: keep the plan for futher use: decision making reference, QA testing instructions, tech sharing materials, work log, etc.&lt;/li&gt;
 &lt;/ol&gt;
-&lt;h3 id=&quot;todo&quot; tabindex=&quot;-1&quot;&gt;TODO &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#todo&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
-&lt;ul&gt;
-&lt;li&gt;Compare with &lt;a href=&quot;https://github.com/OthmanAdi/planning-with-files/tree/master&quot;&gt;Planning with Files&lt;/a&gt; to consolidate template.&lt;/li&gt;
-&lt;/ul&gt;
 &lt;h2 id=&quot;2-agent-skills&quot; tabindex=&quot;-1&quot;&gt;2. &lt;a href=&quot;https://cursor.com/docs/context/skills&quot;&gt;Agent Skills&lt;/a&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#2-agent-skills&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;p&gt;open standard for extending AI agents with specialized capabilities.&lt;/p&gt;
 &lt;h3 id=&quot;i-used&quot; tabindex=&quot;-1&quot;&gt;I used &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#i-used&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
@@ -62,6 +58,17 @@
 &lt;li&gt;Hooks: &lt;a href=&quot;https://cursor.com/docs/agent/hooks&quot;&gt;https://cursor.com/docs/agent/hooks&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;Analyze Chat history for personal Self-Insight.&lt;/li&gt;
 &lt;/ul&gt;
+&lt;h2 id=&quot;what-are-still-heavily-human-involved&quot; tabindex=&quot;-1&quot;&gt;What are still heavily human involved &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#what-are-still-heavily-human-involved&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;clarify requirements: When product get complex, spec could be easily overlooked by both PM and Dev even with the help of AI.
+&lt;ul&gt;
+&lt;li&gt;Integrating existing company knowledge as context when writing spec should help.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;debugging: Jumping between tickets, UI, logs, and codebase are still too complex for AI to handle alone.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;bottleneck-shifted&quot; tabindex=&quot;-1&quot;&gt;Bottleneck shifted &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#bottleneck-shifted&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;Bottleneck of delivery shifted from coding to review and other processes (testing, external dependency, release process), as stated in several posts (&lt;a href=&quot;https://blog.logrocket.com/ai-coding-tools-shift-bottleneck-to-review/&quot;&gt;1&lt;/a&gt;, &lt;a href=&quot;http://reddit.com/r/softwaredevelopment/comments/1m0i8cx/team_burnout_from_code_review_bottlenecks_how_do/&quot;&gt;2&lt;/a&gt;). New challenges already emerged: large amount of low quality PR from unexperienced engineer, human QA as relase blocker...&lt;/p&gt;
 &lt;h2 id=&quot;ref&quot; tabindex=&quot;-1&quot;&gt;Ref &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#ref&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&quot;https://addyosmani.com/blog/ai-coding-workflow/&quot;&gt;My LLM coding workflow going into 2026&lt;/a&gt;&lt;/li&gt;
