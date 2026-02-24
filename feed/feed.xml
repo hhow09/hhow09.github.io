@@ -20,14 +20,32 @@
 &lt;p&gt;I use Cursor but these features should also work in general agents e.g. Claude Code.&lt;/p&gt;
 &lt;h2 id=&quot;1-plan-mode&quot; tabindex=&quot;-1&quot;&gt;1. &lt;a href=&quot;https://cursor.com/docs/agent/modes#plan&quot;&gt;Plan Mode&lt;/a&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#1-plan-mode&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;p&gt;Plan Mode is extremely useful to explore the complexities between different solutions before making any changes.&lt;/p&gt;
-&lt;p&gt;How I used that:&lt;/p&gt;
+&lt;p&gt;Here is how I used it:&lt;/p&gt;
 &lt;ol&gt;
 &lt;li&gt;&lt;strong&gt;Plan&lt;/strong&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;Structure the problem first&lt;/strong&gt; avoid touching code before plan is confirmed&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Iterative Chunks&lt;/strong&gt;: Break features into small, focused tasks (e.g. one function or bug fix at a time) to keep the AI on track.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Seperation of concerns&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;SPEC.md&lt;/code&gt;: user story, requirements, etc. which will discuss with PM.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;TECHNICAL_DETAIL.md&lt;/code&gt;: architecture, data flow, api design, complexity analysis, etc. which will discuss with technical roles.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;IMPLEMENTATION.md&lt;/code&gt;: implementation plan, which will be updated throughout the implementation process.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;use &lt;code&gt;SPEC.md&lt;/code&gt; and &lt;code&gt;TECHNICAL_DETAIL.md&lt;/code&gt; to &lt;strong&gt;Understand the problem / spec&lt;/strong&gt; by asking
+&lt;ul&gt;
+&lt;li&gt;&amp;quot;Given the spec from jira ticket, understand the current user story with following references: &lt;files&gt;. Provide flow chart.&amp;quot;&lt;/files&gt;&lt;/li&gt;
+&lt;li&gt;&amp;quot;Grill me with specs I need to clarify with product manager. List out possible edge cases.&amp;quot;&lt;/li&gt;
+&lt;li&gt;&amp;quot;Explain the current architecture of &lt;module1&gt;, &lt;module2&gt;. Draw a diagram to visualize the flow and architecture.&amp;quot;&lt;/module2&gt;&lt;/module1&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;use &lt;code&gt;IMPLEMENTATION.md&lt;/code&gt; to &lt;strong&gt;Break down into smaller tasks&lt;/strong&gt; by asking
+&lt;ul&gt;
+&lt;li&gt;&amp;quot;Break features into small, focused tasks&amp;quot;&lt;/li&gt;
+&lt;li&gt;&amp;quot;What&#39;s the suggested priority of these tasks in order to minimize the risk of breaking existing features?&amp;quot;&lt;/li&gt;
+&lt;li&gt;&amp;quot;What&#39;s the required changes for each task?&amp;quot; to understand the complexity for better estimation.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;Context&lt;/strong&gt;: Always provide relevant context: specific code reference, document.&lt;/li&gt;
-&lt;li&gt;Draw diagram to visualize the flow and architecture&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;Execute first few steps for quick validation&lt;/strong&gt;: Execute the initial steps to validate the approach before committing to the full implementation.&lt;/li&gt;
@@ -52,12 +70,17 @@
 &lt;li&gt;writing tests&lt;/li&gt;
 &lt;li&gt;commit message generation&lt;/li&gt;
 &lt;/ul&gt;
+&lt;h2 id=&quot;5-mcps&quot; tabindex=&quot;-1&quot;&gt;5. MCPs &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#5-mcps&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.atlassian.com/blog/announcements/remote-mcp-server&quot;&gt;Atlassian Remote MCP Server&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
 &lt;h2 id=&quot;other-tools-to-try&quot; tabindex=&quot;-1&quot;&gt;Other tools to try &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#other-tools-to-try&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;Code review in CI: &lt;a href=&quot;https://cursor.com/docs/cli/cookbook/code-review&quot;&gt;Code Review with Cursor CLI&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;Hooks: &lt;a href=&quot;https://cursor.com/docs/agent/hooks&quot;&gt;https://cursor.com/docs/agent/hooks&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;Analyze Chat history for personal Self-Insight.&lt;/li&gt;
 &lt;/ul&gt;
+&lt;hr&gt;
 &lt;h2 id=&quot;what-are-still-heavily-human-involved&quot; tabindex=&quot;-1&quot;&gt;What are still heavily human involved &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#what-are-still-heavily-human-involved&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;clarify requirements: When product get complex, spec could be easily overlooked by both PM and Dev even with the help of AI.
@@ -67,7 +90,7 @@
 &lt;/li&gt;
 &lt;li&gt;debugging: Jumping between tickets, UI, logs, and codebase are still too complex for AI to handle alone.&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h2 id=&quot;bottleneck-shifted&quot; tabindex=&quot;-1&quot;&gt;Bottleneck shifted &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#bottleneck-shifted&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;thoughts-bottleneck-shifted&quot; tabindex=&quot;-1&quot;&gt;Thoughts: Bottleneck shifted &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#thoughts-bottleneck-shifted&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;p&gt;Bottleneck of delivery shifted from coding to review and other processes (testing, external dependency, release process), as stated in several posts (&lt;a href=&quot;https://blog.logrocket.com/ai-coding-tools-shift-bottleneck-to-review/&quot;&gt;1&lt;/a&gt;, &lt;a href=&quot;http://reddit.com/r/softwaredevelopment/comments/1m0i8cx/team_burnout_from_code_review_bottlenecks_how_do/&quot;&gt;2&lt;/a&gt;). New challenges already emerged: large amount of low quality PR from unexperienced engineer, human QA as relase blocker...&lt;/p&gt;
 &lt;h2 id=&quot;ref&quot; tabindex=&quot;-1&quot;&gt;Ref &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#ref&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;ul&gt;
