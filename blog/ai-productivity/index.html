@@ -519,15 +519,16 @@ blockquote p {
 </aside>
 <article>
   <p>I was a bit skeptical about AI coding assistant at first. But since Skills came out, I can really feel the power of agentic workflow. My workflow is still heavy <strong>human in the loop</strong> but I can certainly get better result with better custom rule, templates.</p>
-<p>I use Cursor but these features should also work in general agents e.g. Claude Code.</p>
+<p>I use Cursor since my company paid for it.</p>
 <h2 id="1-plan-mode" tabindex="-1">1. <a href="https://cursor.com/docs/agent/modes#plan">Plan Mode</a> <a class="header-anchor" href="#1-plan-mode">#</a></h2>
-<p>Plan Mode is extremely useful to explore the complexities between different solutions before making any changes.</p>
+<p>Plan Mode is extremely useful for complex tasks.</p>
 <p>Here is how I used it:</p>
 <ol>
 <li><strong>Plan</strong>
 <ul>
 <li><strong>Seperation of concerns</strong>
 <ul>
+<li>separate the plan into different files for different phases of task.</li>
 <li><code>SPEC.md</code>: user story, requirements, etc. which will discuss with PM.</li>
 <li><code>TECHNICAL_DETAIL.md</code>: architecture, data flow, api design, complexity analysis, etc. which will discuss with technical roles.</li>
 <li><code>IMPLEMENTATION.md</code>: implementation plan, which will be updated throughout the implementation process.</li>
@@ -535,7 +536,11 @@ blockquote p {
 </li>
 <li>use <code>SPEC.md</code> and <code>TECHNICAL_DETAIL.md</code> to <strong>Understand the problem / spec</strong> by asking
 <ul>
-<li>&quot;Given the spec from jira ticket, understand the current user story with following references: <files>. Provide flow chart.&quot;</files></li>
+<li>&quot;Given the spec from jira ticket <link>, understand the current user story deeply with following references: <files>. Provide flow chart.&quot;
+<ul>
+<li>Ref: <a href="https://www.atlassian.com/blog/announcements/remote-mcp-server">jira MCP</a></li>
+</ul>
+</files></li>
 <li>&quot;Grill me with specs I need to clarify with product manager. List out possible edge cases.&quot;</li>
 <li>&quot;Explain the current architecture of <module1>, <module2>. Draw a diagram to visualize the flow and architecture.&quot;</module2></module1></li>
 </ul>
@@ -552,7 +557,7 @@ blockquote p {
 </li>
 <li><strong>Execute first few steps for quick validation</strong>: Execute the initial steps to validate the approach before committing to the full implementation.</li>
 <li><strong>Implementation</strong>:  Update the plan accordingly every round based on the real AI + human implementation.</li>
-<li><strong>Futher usage</strong>: keep the plan for futher use: decision making reference, QA testing instructions, tech sharing materials, work log, etc.</li>
+<li><strong>Futher usage</strong>: keep the plan in a directory for futher use: decision making reference, QA testing instructions, tech sharing materials, work log, etc.</li>
 </ol>
 <h2 id="2-agent-skills" tabindex="-1">2. <a href="https://cursor.com/docs/context/skills">Agent Skills</a> <a class="header-anchor" href="#2-agent-skills">#</a></h2>
 <p>open standard for extending AI agents with specialized capabilities.</p>
@@ -596,6 +601,7 @@ blockquote p {
 <p>Bottleneck of delivery shifted from coding to review and other processes (testing, external dependency, release process), as stated in several posts (<a href="https://blog.logrocket.com/ai-coding-tools-shift-bottleneck-to-review/">1</a>, <a href="http://reddit.com/r/softwaredevelopment/comments/1m0i8cx/team_burnout_from_code_review_bottlenecks_how_do/">2</a>). New challenges already emerged: large amount of low quality PR from unexperienced engineer, human QA as relase blocker...</p>
 <h2 id="ref" tabindex="-1">Ref <a class="header-anchor" href="#ref">#</a></h2>
 <ul>
+<li><a href="https://boristane.com/blog/how-i-use-claude-code/">How I Use Claude Code</a></li>
 <li><a href="https://addyosmani.com/blog/ai-coding-workflow/">My LLM coding workflow going into 2026</a></li>
 <li><a href="https://cursor.com/blog/agent-best-practices">Cursor Agent Best Practices</a></li>
 </ul>
