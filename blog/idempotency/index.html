@@ -481,7 +481,7 @@ blockquote p {
 .toc{
 	margin-top: 20px !important;
 }</style>
-		<script type="module" async="">import mermaid from "https://unpkg.com/mermaid@10/dist/mermaid.esm.min.mjs";document.addEventListener('DOMContentLoaded', mermaid.initialize({startOnLoad:true}));</script>		
+		<script type="module" async="">import mermaid from "https://unpkg.com/mermaid@11.11.0/dist/mermaid.esm.min.mjs";document.addEventListener('DOMContentLoaded', mermaid.initialize({"loadOnSave":true}));</script>		
 	</head>
 	<body>
 		<a href="#skip" class="visually-hidden">Skip to main content</a>
@@ -606,7 +606,36 @@ blockquote p {
 <p>Idempotency middleware allows for fault-tolerant APIs where duplicate requests.</p>
 <p>business logic does not aware of the idempotent key</p>
 <h3 id="flow" tabindex="-1">Flow <a class="header-anchor" href="#flow">#</a></h3>
-<pre class="mermaid">sequenceDiagram&#10;    title: idempotent middleware flow;&#10;    actor C as Client;&#10;    participant server;&#10;    participant R as request repo;&#10;    participant LS as lock store;&#10;    &#10;    &#10;    C -&gt;&gt; server: request (idempotent_key)&#10;    note over server: verify key&#10;    note over server: check key expiry&#10;    server -&gt;&gt; R: GET Response&#10;&#10;    alt Not Exist (first pass)&#10;        R --&gt;&gt; server: Not Exist&#10;        server -&gt;&gt;+ LS: lock request&#10;        LS --&gt;&gt;- server: success&#10;        note over server: handle request&#10;        server -&gt;&gt;+ R: SET Response&#10;        R --&gt;&gt; server: Success&#10;        server -&gt;&gt;+ LS: unlock request &#10;        LS --&gt;&gt;- server: success    &#10;        server -&gt;&gt; C: Response    &#10;        R --&gt;&gt; server: Response&#10;        server -&gt;&gt; C: Response&#10;    else Exist&#10;        R --&gt;&gt; server: Response&#10;        server -&gt;&gt; C: Response&#10;    end&#10;</pre>
+<pre class="mermaid">sequenceDiagram
+    title: idempotent middleware flow;
+    actor C as Client;
+    participant server;
+    participant R as request repo;
+    participant LS as lock store;
+    
+    
+    C -&#x3E;&#x3E; server: request (idempotent_key)
+    note over server: verify key
+    note over server: check key expiry
+    server -&#x3E;&#x3E; R: GET Response
+
+    alt Not Exist (first pass)
+        R --&#x3E;&#x3E; server: Not Exist
+        server -&#x3E;&#x3E;+ LS: lock request
+        LS --&#x3E;&#x3E;- server: success
+        note over server: handle request
+        server -&#x3E;&#x3E;+ R: SET Response
+        R --&#x3E;&#x3E; server: Success
+        server -&#x3E;&#x3E;+ LS: unlock request 
+        LS --&#x3E;&#x3E;- server: success    
+        server -&#x3E;&#x3E; C: Response    
+        R --&#x3E;&#x3E; server: Response
+        server -&#x3E;&#x3E; C: Response
+    else Exist
+        R --&#x3E;&#x3E; server: Response
+        server -&#x3E;&#x3E; C: Response
+    end
+</pre>
 <h3 id="idempotency-fingerprint" tabindex="-1">Idempotency Fingerprint <sup class="footnote-ref"><a href="#fn9" id="fnref9">[9]</a></sup> <a class="header-anchor" href="#idempotency-fingerprint">#</a></h3>
 <blockquote>
 <p>An idempotency fingerprint MAY be used in conjunction with an idempotency key to determine the uniqueness of a request.  Such a fingerprint is generated from request payload data by the resource server.</p>

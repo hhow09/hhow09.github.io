@@ -481,7 +481,7 @@ blockquote p {
 .toc{
 	margin-top: 20px !important;
 }</style>
-		<script type="module" async="">import mermaid from "https://unpkg.com/mermaid@10/dist/mermaid.esm.min.mjs";document.addEventListener('DOMContentLoaded', mermaid.initialize({startOnLoad:true}));</script>		
+		<script type="module" async="">import mermaid from "https://unpkg.com/mermaid@11.11.0/dist/mermaid.esm.min.mjs";document.addEventListener('DOMContentLoaded', mermaid.initialize({"loadOnSave":true}));</script>		
 	</head>
 	<body>
 		<a href="#skip" class="visually-hidden">Skip to main content</a>
@@ -605,7 +605,31 @@ blockquote p {
 </li>
 </ul>
 <h3 id="flow-chart" tabindex="-1">Flow Chart <a class="header-anchor" href="#flow-chart">#</a></h3>
-<pre class="mermaid">sequenceDiagram&#10;    autonumber&#10;    participant App as Mobile App&#10;    participant S as App Server&#10;    participant AS as Auth Service&#10;    participant 3AS as 3rd Party Auth Service (Google|Apple)&#10;&#10;    rect rgb(191, 223, 255)&#10;        note over App: native app plugin&#10;        App -&gt;&gt;+ 3AS: 3rd party login and authorization&#10;        3AS --&gt;&gt;- App: id_token&#10;    end&#10;&#10;    App -&gt;&gt;+ AS: Login(id_token)&#10;    AS -&gt;&gt;+ 3AS: Validate id_token&#10;    3AS --&gt;&gt;- AS: user info&#10;    Note over AS: Identify the existed account or link to a new account&#10;    Note over AS: Initiate new session for an account&#10;    AS --&gt;&gt;- App: Access Token, Refresh Token&#10;&#10;    App -&gt;&gt; S: Request(access_token)&#10;    Note over S: Validate access_token&#10;    Note over S: Handle request&#10;    S --&gt;&gt; App: response&#10;</pre>
+<pre class="mermaid">sequenceDiagram
+    autonumber
+    participant App as Mobile App
+    participant S as App Server
+    participant AS as Auth Service
+    participant 3AS as 3rd Party Auth Service (Google|Apple)
+
+    rect rgb(191, 223, 255)
+        note over App: native app plugin
+        App -&#x3E;&#x3E;+ 3AS: 3rd party login and authorization
+        3AS --&#x3E;&#x3E;- App: id_token
+    end
+
+    App -&#x3E;&#x3E;+ AS: Login(id_token)
+    AS -&#x3E;&#x3E;+ 3AS: Validate id_token
+    3AS --&#x3E;&#x3E;- AS: user info
+    Note over AS: Identify the existed account or link to a new account
+    Note over AS: Initiate new session for an account
+    AS --&#x3E;&#x3E;- App: Access Token, Refresh Token
+
+    App -&#x3E;&#x3E; S: Request(access_token)
+    Note over S: Validate access_token
+    Note over S: Handle request
+    S --&#x3E;&#x3E; App: response
+</pre>
 <h3 id="notes" tabindex="-1">Notes <a class="header-anchor" href="#notes">#</a></h3>
 <ol>
 <li>

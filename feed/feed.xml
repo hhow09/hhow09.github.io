@@ -524,7 +524,64 @@ process&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span cl
 &lt;li&gt;Pay on Arrive: Payment is collected by logistics, owner can ship as long as order is created.&lt;/li&gt;
 &lt;/ol&gt;
 &lt;h3 id=&quot;flow-diagram&quot; tabindex=&quot;-1&quot;&gt;Flow Diagram &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/e-commerce-aws-serverless/#flow-diagram&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
-&lt;pre class=&quot;mermaid&quot;&gt;sequenceDiagram&amp;#10;    participant FE&amp;#10;    participant BE&amp;#10;    participant DB&amp;#10;    participant S3&amp;#10;    participant PaymentGateway&amp;#10;    FE-&amp;gt;&amp;gt;+S3: [1] GET site status and products&amp;#10;    S3--&amp;gt;&amp;gt;-FE: site status&amp;#10;    alt Site Not available&amp;#10;        Note Over FE: user flow END&amp;#10;    else Site Available&amp;#10;        Note Over FE: user browse products, fill in order form.&amp;#10;        FE-&amp;gt;&amp;gt;+BE: [2] POST /order&amp;#10;        BE-&amp;gt;&amp;gt;+DB: Save Order&amp;#10;        alt Payment Method: [Pay on arrive]&amp;#10;            BE--&amp;gt;&amp;gt;FE: Order ID&amp;#10;            FE--&amp;gt;&amp;gt;+BE: [6] GET /order&amp;#10;            BE--&amp;gt;&amp;gt;-FE: Order Result (shipment scheduled)&amp;#10;            Note Over FE: [Pay on arrive] END&amp;#10;        else Payment Method: [Online Payment (ECPay)]&amp;#10;            BE--&amp;gt;&amp;gt;-FE: Redirection&amp;#10;            Note Over FE: [4] redirect to payment gateway&amp;#10;            alt Ecpay [Credit Card]&amp;#10;                FE-&amp;gt;&amp;gt;PaymentGateway: User Payment&amp;#10;                PaymentGateway-&amp;gt;&amp;gt;+BE: [5] Notify Order Payed&amp;#10;                BE--&amp;gt;&amp;gt;DB: Update Order to Payed&amp;#10;                BE--&amp;gt;&amp;gt;-PaymentGateway: OK&amp;#10;            else Ecpay [ATM transfer] (part 1)&amp;#10;                rect rgb(191, 223, 255)&amp;#10;                    PaymentGateway--&amp;gt;&amp;gt;FE: Display ATM payment Info&amp;#10;                    Note Over FE: continue at Ecpay [ATM transfer] (part 2)&amp;#10;                end&amp;#10;            end&amp;#10;            PaymentGateway--&amp;gt;&amp;gt;FE: redirect result page&amp;#10;            Note Over FE: User redirected to show result page (with orderId)&amp;#10;            FE-&amp;gt;&amp;gt;+BE: [6] GET /order&amp;#10;            BE--&amp;gt;&amp;gt;-FE: Order&amp;#10;            alt Ecpay [Credit Card]&amp;#10;                Note Over FE: Display payment result&amp;#10;            else Ecpay [ATM transfer] (part 1)&amp;#10;                Note Over FE: Wait for ATM payment&amp;#10;            end&amp;#10;            Note Over FE: user flow END&amp;#10;        end&amp;#10;&amp;#10;        Note Over FE, PaymentGateway: ASYNC&amp;#10;&amp;#10;        alt Ecpay [ATM transfer] (part 2)&amp;#10;            rect rgb(191, 223, 255)&amp;#10;                Note Over PaymentGateway: User Payed&amp;#10;                PaymentGateway-&amp;gt;&amp;gt;+BE: Order Payed&amp;#10;                BE--&amp;gt;&amp;gt;DB: Update Order Payed&amp;#10;                BE--&amp;gt;&amp;gt;-PaymentGateway: OK&amp;#10;            end&amp;#10;            Note Over FE: Ecpay [ATM transfer] END&amp;#10;        end&amp;#10;    end&amp;#10;&lt;/pre&gt;
+&lt;pre class=&quot;mermaid&quot;&gt;sequenceDiagram
+    participant FE
+    participant BE
+    participant DB
+    participant S3
+    participant PaymentGateway
+    FE-&amp;#x3E;&amp;#x3E;+S3: [1] GET site status and products
+    S3--&amp;#x3E;&amp;#x3E;-FE: site status
+    alt Site Not available
+        Note Over FE: user flow END
+    else Site Available
+        Note Over FE: user browse products, fill in order form.
+        FE-&amp;#x3E;&amp;#x3E;+BE: [2] POST /order
+        BE-&amp;#x3E;&amp;#x3E;+DB: Save Order
+        alt Payment Method: [Pay on arrive]
+            BE--&amp;#x3E;&amp;#x3E;FE: Order ID
+            FE--&amp;#x3E;&amp;#x3E;+BE: [6] GET /order
+            BE--&amp;#x3E;&amp;#x3E;-FE: Order Result (shipment scheduled)
+            Note Over FE: [Pay on arrive] END
+        else Payment Method: [Online Payment (ECPay)]
+            BE--&amp;#x3E;&amp;#x3E;-FE: Redirection
+            Note Over FE: [4] redirect to payment gateway
+            alt Ecpay [Credit Card]
+                FE-&amp;#x3E;&amp;#x3E;PaymentGateway: User Payment
+                PaymentGateway-&amp;#x3E;&amp;#x3E;+BE: [5] Notify Order Payed
+                BE--&amp;#x3E;&amp;#x3E;DB: Update Order to Payed
+                BE--&amp;#x3E;&amp;#x3E;-PaymentGateway: OK
+            else Ecpay [ATM transfer] (part 1)
+                rect rgb(191, 223, 255)
+                    PaymentGateway--&amp;#x3E;&amp;#x3E;FE: Display ATM payment Info
+                    Note Over FE: continue at Ecpay [ATM transfer] (part 2)
+                end
+            end
+            PaymentGateway--&amp;#x3E;&amp;#x3E;FE: redirect result page
+            Note Over FE: User redirected to show result page (with orderId)
+            FE-&amp;#x3E;&amp;#x3E;+BE: [6] GET /order
+            BE--&amp;#x3E;&amp;#x3E;-FE: Order
+            alt Ecpay [Credit Card]
+                Note Over FE: Display payment result
+            else Ecpay [ATM transfer] (part 1)
+                Note Over FE: Wait for ATM payment
+            end
+            Note Over FE: user flow END
+        end
+
+        Note Over FE, PaymentGateway: ASYNC
+
+        alt Ecpay [ATM transfer] (part 2)
+            rect rgb(191, 223, 255)
+                Note Over PaymentGateway: User Payed
+                PaymentGateway-&amp;#x3E;&amp;#x3E;+BE: Order Payed
+                BE--&amp;#x3E;&amp;#x3E;DB: Update Order Payed
+                BE--&amp;#x3E;&amp;#x3E;-PaymentGateway: OK
+            end
+            Note Over FE: Ecpay [ATM transfer] END
+        end
+    end
+&lt;/pre&gt;
 &lt;h2 id=&quot;aws-sam-template&quot; tabindex=&quot;-1&quot;&gt;&lt;a href=&quot;https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html&quot;&gt;AWS SAM&lt;/a&gt; Template &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/e-commerce-aws-serverless/#aws-sam-template&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;pre class=&quot;language-yaml&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-yaml&quot;&gt;&lt;span class=&quot;token key atrule&quot;&gt;AWSTemplateFormatVersion&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;2010-09-09&quot;&lt;/span&gt;
 &lt;span class=&quot;token key atrule&quot;&gt;Transform&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; AWS&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;Serverless&lt;span class=&quot;token punctuation&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;token datetime number&quot;&gt;2016-10-31&lt;/span&gt;
@@ -1013,7 +1070,27 @@ end
 &lt;h3 id=&quot;1-single-instance-redis-down-single-point-of-failure&quot; tabindex=&quot;-1&quot;&gt;1. [Single Instance] Redis down (single point of failure) &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/redlock/#1-single-instance-redis-down-single-point-of-failure&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
 &lt;p&gt;Solution: use Replica&lt;/p&gt;
 &lt;h3 id=&quot;2-replica-the-leader-crashes-before-the-write-to-the-key-is-transmitted-to-the-replica&quot; tabindex=&quot;-1&quot;&gt;2. [Replica] The Leader crashes before the write to the key is transmitted to the replica. &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/redlock/#fn2&quot; id=&quot;fnref2&quot;&gt;[2]&lt;/a&gt;&lt;/sup&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/redlock/#2-replica-the-leader-crashes-before-the-write-to-the-key-is-transmitted-to-the-replica&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
-&lt;pre class=&quot;mermaid&quot;&gt;sequenceDiagram&amp;#10;    participant Client_A&amp;#10;    participant Client_B&amp;#10;    participant Master&amp;#10;    participant Replica&amp;#10;    note over Client_A, Replica: vv normal case vv&amp;#10;    Client_A -&amp;gt;&amp;gt;+ Master: Acquire Lock&amp;#10;    Master --&amp;gt;&amp;gt;- Client_A: success&amp;#10;    Master -&amp;gt;&amp;gt; Replica: replicate&amp;#10;    Client_A -&amp;gt;&amp;gt;+ Master: UnLock&amp;#10;    Master --&amp;gt;&amp;gt;- Client_A: success&amp;#10;    Master -&amp;gt;&amp;gt; Replica: replicate&amp;#10;    note over Client_A, Replica:  vv Failure case vv&amp;#10;    Client_A -&amp;gt;&amp;gt;+ Master: Acquire Lock&amp;#10;    Master --&amp;gt;&amp;gt;- Client_A: success&amp;#10;    note over Master: crash before replicate&amp;#10;    note over Replica: promoted as Master&amp;#10;    Client_B -&amp;gt;&amp;gt;+ Replica: Acquire Lock&amp;#10;    Replica --&amp;gt;&amp;gt;- Client_B: success&amp;#10;    note over Client_B: SAFETY VIOLATION!&amp;#10;&lt;/pre&gt;
+&lt;pre class=&quot;mermaid&quot;&gt;sequenceDiagram
+    participant Client_A
+    participant Client_B
+    participant Master
+    participant Replica
+    note over Client_A, Replica: vv normal case vv
+    Client_A -&amp;#x3E;&amp;#x3E;+ Master: Acquire Lock
+    Master --&amp;#x3E;&amp;#x3E;- Client_A: success
+    Master -&amp;#x3E;&amp;#x3E; Replica: replicate
+    Client_A -&amp;#x3E;&amp;#x3E;+ Master: UnLock
+    Master --&amp;#x3E;&amp;#x3E;- Client_A: success
+    Master -&amp;#x3E;&amp;#x3E; Replica: replicate
+    note over Client_A, Replica:  vv Failure case vv
+    Client_A -&amp;#x3E;&amp;#x3E;+ Master: Acquire Lock
+    Master --&amp;#x3E;&amp;#x3E;- Client_A: success
+    note over Master: crash before replicate
+    note over Replica: promoted as Master
+    Client_B -&amp;#x3E;&amp;#x3E;+ Replica: Acquire Lock
+    Replica --&amp;#x3E;&amp;#x3E;- Client_B: success
+    note over Client_B: SAFETY VIOLATION!
+&lt;/pre&gt;
 &lt;h4 id=&quot;solution&quot; tabindex=&quot;-1&quot;&gt;Solution &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/redlock/#solution&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
 &lt;p&gt;Consensus algorithm e.g. &lt;a href=&quot;https://hhow09.github.io/blog/redlock/#redlock-algorithm&quot;&gt;Redlock&lt;/a&gt;&lt;/p&gt;
 &lt;h2 id=&quot;redlock-algorithm&quot; tabindex=&quot;-1&quot;&gt;Redlock Algorithm &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/redlock/#fn1&quot; id=&quot;fnref1:1&quot;&gt;[1:1]&lt;/a&gt;&lt;/sup&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/redlock/#redlock-algorithm&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
@@ -1327,7 +1404,31 @@ end
 &lt;/li&gt;
 &lt;/ul&gt;
 &lt;h3 id=&quot;flow-chart&quot; tabindex=&quot;-1&quot;&gt;Flow Chart &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/oauth2-server/#flow-chart&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
-&lt;pre class=&quot;mermaid&quot;&gt;sequenceDiagram&amp;#10;    autonumber&amp;#10;    participant App as Mobile App&amp;#10;    participant S as App Server&amp;#10;    participant AS as Auth Service&amp;#10;    participant 3AS as 3rd Party Auth Service (Google|Apple)&amp;#10;&amp;#10;    rect rgb(191, 223, 255)&amp;#10;        note over App: native app plugin&amp;#10;        App -&amp;gt;&amp;gt;+ 3AS: 3rd party login and authorization&amp;#10;        3AS --&amp;gt;&amp;gt;- App: id_token&amp;#10;    end&amp;#10;&amp;#10;    App -&amp;gt;&amp;gt;+ AS: Login(id_token)&amp;#10;    AS -&amp;gt;&amp;gt;+ 3AS: Validate id_token&amp;#10;    3AS --&amp;gt;&amp;gt;- AS: user info&amp;#10;    Note over AS: Identify the existed account or link to a new account&amp;#10;    Note over AS: Initiate new session for an account&amp;#10;    AS --&amp;gt;&amp;gt;- App: Access Token, Refresh Token&amp;#10;&amp;#10;    App -&amp;gt;&amp;gt; S: Request(access_token)&amp;#10;    Note over S: Validate access_token&amp;#10;    Note over S: Handle request&amp;#10;    S --&amp;gt;&amp;gt; App: response&amp;#10;&lt;/pre&gt;
+&lt;pre class=&quot;mermaid&quot;&gt;sequenceDiagram
+    autonumber
+    participant App as Mobile App
+    participant S as App Server
+    participant AS as Auth Service
+    participant 3AS as 3rd Party Auth Service (Google|Apple)
+
+    rect rgb(191, 223, 255)
+        note over App: native app plugin
+        App -&amp;#x3E;&amp;#x3E;+ 3AS: 3rd party login and authorization
+        3AS --&amp;#x3E;&amp;#x3E;- App: id_token
+    end
+
+    App -&amp;#x3E;&amp;#x3E;+ AS: Login(id_token)
+    AS -&amp;#x3E;&amp;#x3E;+ 3AS: Validate id_token
+    3AS --&amp;#x3E;&amp;#x3E;- AS: user info
+    Note over AS: Identify the existed account or link to a new account
+    Note over AS: Initiate new session for an account
+    AS --&amp;#x3E;&amp;#x3E;- App: Access Token, Refresh Token
+
+    App -&amp;#x3E;&amp;#x3E; S: Request(access_token)
+    Note over S: Validate access_token
+    Note over S: Handle request
+    S --&amp;#x3E;&amp;#x3E; App: response
+&lt;/pre&gt;
 &lt;h3 id=&quot;notes&quot; tabindex=&quot;-1&quot;&gt;Notes &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/oauth2-server/#notes&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
 &lt;ol&gt;
 &lt;li&gt;
@@ -1495,7 +1596,36 @@ Authorization servers that still require a statically included shared secret for
 &lt;p&gt;Idempotency middleware allows for fault-tolerant APIs where duplicate requests.&lt;/p&gt;
 &lt;p&gt;business logic does not aware of the idempotent key&lt;/p&gt;
 &lt;h3 id=&quot;flow&quot; tabindex=&quot;-1&quot;&gt;Flow &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/idempotency/#flow&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
-&lt;pre class=&quot;mermaid&quot;&gt;sequenceDiagram&amp;#10;    title: idempotent middleware flow;&amp;#10;    actor C as Client;&amp;#10;    participant server;&amp;#10;    participant R as request repo;&amp;#10;    participant LS as lock store;&amp;#10;    &amp;#10;    &amp;#10;    C -&amp;gt;&amp;gt; server: request (idempotent_key)&amp;#10;    note over server: verify key&amp;#10;    note over server: check key expiry&amp;#10;    server -&amp;gt;&amp;gt; R: GET Response&amp;#10;&amp;#10;    alt Not Exist (first pass)&amp;#10;        R --&amp;gt;&amp;gt; server: Not Exist&amp;#10;        server -&amp;gt;&amp;gt;+ LS: lock request&amp;#10;        LS --&amp;gt;&amp;gt;- server: success&amp;#10;        note over server: handle request&amp;#10;        server -&amp;gt;&amp;gt;+ R: SET Response&amp;#10;        R --&amp;gt;&amp;gt; server: Success&amp;#10;        server -&amp;gt;&amp;gt;+ LS: unlock request &amp;#10;        LS --&amp;gt;&amp;gt;- server: success    &amp;#10;        server -&amp;gt;&amp;gt; C: Response    &amp;#10;        R --&amp;gt;&amp;gt; server: Response&amp;#10;        server -&amp;gt;&amp;gt; C: Response&amp;#10;    else Exist&amp;#10;        R --&amp;gt;&amp;gt; server: Response&amp;#10;        server -&amp;gt;&amp;gt; C: Response&amp;#10;    end&amp;#10;&lt;/pre&gt;
+&lt;pre class=&quot;mermaid&quot;&gt;sequenceDiagram
+    title: idempotent middleware flow;
+    actor C as Client;
+    participant server;
+    participant R as request repo;
+    participant LS as lock store;
+    
+    
+    C -&amp;#x3E;&amp;#x3E; server: request (idempotent_key)
+    note over server: verify key
+    note over server: check key expiry
+    server -&amp;#x3E;&amp;#x3E; R: GET Response
+
+    alt Not Exist (first pass)
+        R --&amp;#x3E;&amp;#x3E; server: Not Exist
+        server -&amp;#x3E;&amp;#x3E;+ LS: lock request
+        LS --&amp;#x3E;&amp;#x3E;- server: success
+        note over server: handle request
+        server -&amp;#x3E;&amp;#x3E;+ R: SET Response
+        R --&amp;#x3E;&amp;#x3E; server: Success
+        server -&amp;#x3E;&amp;#x3E;+ LS: unlock request 
+        LS --&amp;#x3E;&amp;#x3E;- server: success    
+        server -&amp;#x3E;&amp;#x3E; C: Response    
+        R --&amp;#x3E;&amp;#x3E; server: Response
+        server -&amp;#x3E;&amp;#x3E; C: Response
+    else Exist
+        R --&amp;#x3E;&amp;#x3E; server: Response
+        server -&amp;#x3E;&amp;#x3E; C: Response
+    end
+&lt;/pre&gt;
 &lt;h3 id=&quot;idempotency-fingerprint&quot; tabindex=&quot;-1&quot;&gt;Idempotency Fingerprint &lt;sup class=&quot;footnote-ref&quot;&gt;&lt;a href=&quot;https://hhow09.github.io/blog/idempotency/#fn9&quot; id=&quot;fnref9&quot;&gt;[9]&lt;/a&gt;&lt;/sup&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/idempotency/#idempotency-fingerprint&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
 &lt;blockquote&gt;
 &lt;p&gt;An idempotency fingerprint MAY be used in conjunction with an idempotency key to determine the uniqueness of a request.  Such a fingerprint is generated from request payload data by the resource server.&lt;/p&gt;

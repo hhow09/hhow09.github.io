@@ -481,7 +481,7 @@ blockquote p {
 .toc{
 	margin-top: 20px !important;
 }</style>
-		<script type="module" async="">import mermaid from "https://unpkg.com/mermaid@10/dist/mermaid.esm.min.mjs";document.addEventListener('DOMContentLoaded', mermaid.initialize({startOnLoad:true}));</script>		
+		<script type="module" async="">import mermaid from "https://unpkg.com/mermaid@11.11.0/dist/mermaid.esm.min.mjs";document.addEventListener('DOMContentLoaded', mermaid.initialize({"loadOnSave":true}));</script>		
 	</head>
 	<body>
 		<a href="#skip" class="visually-hidden">Skip to main content</a>
@@ -535,7 +535,27 @@ end
 <h3 id="1-single-instance-redis-down-single-point-of-failure" tabindex="-1">1. [Single Instance] Redis down (single point of failure) <a class="header-anchor" href="#1-single-instance-redis-down-single-point-of-failure">#</a></h3>
 <p>Solution: use Replica</p>
 <h3 id="2-replica-the-leader-crashes-before-the-write-to-the-key-is-transmitted-to-the-replica" tabindex="-1">2. [Replica] The Leader crashes before the write to the key is transmitted to the replica. <sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup> <a class="header-anchor" href="#2-replica-the-leader-crashes-before-the-write-to-the-key-is-transmitted-to-the-replica">#</a></h3>
-<pre class="mermaid">sequenceDiagram&#10;    participant Client_A&#10;    participant Client_B&#10;    participant Master&#10;    participant Replica&#10;    note over Client_A, Replica: vv normal case vv&#10;    Client_A -&gt;&gt;+ Master: Acquire Lock&#10;    Master --&gt;&gt;- Client_A: success&#10;    Master -&gt;&gt; Replica: replicate&#10;    Client_A -&gt;&gt;+ Master: UnLock&#10;    Master --&gt;&gt;- Client_A: success&#10;    Master -&gt;&gt; Replica: replicate&#10;    note over Client_A, Replica:  vv Failure case vv&#10;    Client_A -&gt;&gt;+ Master: Acquire Lock&#10;    Master --&gt;&gt;- Client_A: success&#10;    note over Master: crash before replicate&#10;    note over Replica: promoted as Master&#10;    Client_B -&gt;&gt;+ Replica: Acquire Lock&#10;    Replica --&gt;&gt;- Client_B: success&#10;    note over Client_B: SAFETY VIOLATION!&#10;</pre>
+<pre class="mermaid">sequenceDiagram
+    participant Client_A
+    participant Client_B
+    participant Master
+    participant Replica
+    note over Client_A, Replica: vv normal case vv
+    Client_A -&#x3E;&#x3E;+ Master: Acquire Lock
+    Master --&#x3E;&#x3E;- Client_A: success
+    Master -&#x3E;&#x3E; Replica: replicate
+    Client_A -&#x3E;&#x3E;+ Master: UnLock
+    Master --&#x3E;&#x3E;- Client_A: success
+    Master -&#x3E;&#x3E; Replica: replicate
+    note over Client_A, Replica:  vv Failure case vv
+    Client_A -&#x3E;&#x3E;+ Master: Acquire Lock
+    Master --&#x3E;&#x3E;- Client_A: success
+    note over Master: crash before replicate
+    note over Replica: promoted as Master
+    Client_B -&#x3E;&#x3E;+ Replica: Acquire Lock
+    Replica --&#x3E;&#x3E;- Client_B: success
+    note over Client_B: SAFETY VIOLATION!
+</pre>
 <h4 id="solution" tabindex="-1">Solution <a class="header-anchor" href="#solution">#</a></h4>
 <p>Consensus algorithm e.g. <a href="#redlock-algorithm">Redlock</a></p>
 <h2 id="redlock-algorithm" tabindex="-1">Redlock Algorithm <sup class="footnote-ref"><a href="#fn1" id="fnref1:1">[1:1]</a></sup> <a class="header-anchor" href="#redlock-algorithm">#</a></h2>

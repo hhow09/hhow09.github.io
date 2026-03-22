@@ -481,7 +481,7 @@ blockquote p {
 .toc{
 	margin-top: 20px !important;
 }</style>
-		<script type="module" async="">import mermaid from "https://unpkg.com/mermaid@10/dist/mermaid.esm.min.mjs";document.addEventListener('DOMContentLoaded', mermaid.initialize({startOnLoad:true}));</script>		
+		<script type="module" async="">import mermaid from "https://unpkg.com/mermaid@11.11.0/dist/mermaid.esm.min.mjs";document.addEventListener('DOMContentLoaded', mermaid.initialize({"loadOnSave":true}));</script>		
 	</head>
 	<body>
 		<a href="#skip" class="visually-hidden">Skip to main content</a>
@@ -598,7 +598,64 @@ blockquote p {
 <li>Pay on Arrive: Payment is collected by logistics, owner can ship as long as order is created.</li>
 </ol>
 <h3 id="flow-diagram" tabindex="-1">Flow Diagram <a class="header-anchor" href="#flow-diagram">#</a></h3>
-<pre class="mermaid">sequenceDiagram&#10;    participant FE&#10;    participant BE&#10;    participant DB&#10;    participant S3&#10;    participant PaymentGateway&#10;    FE-&gt;&gt;+S3: [1] GET site status and products&#10;    S3--&gt;&gt;-FE: site status&#10;    alt Site Not available&#10;        Note Over FE: user flow END&#10;    else Site Available&#10;        Note Over FE: user browse products, fill in order form.&#10;        FE-&gt;&gt;+BE: [2] POST /order&#10;        BE-&gt;&gt;+DB: Save Order&#10;        alt Payment Method: [Pay on arrive]&#10;            BE--&gt;&gt;FE: Order ID&#10;            FE--&gt;&gt;+BE: [6] GET /order&#10;            BE--&gt;&gt;-FE: Order Result (shipment scheduled)&#10;            Note Over FE: [Pay on arrive] END&#10;        else Payment Method: [Online Payment (ECPay)]&#10;            BE--&gt;&gt;-FE: Redirection&#10;            Note Over FE: [4] redirect to payment gateway&#10;            alt Ecpay [Credit Card]&#10;                FE-&gt;&gt;PaymentGateway: User Payment&#10;                PaymentGateway-&gt;&gt;+BE: [5] Notify Order Payed&#10;                BE--&gt;&gt;DB: Update Order to Payed&#10;                BE--&gt;&gt;-PaymentGateway: OK&#10;            else Ecpay [ATM transfer] (part 1)&#10;                rect rgb(191, 223, 255)&#10;                    PaymentGateway--&gt;&gt;FE: Display ATM payment Info&#10;                    Note Over FE: continue at Ecpay [ATM transfer] (part 2)&#10;                end&#10;            end&#10;            PaymentGateway--&gt;&gt;FE: redirect result page&#10;            Note Over FE: User redirected to show result page (with orderId)&#10;            FE-&gt;&gt;+BE: [6] GET /order&#10;            BE--&gt;&gt;-FE: Order&#10;            alt Ecpay [Credit Card]&#10;                Note Over FE: Display payment result&#10;            else Ecpay [ATM transfer] (part 1)&#10;                Note Over FE: Wait for ATM payment&#10;            end&#10;            Note Over FE: user flow END&#10;        end&#10;&#10;        Note Over FE, PaymentGateway: ASYNC&#10;&#10;        alt Ecpay [ATM transfer] (part 2)&#10;            rect rgb(191, 223, 255)&#10;                Note Over PaymentGateway: User Payed&#10;                PaymentGateway-&gt;&gt;+BE: Order Payed&#10;                BE--&gt;&gt;DB: Update Order Payed&#10;                BE--&gt;&gt;-PaymentGateway: OK&#10;            end&#10;            Note Over FE: Ecpay [ATM transfer] END&#10;        end&#10;    end&#10;</pre>
+<pre class="mermaid">sequenceDiagram
+    participant FE
+    participant BE
+    participant DB
+    participant S3
+    participant PaymentGateway
+    FE-&#x3E;&#x3E;+S3: [1] GET site status and products
+    S3--&#x3E;&#x3E;-FE: site status
+    alt Site Not available
+        Note Over FE: user flow END
+    else Site Available
+        Note Over FE: user browse products, fill in order form.
+        FE-&#x3E;&#x3E;+BE: [2] POST /order
+        BE-&#x3E;&#x3E;+DB: Save Order
+        alt Payment Method: [Pay on arrive]
+            BE--&#x3E;&#x3E;FE: Order ID
+            FE--&#x3E;&#x3E;+BE: [6] GET /order
+            BE--&#x3E;&#x3E;-FE: Order Result (shipment scheduled)
+            Note Over FE: [Pay on arrive] END
+        else Payment Method: [Online Payment (ECPay)]
+            BE--&#x3E;&#x3E;-FE: Redirection
+            Note Over FE: [4] redirect to payment gateway
+            alt Ecpay [Credit Card]
+                FE-&#x3E;&#x3E;PaymentGateway: User Payment
+                PaymentGateway-&#x3E;&#x3E;+BE: [5] Notify Order Payed
+                BE--&#x3E;&#x3E;DB: Update Order to Payed
+                BE--&#x3E;&#x3E;-PaymentGateway: OK
+            else Ecpay [ATM transfer] (part 1)
+                rect rgb(191, 223, 255)
+                    PaymentGateway--&#x3E;&#x3E;FE: Display ATM payment Info
+                    Note Over FE: continue at Ecpay [ATM transfer] (part 2)
+                end
+            end
+            PaymentGateway--&#x3E;&#x3E;FE: redirect result page
+            Note Over FE: User redirected to show result page (with orderId)
+            FE-&#x3E;&#x3E;+BE: [6] GET /order
+            BE--&#x3E;&#x3E;-FE: Order
+            alt Ecpay [Credit Card]
+                Note Over FE: Display payment result
+            else Ecpay [ATM transfer] (part 1)
+                Note Over FE: Wait for ATM payment
+            end
+            Note Over FE: user flow END
+        end
+
+        Note Over FE, PaymentGateway: ASYNC
+
+        alt Ecpay [ATM transfer] (part 2)
+            rect rgb(191, 223, 255)
+                Note Over PaymentGateway: User Payed
+                PaymentGateway-&#x3E;&#x3E;+BE: Order Payed
+                BE--&#x3E;&#x3E;DB: Update Order Payed
+                BE--&#x3E;&#x3E;-PaymentGateway: OK
+            end
+            Note Over FE: Ecpay [ATM transfer] END
+        end
+    end
+</pre>
 <h2 id="aws-sam-template" tabindex="-1"><a href="https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html">AWS SAM</a> Template <a class="header-anchor" href="#aws-sam-template">#</a></h2>
 <pre class="language-yaml" tabindex="0"><code class="language-yaml"><span class="token key atrule">AWSTemplateFormatVersion</span><span class="token punctuation">:</span> <span class="token string">"2010-09-09"</span>
 <span class="token key atrule">Transform</span><span class="token punctuation">:</span> AWS<span class="token punctuation">:</span><span class="token punctuation">:</span>Serverless<span class="token punctuation">-</span><span class="token datetime number">2016-10-31</span>
