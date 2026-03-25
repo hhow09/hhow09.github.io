@@ -11,7 +11,7 @@ const { EleventyHtmlBasePlugin, InputPathToUrlTransformPlugin } = require("@11ty
 
 const pluginDrafts = require("./eleventy.config.drafts.js");
 const pluginImages = require("./eleventy.config.images.js");
-const pluginMermaid = require("@kevingimbel/eleventy-plugin-mermaid");
+const pluginMermaid = require("@kevingimbel/eleventy-plugin-mermaid").default;
 
 module.exports = function (eleventyConfig) {
 	// Copy the contents of the `public` folder to the output folder
