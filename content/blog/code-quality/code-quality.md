@@ -70,8 +70,9 @@ Complexity directly impacts readability.
     - meaningful naming
     - function should do one thing only
     - comments should explain why not what.
+- Differentiate [accidental complexity](https://www.iankduncan.com/engineering/2025-05-26-when-is-complexity-accidental/) from essential complexity.
+    - "Accidental complexity is the stuff we pile on top. Bad abstractions, overly clever code, or just choosing the wrong tools for the job."
 - [Strategic Programming over Tactical Programming](https://web.stanford.edu/~ouster/cgi-bin/cs190-winter18/lecture.php?topic=working)
-- Use **code formatter**: e.g. [prettier](https://prettier.io/)
 - Follow language-specific guides: e.g. [Effective Typescript](https://effectivetypescript.com/), [Effective Go](https://go.dev/doc/effective_go)
 
 ### Reusability
@@ -112,6 +113,7 @@ Efficiency can be defined as, using the resources optimally where resources coul
 - [How to create software quality.](https://lethain.com/quality/) by Will Larson discusses software quality in a broader sense.
 
 ## References
+- [Accidental or Essential? Understanding Complexity in Software Design](https://www.iankduncan.com/engineering/2025-05-26-when-is-complexity-accidental/)
 - [AWS:What is code quality?](https://aws.amazon.com/what-is/code-quality/)
 - [Microsoft: Engineering Fundamentals Playbook: Maintainability](https://microsoft.github.io/code-with-engineering-playbook/non-functional-requirements/maintainability/)
 - [The Pragmatic Programmer](https://www.amazon.de/Pragmatic-Programmer-Journeyman-Master/dp/020161622X)
