@@ -4,7 +4,7 @@
 	<subtitle>sofware engineering stuff</subtitle>
 	<link href="https://hhow09.github.io/feed/feed.xml" rel="self"/>
 	<link href="https://hhow09.github.io/"/>
-	<updated>2026-02-12T00:00:00Z</updated>
+	<updated>2026-03-25T00:00:00Z</updated>
 	<id>https://hhow09.github.io/</id>
 	<author>
 		<name>HH</name>
@@ -14,94 +14,126 @@
 	<entry>
 		<title>AI productivity boost is real</title>
 		<link href="https://hhow09.github.io/blog/ai-productivity/"/>
-		<updated>2026-02-12T00:00:00Z</updated>
+		<updated>2026-03-25T00:00:00Z</updated>
 		<id>https://hhow09.github.io/blog/ai-productivity/</id>
-		<content type="html">&lt;p&gt;I was a bit skeptical about AI coding assistant at first. But since Skills came out, I can really feel the power of agentic workflow. My workflow is still heavy &lt;strong&gt;human in the loop&lt;/strong&gt; but I can certainly get better result with better custom rule, templates.&lt;/p&gt;
-&lt;p&gt;I use Cursor since my company paid for it.&lt;/p&gt;
-&lt;h2 id=&quot;1-plan-mode&quot; tabindex=&quot;-1&quot;&gt;1. &lt;a href=&quot;https://cursor.com/docs/agent/modes#plan&quot;&gt;Plan Mode&lt;/a&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#1-plan-mode&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
-&lt;p&gt;Plan Mode is extremely useful for complex tasks.&lt;/p&gt;
-&lt;p&gt;Here is how I used it:&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;&lt;strong&gt;Plan&lt;/strong&gt;
+		<content type="html">&lt;p&gt;Since Skills came out, I can really feel the power of the agentic workflow. My workflow is still heavily human-in-the-loop, but certain parts can be highly automated.&lt;/p&gt;
+&lt;h2 id=&quot;workflow-breakdown&quot; tabindex=&quot;-1&quot;&gt;Workflow breakdown &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#workflow-breakdown&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;h3 id=&quot;legend&quot; tabindex=&quot;-1&quot;&gt;Legend &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#legend&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;pre class=&quot;mermaid&quot;&gt;flowchart
+    HITL[Human-in-the-loop]
+    style HITL fill:#CCFF00
+    HA[Highly Automated]
+    style HA fill:#5CE65C
+    Doc[text file]@{ shape: doc}  
+    Skill[[Skill]]
+&lt;/pre&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;Seperation of concerns&lt;/strong&gt;
+&lt;li&gt;The greener the box is, the more automated it could be.&lt;/li&gt;
+&lt;li&gt;Skill means there are already agentic skills to help with the task.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&quot;requirements&quot; tabindex=&quot;-1&quot;&gt;Requirements &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#requirements&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;pre class=&quot;mermaid&quot;&gt;flowchart
+    Ticket@{ shape: doc} --&amp;#x3E; Specification@{ shape: doc}
+    style Specification fill:#CCFF00
+    Clarification@{ shape: diamond}
+    Specification --ask for--&amp;#x3E; Clarification
+    Clarification --improve--&amp;#x3E; Specification
+    Clarification &amp;#x3C;----&amp;#x3E; cd[[Code Trace]]
+    style cd fill:#CCFF00
+    Clarification &amp;#x3C;----&amp;#x3E; dl[[Doc Lookup]]
+    style dl fill:#CCFF00
+    Clarification &amp;#x3C;----&amp;#x3E; PM_discussion
+&lt;/pre&gt;
 &lt;ul&gt;
-&lt;li&gt;separate the plan into different files for different phases of task.&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;SPEC.md&lt;/code&gt;: user story, requirements, etc. which will discuss with PM.&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;TECHNICAL_DETAIL.md&lt;/code&gt;: architecture, data flow, api design, complexity analysis, etc. which will discuss with technical roles.&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;IMPLEMENTATION.md&lt;/code&gt;: implementation plan, which will be updated throughout the implementation process.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;Specification.md&lt;/code&gt;: user story, requirements, edge cases — use the language you could communicate with PM
+&lt;ul&gt;
+&lt;li&gt;here are some useful prompts:&lt;/li&gt;
+&lt;li&gt;&amp;quot;Given the spec from Jira ticket &lt;code&gt;&amp;lt;link&amp;gt;&lt;/code&gt;, understand the current user story deeply with these references: &lt;code&gt;&amp;lt;files&amp;gt;&lt;/code&gt;. Provide a flow chart.&amp;quot;&lt;/li&gt;
+&lt;li&gt;&amp;quot;Grill me with specs I need to clarify with the product manager. List out possible edge cases.&amp;quot;&lt;/li&gt;
+&lt;li&gt;&amp;quot;Explain the current architecture of &lt;code&gt;&amp;lt;module1&amp;gt;&lt;/code&gt;, &lt;code&gt;&amp;lt;module2&amp;gt;&lt;/code&gt;. Draw a diagram.&amp;quot;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
-&lt;li&gt;use &lt;code&gt;SPEC.md&lt;/code&gt; and &lt;code&gt;TECHNICAL_DETAIL.md&lt;/code&gt; to &lt;strong&gt;Understand the problem / spec&lt;/strong&gt; by asking
-&lt;ul&gt;
-&lt;li&gt;&amp;quot;Given the spec from jira ticket &lt;link&gt;, understand the current user story deeply with following references: &lt;files&gt;. Provide flow chart.&amp;quot;
-&lt;ul&gt;
-&lt;li&gt;Ref: &lt;a href=&quot;https://www.atlassian.com/blog/announcements/remote-mcp-server&quot;&gt;jira MCP&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;/files&gt;&lt;/li&gt;
-&lt;li&gt;&amp;quot;Grill me with specs I need to clarify with product manager. List out possible edge cases.&amp;quot;&lt;/li&gt;
-&lt;li&gt;&amp;quot;Explain the current architecture of &lt;module1&gt;, &lt;module2&gt;. Draw a diagram to visualize the flow and architecture.&amp;quot;&lt;/module2&gt;&lt;/module1&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;use &lt;code&gt;IMPLEMENTATION.md&lt;/code&gt; to &lt;strong&gt;Break down into smaller tasks&lt;/strong&gt; by asking
+&lt;p&gt;Good requirements start with asking the right questions. I use AI to clarify implicit requirements understand how existing code actually behaves, which often reveals constraints no spec document mentions.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Keep the spec files&lt;/strong&gt; reuse it for decision-making reference, QA instructions, tech sharing, and work logs.&lt;/p&gt;
+&lt;p&gt;Useful references / skills&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;&amp;quot;Break features into small, focused tasks&amp;quot;&lt;/li&gt;
-&lt;li&gt;&amp;quot;What&#39;s the suggested priority of these tasks in order to minimize the risk of breaking existing features?&amp;quot;&lt;/li&gt;
-&lt;li&gt;&amp;quot;What&#39;s the required changes for each task?&amp;quot; to understand the complexity for better estimation.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Context&lt;/strong&gt;: Always provide relevant context: specific code reference, document.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Execute first few steps for quick validation&lt;/strong&gt;: Execute the initial steps to validate the approach before committing to the full implementation.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Implementation&lt;/strong&gt;:  Update the plan accordingly every round based on the real AI + human implementation.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Futher usage&lt;/strong&gt;: keep the plan in a directory for futher use: decision making reference, QA testing instructions, tech sharing materials, work log, etc.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h2 id=&quot;2-agent-skills&quot; tabindex=&quot;-1&quot;&gt;2. &lt;a href=&quot;https://cursor.com/docs/context/skills&quot;&gt;Agent Skills&lt;/a&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#2-agent-skills&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
-&lt;p&gt;open standard for extending AI agents with specialized capabilities.&lt;/p&gt;
-&lt;h3 id=&quot;i-used&quot; tabindex=&quot;-1&quot;&gt;I used &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#i-used&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&quot;https://github.com/vercel-labs/agent-skills/tree/main/skills/react-best-practices&quot;&gt;vercel-react-best-practices&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;perform code review&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id=&quot;3-rules&quot; tabindex=&quot;-1&quot;&gt;3. &lt;a href=&quot;https://cursor.com/docs/context/rules&quot;&gt;Rules&lt;/a&gt; &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#3-rules&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
-&lt;p&gt;Project based rules to provide contex automatically in chat.&lt;/p&gt;
-&lt;p&gt;Use cases: general coding guidelines, code structure, testing style&lt;/p&gt;
-&lt;p&gt;examples: &lt;a href=&quot;https://github.com/PatrickJS/awesome-cursorrules/tree/main&quot;&gt;awesome-cursorrules&lt;/a&gt;&lt;/p&gt;
-&lt;h2 id=&quot;4-normal-chat-others&quot; tabindex=&quot;-1&quot;&gt;4. Normal Chat / Others &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#4-normal-chat-others&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
-&lt;ul&gt;
-&lt;li&gt;code trace&lt;/li&gt;
-&lt;li&gt;debugging&lt;/li&gt;
-&lt;li&gt;writing tests&lt;/li&gt;
-&lt;li&gt;commit message generation&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id=&quot;5-mcps&quot; tabindex=&quot;-1&quot;&gt;5. MCPs &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#5-mcps&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
-&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://hhow09.github.io/blog/implicit-requirements/&quot;&gt;Implicit Requirements&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/anombyte93/prd-taskmaster&quot;&gt;prd-taskmaster&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&quot;https://www.atlassian.com/blog/announcements/remote-mcp-server&quot;&gt;Atlassian Remote MCP Server&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://cursor.com/docs/integrations/cursor-blame&quot;&gt;Cursor Blame&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h2 id=&quot;other-tools-to-try&quot; tabindex=&quot;-1&quot;&gt;Other tools to try &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#other-tools-to-try&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;h3 id=&quot;implementation&quot; tabindex=&quot;-1&quot;&gt;Implementation &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#implementation&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;pre class=&quot;mermaid&quot;&gt;flowchart
+    Specification@{ shape: doc} --&amp;#x3E; Implementation_Plan@{ shape: doc}
+    style Implementation_Plan fill:#CCFF00
+    Specification --&amp;#x3E; Technical_Design@{ shape: doc}
+    Technical_Design &amp;#x3C;--&amp;#x3E; dd[Design Decision]
+    Technical_Design &amp;#x3C;--&amp;#x3E; ca[[Complexity Analysis]]
+    style ca fill:#CCFF00
+    Implementation_Plan &amp;#x3C;--&amp;#x3E; ros[[Re-order steps]]
+    style ros fill:#5CE65C
+    Implementation_Plan --execute--&amp;#x3E; Code_Change@{ shape: doc}
+    Code_Change --&amp;#x3E; cm[[Commit Message]]
+    style Code_Change fill:#CCFF00
+    style cm fill:#5CE65C
+    Code_Change --&amp;#x3E; ut[[Unit Tests]]
+    style ut fill:#CCFF00
+    cm --&amp;#x3E; ps[[PR Submission]]
+    style ps fill:#5CE65C
+&lt;/pre&gt;
 &lt;ul&gt;
-&lt;li&gt;Code review in CI: &lt;a href=&quot;https://cursor.com/docs/cli/cookbook/code-review&quot;&gt;Code Review with Cursor CLI&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Hooks: &lt;a href=&quot;https://cursor.com/docs/agent/hooks&quot;&gt;https://cursor.com/docs/agent/hooks&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Analyze Chat history for personal Self-Insight.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;hr&gt;
-&lt;h2 id=&quot;what-are-still-heavily-human-involved&quot; tabindex=&quot;-1&quot;&gt;What are still heavily human involved &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#what-are-still-heavily-human-involved&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;li&gt;&lt;code&gt;Technical_Design.md&lt;/code&gt;: architecture, data flow, API design, complexity analysis — shared with technical roles&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;Implementation_Plan.md&lt;/code&gt;: step-by-step plan, updated throughout the process
 &lt;ul&gt;
-&lt;li&gt;clarify requirements: When product get complex, spec could be easily overlooked by both PM and Dev even with the help of AI.
-&lt;ul&gt;
-&lt;li&gt;Integrating existing company knowledge as context when writing spec should help.&lt;/li&gt;
+&lt;li&gt;useful prompts:&lt;/li&gt;
+&lt;li&gt;&amp;quot;Break features into small, focused tasks&amp;quot;&lt;/li&gt;
+&lt;li&gt;&amp;quot;What&#39;s the suggested priority to minimize the risk of breaking existing features?&amp;quot;&lt;/li&gt;
+&lt;li&gt;&amp;quot;What&#39;s the required change for each task?&amp;quot; — useful for estimation&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
-&lt;li&gt;debugging: Jumping between tickets, UI, logs, and codebase are still too complex for AI to handle alone.&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h2 id=&quot;thoughts-bottleneck-shifted&quot; tabindex=&quot;-1&quot;&gt;Thoughts: Bottleneck shifted &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#thoughts-bottleneck-shifted&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
-&lt;p&gt;Bottleneck of delivery shifted from coding to review and other processes (testing, external dependency, release process), as stated in several posts (&lt;a href=&quot;https://blog.logrocket.com/ai-coding-tools-shift-bottleneck-to-review/&quot;&gt;1&lt;/a&gt;, &lt;a href=&quot;http://reddit.com/r/softwaredevelopment/comments/1m0i8cx/team_burnout_from_code_review_bottlenecks_how_do/&quot;&gt;2&lt;/a&gt;). New challenges already emerged: large amount of low quality PR from unexperienced engineer, human QA as relase blocker...&lt;/p&gt;
+&lt;h4 id=&quot;writing-code&quot; tabindex=&quot;-1&quot;&gt;Writing code &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#writing-code&quot;&gt;#&lt;/a&gt;&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;setup &lt;a href=&quot;https://code.claude.com/docs/en/memory#organize-rules-with-claude/rules/&quot;&gt;rules&lt;/a&gt; and &lt;a href=&quot;https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview&quot;&gt;agent skills&lt;/a&gt; to improve the quality of code&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Execute first, then update the plan&lt;/strong&gt; every round based on real implementation progress.&lt;/li&gt;
+&lt;li&gt;references
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/PatrickJS/awesome-cursorrules/tree/main&quot;&gt;awesome-cursorrules&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/vercel-labs/agent-skills/tree/main/skills/react-best-practices&quot;&gt;vercel-react-best-practices&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&quot;code-review&quot; tabindex=&quot;-1&quot;&gt;Code Review &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#code-review&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;pre class=&quot;mermaid&quot;&gt;flowchart
+    PR --&amp;#x3E; acr[[AI Code Review]]
+    style acr fill:#5CE65C
+    acr --&amp;#x3E; pcr[Peer Code Review]
+&lt;/pre&gt;
+&lt;h3 id=&quot;further-usages&quot; tabindex=&quot;-1&quot;&gt;Further Usages &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#further-usages&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;pre class=&quot;mermaid&quot;&gt;flowchart
+    Specification@{ shape: doc} --&amp;#x3E; QA_Instructions@{ shape: doc}
+    style QA_Instructions fill:#CCFF00
+    Specification@{ shape: doc} --&amp;#x3E; Internal_Documentation@{ shape: doc}
+    style Internal_Documentation fill:#CCFF00
+    
+&lt;/pre&gt;
+&lt;p&gt;reuse the spec and implementation plan to generate QA instructions. The same artifact that guided development doubles as a testing guide for QA.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&quot;why-are-there-still-so-many-human-involved-steps&quot; tabindex=&quot;-1&quot;&gt;Why are there still so many human-involved steps? &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#why-are-there-still-so-many-human-involved-steps&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Clarifying requirements&lt;/strong&gt;: When products get complex, specs are easily overlooked by both PMs and devs — even with AI help. Integrating company-specific knowledge as context when writing specs would help.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Debugging&lt;/strong&gt;: Jumping between tickets, UI, logs, and codebase is still too fragmented for AI to handle end-to-end.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;thoughts-the-bottleneck-shifted&quot; tabindex=&quot;-1&quot;&gt;Thoughts: The Bottleneck Shifted &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#thoughts-the-bottleneck-shifted&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;The bottleneck of delivery has shifted from coding to review and other processes — testing, external dependencies, release pipelines — as noted in several posts (&lt;a href=&quot;https://blog.logrocket.com/ai-coding-tools-shift-bottleneck-to-review/&quot;&gt;1&lt;/a&gt;, &lt;a href=&quot;http://reddit.com/r/softwaredevelopment/comments/1m0i8cx/team_burnout_from_code_review_bottlenecks_how_do/&quot;&gt;2&lt;/a&gt;). New challenges have already emerged: high volumes of low-quality PRs from less experienced engineers, and human QA becoming a release bottleneck.&lt;/p&gt;
 &lt;h2 id=&quot;ref&quot; tabindex=&quot;-1&quot;&gt;Ref &lt;a class=&quot;header-anchor&quot; href=&quot;https://hhow09.github.io/blog/ai-productivity/#ref&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&quot;https://boristane.com/blog/how-i-use-claude-code/&quot;&gt;How I Use Claude Code&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&quot;https://addyosmani.com/blog/ai-coding-workflow/&quot;&gt;My LLM coding workflow going into 2026&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&quot;https://cursor.com/blog/agent-best-practices&quot;&gt;Cursor Agent Best Practices&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://hhow09.github.io/blog/implicit-requirements/&quot;&gt;Implicit Requirements&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/anombyte93/prd-taskmaster&quot;&gt;prd-taskmaster&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 </content>
 	</entry>
