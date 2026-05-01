@@ -136,3 +136,11 @@ The bottleneck of delivery has shifted from coding to review and other processes
 - [Cursor Agent Best Practices](https://cursor.com/blog/agent-best-practices)
 - [Implicit Requirements](https://hhow09.github.io/blog/implicit-requirements/)
 - [prd-taskmaster](https://github.com/anombyte93/prd-taskmaster)
+
+## Relevant projects
+- [garrytan/gstack](https://github.com/garrytan/gstack)
+- [obra/superpowers](https://github.com/obra/superpowers)
+- [github/spec-kit](https://github.com/github/spec-kit)
+- [Amazon kiro](https://kiro.dev/)
+- [rtk-ai/rtk](https://github.com/rtk-ai/rtk)
+
