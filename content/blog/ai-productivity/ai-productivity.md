@@ -59,6 +59,16 @@ Useful references / skills
 - [Cursor Blame](https://cursor.com/docs/integrations/cursor-blame)
 
 
+### Brainstorming
+- use [https://github.com/obra/superpowers/tree/main/skills/brainstorming](https://github.com/obra/superpowers/tree/main/skills/brainstorming)
+- What I will usually add
+    - clear reference of documentation, code, and architecture
+    - give clear tradeoff between different approaches 
+    - What are the considerations i might have missed ?
+- prepare for stakeholder discussion
+    - you are a product manager, ask questions to my summary and give me feedback
+    - you are a senior engineer / SRE, ask questions to my summary and give me feedback
+
 ### Implementation
 
 ```mermaid
